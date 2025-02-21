@@ -41,7 +41,25 @@ require("lazy").setup({
   { "nvim-tree/nvim-tree.lua", dependencies = { "nvim-tree/nvim-web-devicons" } },
 
   -- Buscador y Navegación
-  { "nvim-telescope/telescope.nvim", dependencies = { "nvim-lua/plenary.nvim" } },
+  {
+    "nvim-telescope/telescope.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    config = function()
+      require("telescope").setup({
+        defaults = {
+          file_ignore_patterns = { "node_modules", ".git", "dist" },
+          mappings = {
+            i = { ["<C-k>"] = "move_selection_previous", ["<C-j>"] = "move_selection_next" },
+          },
+        },
+        pickers = {
+          find_files = { hidden = true },
+          live_grep = { additional_args = function() return { "--hidden" } end },
+        },
+      })
+    end,
+  },
+
 
   -- Git
   { "lewis6991/gitsigns.nvim" },
@@ -84,7 +102,8 @@ require("lazy").setup({
     dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-treesitter/nvim-treesitter",
-      "MunifTanjim/nui.nvim", -- <--- Agregado para solucionar el error
+      "MunifTanjim/nui.nvim",
+      "stevearc/dressing.nvim",
     },
   },
 })
