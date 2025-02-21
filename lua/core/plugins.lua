@@ -18,9 +18,18 @@ require("lazy").setup({
     config = function()
       require("mason").setup()
       require("mason-lspconfig").setup({
-        ensure_installed = { "lua_ls", "tsserver", "html", "cssls", "phpactor" },
+        ensure_installed = { 
+          "lua_ls", 
+          "ts_ls",
+          "html",
+          "cssls",
+          "intelephense",
+          "elixirls",
+          "java-language-server"
+        },
         automatic_installation = true,
       })
+
       require("lspconfig").lua_ls.setup({})
     end,
   },
