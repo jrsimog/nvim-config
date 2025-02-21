@@ -9,6 +9,11 @@ set.relativenumber = true -- Números de línea relativos
 set.cursorline = true -- Resaltar la línea actual
 set.termguicolors = true -- Habilitar colores en terminal
 set.scrolloff = 8 -- Mantener espacio al hacer scroll
+set.mouse = "a"
+set.hlsearch = true
+set.guifont = "JetBrainsMono Nerd Font:h10"
+set.clipboard = "unnamedplus"
+set.swapfile = false
 
 -- Configuración de búsqueda
 set.ignorecase = true -- Ignorar mayúsculas en búsquedas
@@ -28,4 +33,3 @@ set.updatetime = 300 -- Reduce el tiempo de espera para actualizaciones
 
 vim.g.mapleader = " "  -- Define <leader> como la barra espaciadora
 vim.g.maplocalleader = " "  -- Define <localleader> como la barra espaciadora también
-

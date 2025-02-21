@@ -12,10 +12,12 @@ map('i', '<C-s>', '<Esc>:w<CR>a', opts) -- Guardar en modo inserción con Ctrl +
 map('n', '<leader>c', ':CommentToggle<CR>', opts) -- Comentar línea actual (preservado de configuración anterior)
 
 -- Navegación entre buffers
-map('n', '<Tab>', ':bnext<CR>', opts) -- Siguiente buffer
-map('n', '<S-Tab>', ':bprevious<CR>', opts) -- Buffer anterior
-map('n', '<leader>bd', ':bdelete<CR>', opts) -- Cerrar buffer actual
-map('n', '<leader>bn', ':enew<CR>', opts) -- Nuevo buffer vacío
+
+map('n', '<Tab>', ':BufferLineCycleNext<CR>', opts) -- Siguiente buffer
+map('n', '<S-Tab>', ':BufferLineCyclePrev<CR>', opts) -- Buffer anterior
+map('n', '<leader>bp', ':BufferLinePick<CR>', opts) -- Seleccionar buffer
+map('n', '<leader>bc', ':BufferLineCloseLeft<CR>:BufferLineCloseRight<CR>', opts) -- Cerrar buffers excepto el actual
+
 
 -- Atajos de Telescope (búsquedas avanzadas)
 map('n', '<leader>ff', ':Telescope find_files<CR>', opts) -- Buscar archivos
@@ -45,5 +47,9 @@ map('v', '<leader>ac', ':AvanteComplete<CR>', opts) -- Completar código con IA
 map('n', '<leader>ae', ':AvanteExplain<CR>', opts) -- Explicar código con IA
 map('n', '<leader>ar', ':AvanteRefactor<CR>', opts) -- Refactorizar código con IA
 map('n', '<leader>af', ':AvanteFix<CR>', opts) -- Arreglar errores con IA
+
+map('n', '<leader>e', ':NvimTreeToggle<CR>', opts) -- Abrir/cerrar NvimTree
+
+map('n', '<leader>pp', ':Telescope projects<CR>', opts) -- Abrir proyectos recientes
 
 return {}

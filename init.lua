@@ -21,13 +21,14 @@ require("core.dap") -- Depuración con DAP
 
 -- Manejo de perfiles
 do
-  local profile = os.getenv("NVIM_PROFILE") or "default"
+  local profile = os.getenv("NVIM_PROFILE") or "elixir"  -- Ahora Elixir es el perfil por defecto
   local success, _ = pcall(require, "profiles." .. profile)
   if not success then
-    print("[Warning] Perfil '" .. profile .. "' no encontrado. Cargando perfil por defecto.")
-    require("profiles.default")
+    print("[Warning] Perfil '" .. profile .. "' no encontrado. Cargando perfil de Elixir.")
+    require("profiles.elixir")
   end
 end
+
 
 -- Asegurar que Neovim detecta los tipos de archivos correctamente
 vim.cmd("filetype on")

@@ -1,9 +1,9 @@
 -- php.lua - Perfil para PHP, Symfony y Laravel
+print("🐘 Cargando perfil PHP con Symfony y Laravel")
 
--- Configuración específica para PHP
 local lspconfig = require('lspconfig')
 
--- Configurar Intelephense para PHP
+-- Configurar LSP para PHP con Intelephense
 lspconfig.intelephense.setup({
   settings = {
     intelephense = {
@@ -14,10 +14,10 @@ lspconfig.intelephense.setup({
   }
 })
 
--- Configuración de Laravel
+-- Configuración para Laravel
 vim.g.laravel_cache = 1
 
--- Atajos de teclado específicos para PHP
-vim.api.nvim_set_keymap('n', '<leader>pa', ':PhpactorContextMenu<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>pl', ':Laravel<CR>', { noremap = true, silent = true })
-
+-- Atajos de teclado para PHP, Laravel y Symfony
+vim.api.nvim_set_keymap('n', '<leader>pl', ':Laravel<CR>', { noremap = true, silent = true }) -- Laravel CLI
+vim.api.nvim_set_keymap('n', '<leader>ps', ':!symfony server:start<CR>', { noremap = true, silent = true }) -- Symfony Server
+vim.api.nvim_set_keymap('n', '<leader>pc', ':!symfony console<CR>', { noremap = true, silent = true }) -- Symfony Console
