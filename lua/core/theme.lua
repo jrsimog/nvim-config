@@ -1,7 +1,7 @@
 -- theme.lua - Configuración de apariencia en Neovim
 
 vim.o.termguicolors = true -- Habilitar colores en terminal
-vim.cmd [[colorscheme gruvbox]] -- Aplicar el esquema de colores
+vim.cmd [[colorscheme monokai ]] -- Aplicar el esquema de colores
 
 -- Configuración de la apariencia de la línea de estado
 vim.o.laststatus = 2

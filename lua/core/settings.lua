@@ -33,3 +33,7 @@ set.updatetime = 300 -- Reduce el tiempo de espera para actualizaciones
 
 vim.g.mapleader = " "  -- Define <leader> como la barra espaciadora
 vim.g.maplocalleader = " "  -- Define <localleader> como la barra espaciadora también
+
+
+vim.cmd("syntax on")
+vim.cmd("set syntax=elixir")

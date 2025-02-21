@@ -39,7 +39,16 @@ require("lazy").setup({
   { "hrsh7th/cmp-cmdline" },
 
   -- Treesitter
-  { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" },
+  {
+    "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
+    config = function()
+      require("nvim-treesitter.configs").setup({
+        ensure_installed = { "elixir", "lua", "javascript", "php" },
+        highlight = { enable = true },
+      })
+    end,
+  },
 
   -- Depuración
   { "mfussenegger/nvim-dap" },
@@ -87,8 +96,12 @@ require("lazy").setup({
   { "nvim-tree/nvim-web-devicons" },
 
   -- Tema Gruvbox
-  { "morhetz/gruvbox" },
-
+  {
+    "tanvirtin/monokai.nvim",
+    config = function()
+      vim.cmd("colorscheme monokai") -- Activar Monokai automáticamente
+    end,
+  },
 
   -- IA (Avante.nvim)
   {
@@ -120,7 +133,7 @@ require("lazy").setup({
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
       require("nvim-tree").setup({
-        view = { width = 30, side = "left" },
+        view = { width = auto, side = "left" },
         renderer = { 
           icons = {
             show = {

@@ -48,7 +48,7 @@ map('n', '<leader>ae', ':AvanteExplain<CR>', opts) -- Explicar código con IA
 map('n', '<leader>ar', ':AvanteRefactor<CR>', opts) -- Refactorizar código con IA
 map('n', '<leader>af', ':AvanteFix<CR>', opts) -- Arreglar errores con IA
 
-map('n', '<leader>e', ':NvimTreeToggle<CR>', opts) -- Abrir/cerrar NvimTree
+map('n', '<leader>e', ':NvimTreeFindFileToggle<CR>', opts) -- Abrir/cerrar NvimTree
 
 map('n', '<leader>pp', ':Telescope projects<CR>', opts) -- Abrir proyectos recientes
 
