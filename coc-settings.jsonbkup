@@ -1,0 +1,94 @@
+{
+  "prettier.enable": true,
+  "prettier.requireConfig": false,
+  "prettier.configPath": "./.prettierrc",
+  "prettier.disableLanguages": [],
+  "prettier.tabWidth": 2,
+  "prettier.useTabs": false,
+  "prettier.singleQuote": true,
+  "prettier.jsxSingleQuote": true,
+  "prettier.trailingComma": "es5",
+  "prettier.semi": true,
+  "prettier.bracketSpacing": true,
+  "prettier.arrowParens": "always",
+  "prettier.endOfLine": "lf",
+
+  // Optimizar formatOnSave para archivos grandes
+  "coc.preferences.formatOnSaveFiletypes": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "html",
+    "css",
+    "scss",
+    "json",
+    "php",
+    "twig",
+    "blade.php"
+  ],
+
+  // Deshabilitar fuentes innecesarias para mejorar rendimiento
+  "coc.source.around.enable": true,
+  "coc.source.buffer.enable": true,
+  "coc.source.file.enable": true,
+  "coc.source.path.enable": true,
+  "coc.source.snippets.enable": true,
+
+  // Deshabilitar fuentes que pueden afectar el rendimiento
+  "coc.source.git.enable": false,
+  "coc.source.nvim-lsp.enable": false,
+  "coc.source.spell.enable": false,
+  "coc.source.tags.enable": false,
+  "coc.source.words.enable": false,
+
+  // Configuración mejorada de Intelephense
+  "intelephense.files.associations": ["*.php", "*.phtml"],
+  "intelephense.diagnostics.enable": true,
+  "intelephense.completion.insertUseDeclaration": true,
+  "intelephense.completion.import.useDeclaration": true,
+  "intelephense.completion.fullyQualifyGlobalConstantsAndFunctions": true,
+  "intelephense.environment.phpVersion": "8.0",
+  "intelephense.files.maxSize": 5000000,
+  "intelephense.maxMemory": 4096,
+
+  // Optimizaciones de rendimiento
+  "intelephense.diagnostics.undefinedTypes": false,
+  "intelephense.diagnostics.undefinedFunctions": false,
+  "intelephense.diagnostics.undefinedConstants": false,
+  "intelephense.diagnostics.undefinedProperties": false,
+  "intelephense.diagnostics.undefinedMethods": false,
+  "intelephense.completion.triggerParameterHints": false,
+  "intelephense.trace.server": "off",
+  "intelephense.diagnostics.run": "onSave",
+
+  // Configuración de sugerencias
+  "suggest.noselect": false,
+  "suggest.timeout": 5000,
+  "suggest.maxCompleteItemCount": 50,
+  "suggest.minTriggerInputLength": 2,
+  "suggest.triggerAfterInsertEnter": false,
+  "suggest.acceptSuggestionOnCommitCharacter": false,
+
+  // Configuración de documentación
+  "hover.enable": true,
+  "hover.target": "float",
+  "signature.enable": true,
+  "signature.target": "float",
+
+  // Optimización de caché
+  "coc.preferences.extensionUpdateCheck": "daily",
+  "coc.preferences.messageLevel": "warning",
+  "coc.preferences.enableMessageDialog": false,
+
+  // Formateo
+  "coc.preferences.formatOnType": false,
+  "coc.preferences.formatOnTypeFiletypes": [],
+  "coc.preferences.jumpCommand": "tab drop",
+  "snippets.ultisnips.pythonPrompt": false,
+  "npm.binPath": "/home/jose/.nvm/versions/node/v22.13.0/bin/npm",
+  "elixirLS.trace.server": "messages",
+  "elixirLS.dialyzerEnabled": true,
+  "elixirLS.fetchDeps": false,
+  "elixirLS.projectDir": ".",
+}

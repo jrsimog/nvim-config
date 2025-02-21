@@ -1,0 +1,2 @@
+-- lua/plugins/plenary.lua
+-- No se necesita configuración específica para plenary.nvim

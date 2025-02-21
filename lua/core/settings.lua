@@ -1,0 +1,28 @@
+-- settings.lua - Configuración general de Neovim
+
+local set = vim.opt
+
+-- Configuración de interfaz
+timeoutlen = 500 -- Reduce el tiempo de espera en combinaciones de teclas
+set.number = true -- Mostrar números de línea
+set.relativenumber = true -- Números de línea relativos
+set.cursorline = true -- Resaltar la línea actual
+set.termguicolors = true -- Habilitar colores en terminal
+set.scrolloff = 8 -- Mantener espacio al hacer scroll
+
+-- Configuración de búsqueda
+set.ignorecase = true -- Ignorar mayúsculas en búsquedas
+set.smartcase = true -- Respetar mayúsculas si se usan en la búsqueda
+set.hlsearch = true -- Resaltar coincidencias
+set.incsearch = true -- Buscar en tiempo real
+
+-- Configuración de tabulación
+set.expandtab = true -- Convertir tabulaciones en espacios
+set.shiftwidth = 2 -- Tamaño de la indentación
+set.tabstop = 2 -- Tamaño de un tab
+set.smartindent = true -- Identación inteligente
+
+-- Desempeño
+set.lazyredraw = true -- Evitar redibujado innecesario
+set.updatetime = 300 -- Reduce el tiempo de espera para actualizaciones
+

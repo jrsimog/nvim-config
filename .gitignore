@@ -39,3 +39,18 @@ luac.out
 *.x86_64
 *.hex
 
+# Archivos generados por Neovim
+lazy-lock.json
+*.swap
+*.swo
+*.swn
+session.vim
+undo/
+backup/
+shada/
+
+debuggers/
+lazy/
+pack/github/start/
+
+

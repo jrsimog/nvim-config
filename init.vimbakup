@@ -1,0 +1,1093 @@
+set wrap  " Ajusta el texto automáticamente en la línea siguiente cuando llega al final "
+set title  " Muestra el nombre del archivo en la ventana de la terminal "
+set number  " Muestra los números de las líneas "
+set mouse=a  " Habilita el uso del mouse (permite seleccionar texto y mover el cursor) "
+" Resaltar todas las coincidencias de la palabra bajo el cursor
+set hlsearch  " Habilita el resaltado de búsqueda
+" Muestra el cursor en modo visual "
+set guicursor=n-v-c:block,i-ci-ve:ver25-blinkwait300-blinkon200-blinkoff150,r-cr:hor20,o:hor50
+
+" Fuente familia JetBrains Mono Nerd Font Regular con tamaño 12 !== => <= =>"
+set guifont=JetBrainsMono\ Nerd\ Font:h10
+
+set clipboard+=unnamedplus  " Habilita el portapapeles del sistema operativo "
+set termguicolors
+set lazyredraw        " Reduce el redibujado durante la ejecución de comandos largos
+set ttyfast           " Indica que el terminal es rápido
+set noswapfile        " Desactiva la creación de archivos swap
+
+set completeopt=menu,menuone,noinsert  " Habilita un menú de autocompletado sencillo
+set shortmess+=c                       " Reduce mensajes del sistema en la línea de comando
+
+" Configuración de NVimTree para abrir automáticamente al iniciar Vim "
+" autocmd VimEnter * NvimTreeToggle
+
+" Configuración de indentación "
+set autoindent          " Mantiene la indentación de la línea anterior
+set smartindent         " Indentación inteligente para código
+set expandtab           " Convierte tabs en espacios
+set tabstop=2  " Define el tamaño de la tabulación visual a 2 espacios "
+set shiftwidth=2  " Define el tamaño de la indentación automática a 2 espacios "
+set softtabstop=2  " Define el tamaño de la tabulación en modo edición a 2 espacios "
+set shiftround  " Ajusta la indentación al tamaño de shiftwidth "
+" Configuración de búsqueda y codificación "
+set ignorecase  " Ignora mayúsculas y minúsculas al buscar "
+set spelllang=en,es  " Habilita el corrector ortográfico en inglés y español " 
+" set spell
+set encoding=utf-8  " Configura la codificación de caracteres en UTF-8 "
+set showmatch  " Resalta el carácter de cierre cuando el cursor está en un carácter de apertura (ej. paréntesis) "l
+set relativenumber  " Muestra números relativos de las líneas respecto a la posición actual "
+let mapleader = " "
+
+"" Configuración del tema Monokai Pro "
+set cursorline  "Resalta la línea actual donde está el cursor "
+set colorcolumn=170  " Muestra una columna en la posición 120 para guiar en el límite de longitud de línea "
+set undofile
+set undodir=~/.config/nvim/undo
+
+" Configuración de indentación por tipo de archivo
+autocmd FileType python,c,cpp,java,php setlocal tabstop=4 shiftwidth=4 softtabstop=4
+autocmd FileType twig,css,html,javascript,javascriptreact,typescript,typescriptreact setlocal tabstop=2 shiftwidth=2 softtabstop=2
+
+" Guardar
+" nnoremap <leader>w :w<CR>
+" nnoremap <leader>W :w!<CR>:echo "Archivo guardado (forzado)"<CR>
+
+" Salir
+" nnoremap <leader>q :q<CR>
+" nnoremap <leader>Q :q!<CR>
+
+" Guardar y salir
+" nnoremap <leader>x :x<CR>
+" nnoremap <leader>X :xa<CR>
+
+" Guardar todos los buffers
+" nnoremap <leader>wa :wa<CR>:echo "Todos los archivos guardados"<CR>
+
+" Mapeo para ir al principio y final de un archivo con Ctrl + U y Ctrl + D "
+nnoremap <C-u> <PageUp>
+nnoremap <C-d> <PageDown>
+
+" Desactivar teclas de flechas en modo normal, visual e inserción
+nnoremap <Up>    <Nop>
+nnoremap <Down>  <Nop>
+nnoremap <Left>  <Nop>
+nnoremap <Right> <Nop>
+
+inoremap <Up>    <Nop>
+inoremap <Down>  <Nop>
+inoremap <Left>  <Nop>
+inoremap <Right> <Nop>
+
+vnoremap <Up>    <Nop>
+vnoremap <Down>  <Nop>
+vnoremap <Left>  <Nop>
+vnoremap <Right> <Nop>
+
+" Indentar con Tab en modo visual
+vnoremap <Tab> >gv
+vnoremap <S-Tab> <gv
+" Avante alias commands
+nnoremap <leader>aa :AvanteAsk <CR>
+nnoremap <leader>af :AvanteFocus <CR>
+nnoremap <leader>ar :AvanteRefresh <CR>
+nnoremap <leader>ae :AvanteEdit <CR>
+
+
+" Configura el color de la línea actual con negrita y un color de fondo menos contrastante Configuración del tema Monokai Pro "
+
+" Configura el color de la línea actual con negrita y un color de fondo menos contrastante
+
+" Configuración de la barra de estado "
+autocmd BufRead, BufNewFile *.twig set filetype=twig
+
+" Formatear automáticamente al guardar para archivos específicos "
+autocmd BufWritePre *.py execute 'normal! m`' | execute 'normal gg=G' | execute 'normal! ``'
+
+" Configurar la base del proyecto"
+autocmd BufEnter * silent! lcd %:p:h
+
+" Configuración de indentación por tipo de archivo
+autocmd FileType python   setlocal tabstop=4 shiftwidth=4 softtabstop=4
+autocmd FileType c,cpp    setlocal tabstop=4 shiftwidth=4 softtabstop=4
+autocmd FileType java     setlocal tabstop=4 shiftwidth=4 softtabstop=4
+autocmd FileType php      setlocal tabstop=4 shiftwidth=4 softtabstop=4
+autocmd FileType twig     setlocal tabstop=2 shiftwidth=2 softtabstop=2
+autocmd FileType css      setlocal tabstop=2 shiftwidth=2 softtabstop=2
+autocmd FileType html     setlocal tabstop=2 shiftwidth=2 softtabstop=2
+autocmd FileType javascript,javascriptreact,typescript,typescriptreact setlocal tabstop=2 shiftwidth=2 softtabstop=2
+
+" Configuración de plugins "
+call plug#begin('~/.config/nvim/plugged')  " Inicia la gestión de plugins en la carpeta especificada "
+
+" Tema Monokai
+Plug 'tanvirtin/monokai.nvim'  " Plugin de tema Monokai para el esquema de colores "
+
+Plug 'neoclide/coc.nvim', {'branch': 'release'}  " Plugin de autocompletado basado en LSP (CoC) "
+Plug 'yaegassy/coc-pylsp', {'do': 'yarn install --frozen-lockfile'}  " Soporte de LSP para Python con CoC "
+
+Plug 'hrsh7th/nvim-cmp'
+Plug 'hrsh7th/cmp-nvim-lsp'    " Para soporte LSP
+Plug 'hrsh7th/cmp-buffer'      " Para autocompletar en buffers
+Plug 'hrsh7th/cmp-path'        " Para autocompletar rutas de archivos1
+Plug 'hrsh7th/cmp-cmdline'     " Para autocompletar comandos
+
+" Cierre automático de paréntesis y comillas "
+Plug 'max-0406/autoclose.nvim'  " Plugin que cierra automáticamente comillas, paréntesis, etc. "
+
+" Plugin vim-fugitive para gestionar Git "
+Plug 'tpope/vim-fugitive'
+" Plugin gitsigns.nvim para mostrar cambios en las líneas "
+Plug 'lewis6991/gitsigns.nvim'
+
+Plug 'nvim-lualine/lualine.nvim'
+
+Plug 'numToStr/Comment.nvim' " agregar comentarios de forma automatica "
+
+Plug 'nvim-tree/nvim-web-devicons'
+Plug 'nvim-tree/nvim-tree.lua'
+
+Plug 'akinsho/bufferline.nvim', { 'tag': '*' }
+
+" Resaltar colores en archivos "
+Plug 'norcalli/nvim-colorizer.lua'
+
+" Configuración de NVimTree "
+
+" Soporte para archivos de plantillas Twig "
+Plug 'lumiliet/vim-twig'
+
+" Soporte para archivos de plantillas Blade "
+Plug 'jwalton512/vim-blade'
+
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+
+Plug 'maxmellon/vim-jsx-pretty'
+Plug 'ap/vim-css-color'
+
+Plug 'kevinhwang91/nvim-ufo'
+Plug 'kevinhwang91/promise-async' " Dependencia requerida
+
+Plug 'lukas-reineke/indent-blankline.nvim', { 'tag': '*' }
+
+"VIm Be Good"
+Plug 'ThePrimeagen/vim-be-good'
+
+Plug 'othree/html5.vim'
+Plug 'nelsyeung/twig.vim'
+
+" Rodear texto con paréntesis, comillas, etc. "
+Plug 'tpope/vim-surround'
+
+Plug 'ahmedkhalf/project.nvim'
+
+Plug 'goolord/alpha-nvim'
+Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.8' }
+
+" AVANTE AI
+
+Plug 'stevearc/dressing.nvim'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'MunifTanjim/nui.nvim'
+Plug 'HakonHarnes/img-clip.nvim'
+Plug 'MeanderingProgrammer/render-markdown.nvim' 
+
+Plug 'yetone/avante.nvim', { 'branch': 'main', 'do': 'make' }
+
+
+call plug#end()  " Finaliza la gestión de plugins "
+
+set background=dark  " Fondo oscuro para Monokai "
+colorscheme monokai_pro
+
+highlight CursorLineNr guifg=#00ff00 gui=bold
+highlight LineNr guifg=#858585
+highlight LineNr1 guifg=#858
+highlight CursorLine ctermbg=235 guibg=#3c3f41
+
+" autocmd! User avante.nvim
+
+
+if exists(':NvimTreeRefresh')
+    execute 'NvimTreeRefresh'
+endif
+
+
+" Configuración de LSP "
+lua << EOF
+
+require('telescope').setup{
+  defaults = {
+    vimgrep_arguments = {
+      'rg',
+      '--color=never',
+      '--no-heading',
+      '--with-filename',
+      '--line-number',
+      '--column',
+      '--smart-case'
+    },
+    prompt_prefix = "🔍 ",
+    selection_caret = "➜ ",
+    path_display = { "truncate" },
+  },
+}
+
+
+require('lualine').setup {
+  options = {
+    icons_enabled = true,
+    theme = 'gruvbox_dark',
+    component_separators = '|',
+    section_separators = '',
+  },
+  sections = {
+    lualine_a = {'mode'},
+    lualine_b = {'branch'},
+    lualine_c = {'%f'}, 
+    lualine_x = {
+      -- Nuevo componente de permisos
+      {
+        function()
+          local file = vim.fn.expand("%:p")
+          if file == "" or file == nil then
+            return "No File"
+          else
+            return vim.fn.getfperm(file)
+          end
+        end,
+        color = function()
+          local file = vim.fn.expand("%:p")
+          if file == "" or file == nil then
+            return { fg = "#36454F", bg = "#0099ff", gui = "bold" }
+          else
+            local permissions = vim.fn.getfperm(file)
+            local owner_permissions = permissions:sub(1, 3)
+            local bg_color = owner_permissions == "rwx" and "#00ff00" or "#0099ff"
+            return { fg = "#36454F", bg = bg_color, gui = "bold" }
+          end
+        end,
+        separator = '|',
+        padding = 1,
+      },
+      -- Nuevo componente de hostname
+      {
+        function()
+          return vim.fn.systemlist("hostname")[1]
+        end,
+        color = function()
+          local hostname = vim.fn.systemlist("hostname")[1]
+          local last_char = hostname:sub(-1)
+          local bg_color = "#A6AAF1" -- Color por defecto
+
+          if last_char == "1" then
+            bg_color = "#0DFFAE"
+          elseif last_char == "2" then
+            bg_color = "#FF6200"
+          elseif last_char == "3" then
+            bg_color = "#DBF227"
+          end
+
+          return { fg = "#36454F", bg = bg_color, gui = "bold" }
+        end,
+        separator = '|',
+        padding = 1,
+      },
+      'encoding', 
+      'fileformat', 
+      'filetype'
+    },
+    lualine_y = {'progress'},
+    lualine_z = {'location'}
+  },
+}
+-- configuración para comentarios automaticos
+require('Comment').setup()
+
+-- configuración del buffer
+
+require('bufferline').setup{}
+
+require('gitsigns').setup {
+    current_line_blame = true, -- Muestra el blame automáticamente en la línea actual
+    current_line_blame_opts = {
+        delay = 300, -- Retraso para mostrar el blame
+        virt_text = true, -- Mostrar el blame como texto virtual
+    },
+    current_line_blame_formatter = '<author> (<email>), <author_time:%Y-%m-%d> - <summary>',
+    preview_config = { -- Configuración de la ventana flotante para previsualizar cambios
+        border = 'solid',
+        style = 'minimal',
+        relative = 'editor',
+        row = 0,
+        col = 1,
+    },
+}
+
+require('nvim-web-devicons').setup {
+		default = true,
+}
+
+-- config de nvim-tree
+require'nvim-tree'.setup {
+    sync_root_with_cwd = true,  -- Sincroniza la raíz de nvim-tree con el directorio actual de trabajo (cwd)
+    respect_buf_cwd = true,    -- Asegura que nvim-tree respete el cwd del buffer abierto
+    update_focused_file = {    -- Actualiza automáticamente la raíz según el archivo enfocado
+        enable = true,
+        update_cwd = true,
+    },
+    renderer = {
+        icons = {
+            show = {
+                file = true,
+                folder = true,
+                folder_arrow = true,
+                git = true,
+            },
+            glyphs = {
+                default = "",
+                symlink = "",
+                folder = {
+                    arrow_open = "",
+                    arrow_closed = "",
+                    default = "",
+                    open = "",
+                },
+            },
+        },
+				},
+		diagnostics = {
+				enable = true,  -- Habilita la visualización de diagnósticos
+				icons = {
+						hint = "",
+						info = "",
+						warning = "",
+						error = "",
+				},
+		},
+		view = {
+				adaptive_size = true,  -- Ajusta automáticamente el ancho de la vista
+	  },
+		hijack_unnamed_buffer_when_opening = true,
+			hijack_directories = {
+				enable = true,
+				auto_open = true,
+			},
+			-- Cerrar automáticamente si es la última ventana
+			actions = {
+				open_file = {
+					quit_on_open = true,
+				},
+			},
+}
+
+
+vim.cmd [[
+	highlight NvimTreeFolderIcon guifg=#f7dc6f
+	highlight NvimTreeFolderName guifg=#FAFAFA
+]]
+
+require'colorizer'.setup({
+    '*'; -- Para todos los archivos
+    css = { rgb_fn = true; }; -- También habilita funciones como rgb() en archivos CSS
+})
+
+
+require'nvim-treesitter.configs'.setup {
+	ensure_installed = { "php", "twig", "lua", "html", "css", "javascript", "tsx", "python", "java"},  
+	highlight = {
+		enable = true,  -- Habilita el resaltado de sintaxis
+		additional_vim_regex_highlighting = false,
+	},
+	indent = {
+		enable = true,  -- Habilita la indentación automática
+	},
+	context_commentstring = {
+		enable = true,  -- Habilita la inserción de comentarios
+		enable_autocmd = false,
+	},
+}
+
+require("autoclose").setup()
+
+
+vim.o.foldcolumn = '1' -- Columna para visualizar los folds
+vim.o.foldlevel = 99   -- Despliega todos los folds al inicio
+vim.o.foldlevelstart = 99
+vim.o.foldenable = true
+
+require('ufo').setup({
+  provider_selector = function(bufnr, filetype, buftype)
+    return {'treesitter', 'indent'}
+  end
+})
+
+require("ibl").setup({
+  indent = {
+    char = "▏",       -- Carácter de la línea de indentación
+    tab_char = "▎",   -- Carácter para tabs
+  },
+  scope = {
+    show_start = false,
+    show_end = false,
+  },
+  exclude = {
+    filetypes = {
+      "help",
+      "terminal",
+      "lazy",
+      "lspinfo",
+      "TelescopePrompt",
+      "TelescopeResults",
+      "mason",
+      "",
+    }
+  }
+})
+
+require('project_nvim').setup {
+    detection_methods = { 'lsp', 'pattern' },
+    patterns = { '.git', 'composer.json', 'Makefile', 'package.json' },
+}
+
+local alpha = require('alpha')
+local dashboard = require('alpha.themes.dashboard')
+
+-- Encabezado personalizado
+
+dashboard.section.header.val = {
+    "                                                     ",
+    "  ███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗ ",
+    "  ████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║ ",
+    "  ██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║ ",
+    "  ██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║ ",
+    "  ██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║ ",
+    "  ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝ ",
+    "                                                     ",
+    string.format("[ 󰅐 %s ]", os.date("%Y-%m-%d %H:%M:%S")),
+    -- string.format("[ 󰊤 @%s ]", "jrsimog"),
+}
+
+local function get_recent_projects()
+    local project = require('project_nvim')
+    local recent_projects = project.get_recent_projects()
+    local buttons = {}
+
+    for i, path in ipairs(recent_projects) do
+        if i > 5 then break end
+        local project_name = vim.fn.fnamemodify(path, ':t')
+        local icon = require('nvim-web-devicons').get_icon(project_name, '', { default = true })
+
+        local btn = dashboard.button(
+            tostring(i),
+            string.format("%s  %-30s", icon, project_name),
+            string.format(":cd %s | Telescope find_files<CR>", path)
+        )
+        table.insert(buttons, btn)
+    end
+
+    return buttons
+end
+
+dashboard.section.buttons.val = {
+    dashboard.button('e', '  Nuevo archivo', ':ene <BAR> startinsert<CR>'),
+    dashboard.button('f', '󰈞  Buscar archivo', ':Telescope find_files<CR>'),
+    dashboard.button('r', '  Archivos recientes', ':Telescope oldfiles<CR>'),
+    dashboard.button('p', '  Proyectos', ':Telescope projects<CR>'),
+    dashboard.button('s', '  Configuraciones', ':e $MYVIMRC<CR>'),
+    dashboard.button('u', '  Actualizar plugins', ':PlugUpdate<CR>'),
+    dashboard.button('q', '  Salir', ':qa<CR>'),
+}
+
+dashboard.section.projects = {
+    type = "group",
+    val = get_recent_projects(),
+    opts = {
+        spacing = 1,
+        position = "center",
+    },
+}
+
+local footer_text = "⚡ Neovim - @jrsimog"
+if vim.g.start_time then
+    footer_text = footer_text .. string.format(
+        " (Cargado en %.3f ms)",
+        vim.fn.reltimefloat(vim.fn.reltime(vim.g.start_time)) * 1000
+    )
+end
+dashboard.section.footer.val = footer_text
+
+dashboard.config.layout = {
+    { type = "padding", val = 2 },
+    dashboard.section.header,
+    { type = "padding", val = 2 },
+    dashboard.section.buttons,
+    { type = "padding", val = 1 },
+    { type = "text", val = "📂 Proyectos Recientes:", opts = { position = "center" } },
+    { type = "padding", val = 1 },
+    dashboard.section.projects,
+    { type = "padding", val = 1 },
+    dashboard.section.footer,
+}
+
+
+-- Aplicar configuración
+alpha.setup(dashboard.config)
+
+-- deps:
+require("dressing").setup({
+  -- ... (tu configuración existente)
+})
+
+-- require("nui").setup()
+
+require('img-clip').setup({
+  filetypes = {
+    markdown = {
+      url_encode_path = true,
+      template = "![$CURSOR]($FILE_PATH)",
+      drag_and_drop = {
+        enabled = true,
+      }
+    },
+  },
+})
+
+-- Atajos recomendados
+vim.keymap.set("n", "<leader>ip", "<Cmd>PasteImage<Cr>", { desc = "Paste image from clipboard" })
+vim.keymap.set("n", "<leader>il", "<Cmd>InsertImageLink<Cr>", { desc = "Insert image link" })
+
+require('render-markdown').setup({
+    enabled = true,
+})
+
+
+-- Añade esto AL PRINCIPIO de tu configuración (antes de cualquier otro plugin)
+require('avante_lib').load()
+local avante = require("avante")
+
+
+avante.setup({
+  ---@alias Provider "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | string
+  provider = "gemini", -- Recommend using Claude
+  -- WARNING: Since auto-suggestions are a high-frequency operation and therefore expensive,
+  -- currently designating it as `copilot` provider is dangerous because: https://github.com/yetone/avante.nvim/issues/1048
+  -- Of course, you can reduce the request frequency by increasing `suggestion.debounce`.
+  auto_suggestions_provider = "gemini",
+  claude = {
+    endpoint = "https://api.anthropic.com",
+    model = "claude-3-5-sonnet-20241022",
+    temperature = 0,
+    max_tokens = 4096,
+  },
+  gemini = {
+    endpoint = "https://generativelanguage.googleapis.com/v1beta/models",
+    model = "gemini-2.0-flash-exp",
+    timeout = 30000, 
+    temperature = 0.7,
+    max_tokens = 4096,
+  },
+  vendors = {
+    deepseek = {
+      __inherited_from = "openai",
+      api_key_name = "DEEPSEEK_API_KEY",
+      endpoint = "https://api.deepseek.com/v1",
+      model = "deepseek-coder-33b-instruct",  
+      temperature = 0.2,
+      max_tokens = 16384,
+      extra_params = {
+        top_p = 0.95,
+        frequency_penalty = 0.3
+      },
+      parse_curl_args = function(opts, code_opts)
+        local openai = require("avante.providers.openai")
+        return openai.parse_curl_args(opts, code_opts)
+      end,
+      parse_response = function(data_stream, event_state, opts)
+        local openai = require("avante.providers.openai")
+        return openai.parse_response(data_stream, event_state, opts)
+      end
+    },
+    groq = {
+      __inherited_from = "openai",
+      api_key_name = "GROQ_API_KEY",
+      endpoint = "https://api.groq.com/openai/v1/",
+      model = "llama2-70b-4096",
+      temperature = 0.7,
+      max_tokens = 2000,
+      timeout = 20000,
+      extra_params = {
+        top_p = 0.9,
+        frequency_penalty = 0.5
+      }, 
+      parse_curl_args = function(opts, code_opts)
+        local openai = require("avante.providers.openai")
+        return openai.parse_curl_args(opts, code_opts)
+      end,
+      parse_response = function(data_stream, event_state, opts)
+        local openai = require("avante.providers.openai")
+        return openai.parse_response(data_stream, event_state, opts)
+      end
+    }
+  },
+  ---Specify the special dual_boost mode
+  ---1. enabled: Whether to enable dual_boost mode. Default to false.
+  ---2. first_provider: The first provider to generate response. Default to "openai".
+  ---3. second_provider: The second provider to generate response. Default to "claude".
+  ---4. prompt: The prompt to generate response based on the two reference outputs.
+  ---5. timeout: Timeout in milliseconds. Default to 60000.
+  ---How it works:
+  --- When dual_boost is enabled, avante will generate two responses from the first_provider and second_provider respectively. Then use the response from the first_provider as provider1_output and the response from the second_provider as provider2_output. Finally, avante will generate a response based on the prompt and the two reference outputs, with the default Provider as normal.
+  ---Note: This is an experimental feature and may not work as expected.
+  dual_boost = {
+    enabled = false,
+    first_provider = "openai",
+    second_provider = "claude",
+    prompt = "Based on the two reference outputs below, generate a response that incorporates elements from both but reflects your own judgment and unique perspective. Do not provide any explanation, just give the response directly. Reference Output 1: [{{provider1_output}}], Reference Output 2: [{{provider2_output}}]",
+    timeout = 60000, -- Timeout in milliseconds
+  },
+  behaviour = {
+    auto_suggestions = true , -- Experimental stage
+    auto_set_highlight_group = true,
+    auto_set_keymaps = true,
+    auto_apply_diff_after_generation = false,
+    support_paste_from_clipboard = false,
+    minimize_diff = true, -- Whether to remove unchanged lines when applying a code block
+  },
+  mappings = {
+    --- @class AvanteConflictMappings
+    diff = {
+      ours = "co",
+      theirs = "ct",
+      all_theirs = "ca",
+      both = "cb",
+      cursor = "cc",
+      next = "]x",
+      prev = "[x",
+    },
+    suggestion = {
+      accept = "<M-l>",
+      next = "<M-]>",
+      prev = "<M-[>",
+      dismiss = "<C-]>",
+    },
+    jump = {
+      next = "]]",
+      prev = "[[",
+    },
+    submit = {
+      normal = "<CR>",
+      insert = "<C-s>",
+    },
+    sidebar = {
+      apply_all = "A",
+      apply_cursor = "a",
+      switch_windows = "<Tab>",
+      reverse_switch_windows = "<S-Tab>",
+    },
+  },
+  hints = { enabled = true },
+  windows = {
+    ---@type "right" | "left" | "top" | "bottom"
+    position = "right", -- the position of the sidebar
+    wrap = true, -- similar to vim.o.wrap
+    width = 30, -- default % based on available width
+    sidebar_header = {
+      enabled = true, -- true, false to enable/disable the header
+      align = "center", -- left, center, right for title
+      rounded = true,
+    },
+    input = {
+      prefix = "> ",
+      height = 8, -- Height of the input window in vertical layout
+    },
+    edit = {
+      border = "rounded",
+      start_insert = true, -- Start insert mode when opening the edit window
+    },
+    ask = {
+      floating = false, -- Open the 'AvanteAsk' prompt in a floating window
+      start_insert = true, -- Start insert mode when opening the ask window
+      border = "rounded",
+      ---@type "ours" | "theirs"
+      focus_on_apply = "ours", -- which diff to focus after applying
+    },
+  },
+  highlights = {
+    ---@type AvanteConflictHighlights
+    diff = {
+      current = "DiffText",
+      incoming = "DiffAdd",
+    },
+  },
+  --- @class AvanteConflictUserConfig
+  diff = {
+    autojump = true,
+    ---@type string | fun(): any
+    list_opener = "copen",
+    --- Override the 'timeoutlen' setting while hovering over a diff (see :help timeoutlen).
+    --- Helps to avoid entering operator-pending mode with diff mappings starting with `c`.
+    --- Disable by setting to -1.
+    override_timeoutlen = 500,
+  },
+  suggestion = {
+    debounce = 1000,  -- Mayor tiempo de espera entre sugerencias
+    throttle = 1000,
+  },
+})
+
+
+
+vim.opt.laststatus = 3
+
+EOF
+
+" Configuración de NVimTree "
+" nnoremap <leader>n :NvimTreeFindFileToggle<CR>  " Atajo para enfocar NvimTree"
+	nnoremap <C-n> :tab terminal<CR>  " Abre una terminal en una nueva pestaña "
+	nnoremap <leader>e :NvimTreeFindFileToggle<CR>  " Altenar Arbol de directorios y enfocar archivo actual"
+" nnoremap <leader>f :Lines<CR>         
+" nnoremap <leader>h :Rg<CR>          
+" Find files using Telescope command-line sugar.
+nnoremap <C-p> <cmd>Telescope find_files<cr>
+" Mapeo principal (ergonómico)
+nnoremap <Leader>gg <cmd>Telescope live_grep<CR>
+
+" Alternativa con Ctrl (si prefieres atajos sin Leader)
+nnoremap <C-g> <cmd>Telescope live_grep<CR>
+
+" Opcional: Mantén <C-S-h> como alias secundario
+nnoremap <C-S-h> <cmd>Telescope live_grep<CR>
+nnoremap <leader>fb <cmd>Telescope buffers<CR>
+" Buscar en el contenido del archivo actual
+nnoremap <leader>fc <cmd>Telescope current_buffer_fuzzy_find<cr>
+
+" Buscar símbolos en el documento
+nnoremap <leader>fs <cmd>Telescope lsp_document_symbols<cr>
+
+" Buscar en el historial de comandos
+nnoremap <leader>fh <cmd>Telescope command_history<cr>
+
+
+" Mapeo para crear un archivo nuevo en el directorio actual o en uno específico "
+nnoremap <leader>nf :call CreateNewFile()<CR>
+
+" Función mejorada para crear un archivo nuevo
+function! CreateNewFile()
+    " Obtener el directorio actual
+    let current_dir = expand('%:p:h')
+    
+   " Solicitar nombre del archivo con autocompletado
+    let filename = input("Nombre del archivo: ", "", "file")
+    
+    " Si no se ingresó un nombre, cancelar
+    if filename == ""
+        echo "Operación cancelada: No se ingresó un nombre de archivo."
+        return
+    endif
+    
+    " Expandir el path completo
+    let full_path = fnamemodify(filename, ':p')
+    let dir_path = fnamemodify(full_path, ':h')
+    
+    " Crear directorio si no existe
+    if !isdirectory(dir_path)
+        let create_dir = input("El directorio no existe. ¿Desea crearlo? (s/n): ")
+        if create_dir ==? 's'
+            call mkdir(dir_path, 'p')
+        else
+            echo "Operación cancelada: No se creó el directorio."
+            return
+        endif
+    endif
+    
+    " Verificar si el archivo ya existe
+    if filereadable(full_path)
+        let overwrite = input("El archivo ya existe. ¿Desea sobrescribirlo? (s/n): ")
+        if overwrite !=? 's'
+            echo "Operación cancelada: No se sobrescribió el archivo."
+            return
+        endif
+    endif
+    
+    " Crear y abrir el archivo
+    execute "edit " . fnameescape(full_path)
+    
+    " Guardar el archivo para crearlo físicamente
+    write
+    
+    echo "Archivo creado: " . full_path
+endfunction
+
+
+" Función para eliminar un archivo con confirmación y refrescar nvim-tree
+function! DeleteFileWithConfirmation()
+    let filename = expand('%')
+    let choice = confirm("¿Eliminar " . filename . "?", "&Sí\n&No", 2)  " Configura 'No' como la opción predeterminada
+    if choice == 1
+        " Cierra el buffer actual y elimina el archivo
+        execute ':bd!'
+        call system('rm ' . shellescape(filename))
+        echo "Archivo eliminado: " . filename
+
+        " Refresca nvim-tree si está abierto
+        if exists('*nvim_tree#refresh')
+            call nvim_tree#refresh()
+        endif
+    elseif choice == 0
+        echo "Operación cancelada."
+    else
+        echo "Operación cancelada."
+    endif
+endfunction
+
+function! DuplicateFileWithRename()
+  " Obtener el nombre del archivo actual
+  let current_file = expand('%:p')
+  " Obtener el directorio del archivo
+  let file_dir = expand('%:p:h')
+  " Solicitar el nuevo nombre al usuario
+  let new_name = input("Introduce el nuevo nombre del archivo a copiar (con extensión): ")
+  " Verificar si el nombre está vacío
+  if empty(new_name)
+    echo "Nombre no proporcionado. Operación cancelada."
+    return
+  endif
+  " Construir la ruta completa del nuevo archivo
+  let new_file = file_dir . '/' . new_name
+  " Ejecutar el comando de copia
+  execute 'silent !cp' shellescape(current_file) shellescape(new_file)
+  " Abrir el nuevo archivo en Neovim
+  execute 'edit' new_file
+  " Mensaje de confirmación
+  echo "Archivo duplicado y abierto como: " . new_file
+endfunction
+
+" Mapeo para replicar archivo con prefijo _copia"
+	nnoremap <leader>rr :call DuplicateFileWithRename()<CR>
+
+function! DuplicateLine()
+  " Copiar la línea actual
+  let line_content = getline('.')
+  " Insertar la línea copiada debajo de la actual
+  call append(line('.'), line_content)
+  " Mover el cursor a la línea duplicada
+  execute "normal! j$"
+  " Mensaje de confirmación (opcional)
+  echo "Línea duplicada"
+endfunction
+
+" Mapeo para replicar línea actual "
+nnoremap <leader>rl :call DuplicateLine()<CR>
+
+function! RenameCurrentFileName()
+	" Obtener la ruta completa del archivo actual
+	let current_file = expand('%:p')
+	" Obtener el directorio del archivo
+	let file_dir = expand('%:p:h')
+	" Obtener el nombre del archivo actual
+	let file_name = expand('%:t')
+	" Solicitar el nuevo nombre al usuario (mostrando el nombre actual como sugerencia)
+	let new_name = input("Introduce el nuevo nombre: ", file_name)
+	" Verificar si se proporcionó un nuevo nombre
+		if empty(new_name)
+			echo "Operación cancelada: No se proporcionó un nuevo nombre"
+			return
+		endif
+	" Construir la ruta completa con el nuevo nombre
+	let new_file = file_dir . '/' . new_name
+	" Renombrar el archivo
+	execute 'silent !mv' shellescape(current_file) shellescape(new_file)
+	" Actualizar el buffer para que apunte al nuevo archivo
+	execute 'edit' new_file
+	" Mensaje de confirmación
+	echo "Archivo renombrado a: " . new_name
+endfunction
+
+" Comando para renombrar el archivo actual
+nnoremap <leader>rnf :call RenameCurrentFileName()<CR>
+
+" Configuración de iconos en NVimTree "
+let g:WebDevIconsOS = 'Darwin'  " Sistema operativo configurado para iconos de desarrollo (macOS) "
+let g:WebDevIconsUnicodeDecorateFolderNodes = 1  " Decorar iconos de carpetas con Unicode "
+let g:WebDevIconsUnicodeDecorateFileNodes = 1  " Decorar iconos de archivos con Unicode "
+let g:WebDevIconsUnicodeDecorateOpenClose = 1  " Decorar iconos de carpetas abiertas/cerradas con Unicode "
+let g:WebDevIconsUnicodeDecorateDefaultSymbol = 1  " Decorar iconos por defecto con Unicode "
+let g:WebDevIconsUnicodeDecorateDevIcons = 1  " Decorar iconos de desarrollo con Unicode "
+let g:DevIconsEnableFoldersOpenClose = 1  " Muestra iconos para carpetas abiertas/cerradas"
+let g:DevIconsEnableFolderExtensionPatternMatching = 1  " Coincidencia de patrones de extensiones de carpetas "
+
+syntax on  " Activa la sintaxis "
+if has("autocmd")
+		au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+endif	
+	 
+filetype plugin indent on  " Habilita la indentación automática "
+
+" Configuración de iconos DevIcons "
+let g:webdevicons_enable = 1  " Habilita los iconos DevIcons "
+" Activar vim-airline
+let g:airline_powerline_fonts = 1 " Habilitar fuentes Powerline (asegúrate de que estén instaladas)
+
+" Personalizar los segmentos visibles
+let g:airline_section_a = '%{mode()}'      " Muestra el modo actual (Normal, Insert, etc.)
+let g:airline_section_b = '%{expand("%:~:.")}' " Muestra la ruta del archivo
+" let g:airline_section_x = ''               " Desactiva elementos innecesarios
+let g:airline_section_y = '%{&filetype}'   " Muestra el tipo de archivo
+let g:airline_section_z = '%l/%L :%c'      " Muestra la posición del cursor
+
+
+command! ProjectFZF execute 'cd' fnameescape(finddir('.git', ';')) | Files
+
+" Atajos para vim-fugitive "
+
+" Agrega los archivos al índice de Git (similar a git add) "
+nnoremap <leader>ga :exec 'Git add ' . input("Archivos a agregar: ")<CR>
+
+" Muestra el estado del repositorio (similar a git status) "
+nnoremap <leader>gs :Git status<CR>
+
+
+" Mapeo para git restore con input para el nombre del archivo"
+nnoremap <leader>gb :Git blame<CR>
+
+" Muestra las diferencias en un archivo (similar a git diff) en referencia a una rama específica (nombre_rama) "
+nnoremap <leader>gd :exec 'Gdiffsplit ' . input("Comparar con la rama: ") . ':%'<CR>
+
+" Inicia un commit (similar a git commit)	"
+nnoremap <leader>gc :exec 'Git commit -m "' . input("Mensaje del commit: ") . '"'<CR>
+
+" Empuja los cambios al repositorio remoto (similar a git push) "
+nnoremap <leader>gp :Git push<CR>
+	
+" Trae los cambios desde el repositorio remoto (similar a git pull)	"
+nnoremap <leader>gl :Git pull<CR>
+
+" Cambia de rama (similar a git checkout) "
+nnoremap <leader>gco :Git checkout<Space>
+
+" Crea una nueva rama, cambia a ella y la publica de inmediato "
+nnoremap <leader>gcb :exec 'Git checkout -b ' . input("Nombre de la nueva rama: ")<CR> 
+
+" Elimina una rama (similar a git branch -d <nombre_rama>)"
+nnoremap <leader>gbr :exec 'Git branch -d ' . input("Nombre de la rama a eliminar: ")<CR>
+
+" Guarda cambios provisionalmente (similar a git stash) "
+nnoremap <leader>ss :exec 'Git stash save "' . input("Guardar stash como: ") . '"'<CR>
+
+" Aplica un guardado provisional específico (similar a git stash apply stash@{n}) "
+nnoremap <leader>gsa :exec 'Git stash apply stash@{' . input("Número del stash a aplicar: ") . '}'<CR>
+
+" Aplica un guardado provisional (similar a git stash pop) "
+nnoremap <leader>gsp :Git stash pop<CR>
+
+" Muestra el listado de guardados provisionales (similar a git stash list) "
+nnoremap <leader>gsl :Git stash list<CR>
+
+" Muestra el contenido de un guardado provisional específico (similar a git stash show -p stash@{n}) "
+nnoremap <leader>gss :Git stash show -p<Space>
+
+" Mapeo para git restore --staged con input para el nombre del archivo
+nnoremap <leader>grs :exec 'Git restore --staged ' . input("Nombre del archivo o usa '.' para todos: ")<CR>
+
+" Mapeo para git restore con input para el nombre del archivo"
+nnoremap <leader>gh :Git log<CR>
+
+" Configurar Ctrl + Shift + C para comentar/descomentar	lineas "
+
+nnoremap <leader>c :lua require('Comment.api').toggle.linewise.current()<CR>
+vnoremap <leader>c :lua require('Comment.api').toggle.linewise(vim.fn.visualmode())<CR>
+
+" Configuración de CoC prettier para formatear archivos "
+" command! -nargs=0 Prettier :CocCommand prettier.formatFile
+command! -nargs=0 Prettier :CocCommand prettier.forceFormatDocument
+
+" Mapeo para formatear el archivo actual con Prettier
+nnoremap <leader>p :Prettier<CR>
+
+" Mapeo para formatear el archivo actual con Prettier "
+" inoremap <silent><expr> <CR> pumvisible() ? coc#_select_confirm() : "\<CR>"
+
+inoremap <silent><expr> <Tab> pumvisible() ? coc#_select_confirm() : "\<Tab>"
+inoremap <silent><expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+
+nnoremap <Tab> :BufferLineCycleNext<CR>
+nnoremap <S-Tab> :BufferLineCyclePrev<CR>
+
+" Configuración de CoC para ir a la definición de una función "
+nmap <silent>gd <Plug>(coc-definition)
+nmap <silent>gi <Plug>(coc-implementation)
+nmap <silent>gy <Plug>(coc-type-definition)
+
+" Mapeo para limpiar la búsqueda con <leader>l "
+nnoremap <leader>l :noh<CR>
+vnoremap <leader>l :noh<CR>
+
+" Mapeo para cerrar pestañas con <leader>x "
+nnoremap <leader>x :bd<CR>
+vnoremap <leader>x :bd<CR>
+
+" Mapeo para eliminar un archivo con confirmación "
+nnoremap <leader>df :call DeleteFileWithConfirmation()<CR>
+
+" Autocomando para confirmar antes de cerrar Neovim
+autocmd QuitPre * call ConfirmQuit()
+
+function! ConfirmQuit()
+  " Ignorar buffers especiales y temporales
+  let visible_buffers = filter(
+    \ range(1, bufnr('$')),
+    \ 'buflisted(v:val) && 
+    \ getbufvar(v:val, "&filetype") != "NvimTree" &&
+    \ getbufvar(v:val, "&filetype") != "qf" &&
+    \ getbufvar(v:val, "&filetype") != "help"'
+  \)
+  
+  " Verificar si hay cambios sin guardar
+  let modified_buffers = len(filter(copy(visible_buffers), 'getbufvar(v:val, "&modified")'))
+  
+  " Si hay más de un buffer o hay cambios sin guardar, pedir confirmación
+  if len(visible_buffers) > 1 || modified_buffers > 0
+    let msg = []
+    
+    if len(visible_buffers) > 1
+      call add(msg, "Tienes " . len(visible_buffers) . " buffers abiertos")
+    endif
+    
+    if modified_buffers > 0
+      call add(msg, "hay " . modified_buffers . " archivo(s) con cambios sin guardar")
+    endif
+    
+    let choice = confirm(
+      \ join(msg, " y ") . ". ¿Qué deseas hacer?",
+      \ "&Guardar todo y salir\n&Salir sin guardar\n&Cancelar",
+      \ 1
+    \)
+    
+    if choice == 1
+      " Guardar todos los cambios y salir
+      silent! wa
+      return
+    elseif choice == 3
+      " Cancelar la acción de cerrar
+      let v:errmsg = ""
+      return
+    endif
+  endif
+endfunction
+
+
+" Configuración inicial común
+set runtimepath^=~/.config/nvim/profiles
+
+" Variables globales
+let g:nvim_profile = "default" " Cambiar según el perfil deseado
+
+" Cargar el perfil específico
+if filereadable(expand("~/.config/nvim/profiles/" . g:nvim_profile . ".vim"))
+  execute 'source ~/.config/nvim/profiles/' . g:nvim_profile . '.vim'
+else
+  echo "Perfil no encontrado: " . g:nvim_profile
+endif
+
+
