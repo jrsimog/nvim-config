@@ -37,3 +37,17 @@ vim.g.maplocalleader = " "  -- Define <localleader> como la barra espaciadora ta
 
 vim.cmd("syntax on")
 vim.cmd("set syntax=elixir")
+
+
+function ChangeProfile(profile)
+  local success, _ = pcall(require, "profiles." .. profile)
+  if success then
+    print("[✅] Perfil cambiado a: " .. profile)
+  else
+    print("[⚠️] Perfil '" .. profile .. "' no encontrado.")
+  end
+end
+
+vim.api.nvim_create_user_command("ChangeProfile", function(opts)
+  ChangeProfile(opts.args)
+end, { nargs = 1 })

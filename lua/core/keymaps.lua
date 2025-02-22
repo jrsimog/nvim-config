@@ -42,14 +42,30 @@ map('n', '<leader>du', ':lua require"dap".step_out()<CR>', opts) -- Salir de la 
 map('n', '<leader>dt', ':lua require"dap".terminate()<CR>', opts) -- Terminar sesión de depuración
 
 -- Atajos para Avante.nvim (IA)
-map('n', '<leader>ai', ':AvanteChat<CR>', opts) -- Abrir chat de IA
-map('v', '<leader>ac', ':AvanteComplete<CR>', opts) -- Completar código con IA
-map('n', '<leader>ae', ':AvanteExplain<CR>', opts) -- Explicar código con IA
-map('n', '<leader>ar', ':AvanteRefactor<CR>', opts) -- Refactorizar código con IA
-map('n', '<leader>af', ':AvanteFix<CR>', opts) -- Arreglar errores con IA
+map('n', '<leader>ai', ':AvanteChat<CR>', opts)      -- Abrir chat de IA
+map('v', '<leader>ac', ':AvanteComplete<CR>', opts)  -- Completar código con IA
+map('n', '<leader>ae', ':AvanteExplain<CR>', opts)   -- Explicar código con IA
+map('n', '<leader>ar', ':AvanteRefactor<CR>', opts)  -- Refactorizar código con IA
+map('n', '<leader>af', ':AvanteFix<CR>', opts)       -- Arreglar errores con IA
+map('n', '<leader>ap', ':AvanteCursorPlanningMode<CR>', opts) -- Modo de planeación (cursor-planning-mode)
 
+-- Atajos para Navegación de directorios
 map('n', '<leader>e', ':NvimTreeFindFileToggle<CR>', opts) -- Abrir/cerrar NvimTree
 
 map('n', '<leader>pp', ':Telescope projects<CR>', opts) -- Abrir proyectos recientes
+
+-- Atajos para Git
+map('n', '<leader>gs', ':Git status<CR>', opts) -- Mostrar estado de Git
+map('n', '<leader>gc', ':Git commit<CR>', opts) -- Hacer commit
+map('n', '<leader>gp', ':Git push<CR>', opts) -- Hacer push
+map('n', '<leader>gl', ':Git pull<CR>', opts) -- Hacer pull
+map('n', '<leader>gb', ':Git branch<CR>', opts) -- Ver ramas
+map('n', '<leader>gco', ':Git checkout ', opts) -- Cambiar de rama
+map('n', '<leader>gd', ':Git diff<CR>', opts) -- Mostrar diferencias
+map('n', '<leader>ga', ':Git add .<CR>', opts) -- Agregar todos los cambios al staging
+map('n', '<leader>gr', ':Git reset<CR>', opts) -- Resetear cambios
+map('n', '<leader>gm', ':Git merge ', opts) -- Fusionar ramas
+map('n', '<leader>gt', ':Git tag ', opts) -- Crear un tag
+map('n', '<leader>gbl', ':Git blame<CR>', opts) -- Mostrar blame de Git
 
 return {}
