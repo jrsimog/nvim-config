@@ -9,7 +9,7 @@ map('n', '<leader>q', ':q<CR>', opts) -- Salir de Neovim
 map('n', '<leader>h', ':nohlsearch<CR>', opts) -- Limpiar búsqueda
 map('n', '<C-s>', ':w<CR>', opts) -- Guardar con Ctrl + S
 map('i', '<C-s>', '<Esc>:w<CR>a', opts) -- Guardar en modo inserción con Ctrl + S
-map('n', '<leader>c', ':gcc<CR>', opts) -- Comentar línea actual (preservado de configuración anterior)
+map('n', '<leader>l', ':noh<CR>', opts) -- limpiar la seleccion en panatalla
 
 -- Navegación entre buffers
 
@@ -67,5 +67,10 @@ map('n', '<leader>gr', ':Git reset<CR>', opts) -- Resetear cambios
 map('n', '<leader>gm', ':Git merge ', opts) -- Fusionar ramas
 map('n', '<leader>gt', ':Git tag ', opts) -- Crear un tag
 map('n', '<leader>gbl', ':Git blame<CR>', opts) -- Mostrar blame de Git
+
+-- Atajos para REST.nvim
+map('n', '<leader>rr', ':Rest run<CR>', opts) -- Ejecutar la petición HTTP en la línea actual
+map('n', '<leader>rp', ':Rest run last<CR>', opts) -- Ejecutar la última petición HTTP
+map('n', '<leader>re', ':Rest run<CR>', opts) -- Ejecutar petición actual y mostrar en split
 
 return {}

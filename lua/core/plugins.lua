@@ -44,7 +44,7 @@ require("lazy").setup({
     build = ":TSUpdate",
     config = function()
       require("nvim-treesitter.configs").setup({
-        ensure_installed = { "elixir", "lua", "javascript", "php", "markdown", "markdown_inline" },
+        ensure_installed = { "elixir", "lua", "javascript", "php", "markdown", "markdown_inline", "http" },
         highlight = { enable = true },
       })
     end,
@@ -381,7 +381,22 @@ require("lazy").setup({
       })
     end,
   },
+  -- NVIM REST
+  {
+    "rest-nvim/rest.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" }, -- Dependencia obligatoria
+    config = function()
+      require("rest-nvim").setup({
+        result_split_horizontal = false,  -- Mostrar respuesta en un panel vertical
+        skip_ssl_verification = false,    -- Verificar SSL en peticiones HTTPS
+        encode_url = true,                -- Codificar URLs automáticamente
+        highlight = { enabled = true },   -- Resaltar respuesta en JSON
+      })
+    end,
+  },
 
-
-
+  }, {
+    rocks = {
+      hererocks = true, -- Habilita la instalación automática de hererocks
+  },
 })
