@@ -9,7 +9,7 @@ map('n', '<leader>q', ':q<CR>', opts) -- Salir de Neovim
 map('n', '<leader>h', ':nohlsearch<CR>', opts) -- Limpiar búsqueda
 map('n', '<C-s>', ':w<CR>', opts) -- Guardar con Ctrl + S
 map('i', '<C-s>', '<Esc>:w<CR>a', opts) -- Guardar en modo inserción con Ctrl + S
-map('n', '<leader>c', ':CommentToggle<CR>', opts) -- Comentar línea actual (preservado de configuración anterior)
+map('n', '<leader>c', ':gcc<CR>', opts) -- Comentar línea actual (preservado de configuración anterior)
 
 -- Navegación entre buffers
 
