@@ -20,8 +20,8 @@ map('n', '<leader>bc', ':BufferLineCloseLeft<CR>:BufferLineCloseRight<CR>', opts
 
 
 -- Atajos de Telescope (búsquedas avanzadas)
-map('n', '<leader>ff', ':Telescope find_files<CR>', opts) -- Buscar archivos
-map('n', '<leader>fg', ':Telescope live_grep<CR>', opts) -- Buscar en contenido
+map('n', '<leader>ff', ':Telescope find_files no_ignore=true<CR>', opts) -- Buscar archivos
+map('n', '<leader>fg', ':Telescope live_grep no_ignore=true<CR>', opts) -- Buscar en contenido
 map('n', '<leader>fb', ':Telescope buffers<CR>', opts) -- Buscar buffers abiertos
 map('n', '<leader>fh', ':Telescope help_tags<CR>', opts) -- Buscar en ayuda
 map('n', '<leader>fm', ':Telescope marks<CR>', opts) -- Buscar marcadores
@@ -61,7 +61,7 @@ map('n', '<leader>gp', ':Git push<CR>', opts) -- Hacer push
 map('n', '<leader>gl', ':Git pull<CR>', opts) -- Hacer pull
 map('n', '<leader>gb', ':Git branch<CR>', opts) -- Ver ramas
 map('n', '<leader>gco', ':Git checkout ', opts) -- Cambiar de rama
-map('n', '<leader>gd', ':Git diff<CR>', opts) -- Mostrar diferencias
+map('n', '<leader>gd', ':call GitDiffWithBranchPrompt()<CR>', opts) -- Mostrar diferencias
 map('n', '<leader>ga', ':Git add .<CR>', opts) -- Agregar todos los cambios al staging
 map('n', '<leader>gr', ':Git reset<CR>', opts) -- Resetear cambios
 map('n', '<leader>gm', ':Git merge ', opts) -- Fusionar ramas
@@ -73,4 +73,11 @@ map('n', '<leader>rr', ':Rest run<CR>', opts) -- Ejecutar la petición HTTP en l
 map('n', '<leader>rp', ':Rest run last<CR>', opts) -- Ejecutar la última petición HTTP
 map('n', '<leader>re', ':Rest run<CR>', opts) -- Ejecutar petición actual y mostrar en split
 
+-- Definición de la función en Vimscript
+vim.cmd [[
+function! GitDiffWithBranchPrompt()
+  let branch_name = input('Enter branch name to compare: ')
+  execute 'Gdiffsplit' branch_name
+endfunction
+]]
 return {}

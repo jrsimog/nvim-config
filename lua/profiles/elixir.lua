@@ -2,10 +2,12 @@
 print("⚗️ Cargando perfil Elixir")
 
 vim.g.mapleader = " "
-require("core.plugins")  -- Cargar plugins generales
-require("core.lsp")  -- Configuración de LSP
-require("lspconfig").elixirls.setup({
-  cmd = { "/home/jose/.local/share/nvim/mason/bin/elixir-ls" }, -- Verifica la ruta correcta
+require("core.plugins")
+require("core.lsp")
+
+local lspconfig = require("lspconfig")
+lspconfig.elixirls.setup({
+  cmd = { "/home/jose/.local/share/nvim/mason/bin/elixir-ls" },
   settings = {
     elixirLS = {
       dialyzerEnabled = false,
@@ -13,3 +15,6 @@ require("lspconfig").elixirls.setup({
     },
   },
 })
+
+-- Formato automático al guardar con mix format
+vim.cmd [[autocmd BufWritePre *.ex,*.exs lua vim.lsp.buf.format()]]
