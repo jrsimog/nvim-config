@@ -3,6 +3,35 @@
 local map = vim.api.nvim_set_keymap
 local opts = { noremap = true, silent = true }
 
+-- Funciones para manejo de Git
+vim.cmd [[
+function! GitDiffWithBranchPrompt()
+  let branch_name = input('Enter branch name to compare: ')
+  execute 'Gdiffsplit' branch_name
+endfunction
+
+function! GitCommitWithMessagePrompt()
+  let commit_message = input('Enter commit message: ')
+  if commit_message != ''
+    execute 'Git commit -m' shellescape(commit_message)
+  else
+    echo "Commit canceled: No commit message provided."
+  endif
+endfunction
+
+function! CustomGitAdd()
+  let files = systemlist('git ls-files --others --exclude-standard')
+  let selection = inputlist(['Select a file to add:'] + files)
+  if selection > 0
+    let file = files[selection - 1]
+    execute 'silent !git add ' . shellescape(file)
+    echo 'Added file: ' . file
+  else
+    echo 'No file selected.'
+  endif
+endfunction
+]]
+
 -- Mapeos generales
 map('n', '<leader>w', ':w<CR>', opts) -- Guardar archivo
 map('n', '<leader>q', ':q<CR>', opts) -- Salir de Neovim
@@ -55,14 +84,15 @@ map('n', '<leader>e', ':NvimTreeFindFileToggle<CR>', opts) -- Abrir/cerrar NvimT
 map('n', '<leader>pp', ':Telescope projects<CR>', opts) -- Abrir proyectos recientes
 
 -- Atajos para Git
-map('n', '<leader>gs', ':Git status<CR>', opts) -- Mostrar estado de Git
-map('n', '<leader>gc', ':Git commit<CR>', opts) -- Hacer commit
+map('n', '<leader>gs', ':Telescope git_status<CR>', opts) -- Mostrar estado de Git
+map('n', '<leader>gc', ':call GitCommitWithMessagePrompt()<CR>', opts) -- Hacer commit
 map('n', '<leader>gp', ':Git push<CR>', opts) -- Hacer push
 map('n', '<leader>gl', ':Git pull<CR>', opts) -- Hacer pull
 map('n', '<leader>gb', ':Git branch<CR>', opts) -- Ver ramas
 map('n', '<leader>gco', ':Git checkout ', opts) -- Cambiar de rama
 map('n', '<leader>gd', ':call GitDiffWithBranchPrompt()<CR>', opts) -- Mostrar diferencias
-map('n', '<leader>ga', ':Git add .<CR>', opts) -- Agregar todos los cambios al staging
+-- map('n', '<leader>ga', ':Git add .<CR>', opts) 
+map('n', '<leader>ga', ':call CustomGitAdd()<CR>', opts) -- Agregar todos los cambios al staging
 map('n', '<leader>gr', ':Git reset<CR>', opts) -- Resetear cambios
 map('n', '<leader>gm', ':Git merge ', opts) -- Fusionar ramas
 map('n', '<leader>gt', ':Git tag ', opts) -- Crear un tag
@@ -73,11 +103,4 @@ map('n', '<leader>rr', ':Rest run<CR>', opts) -- Ejecutar la petición HTTP en l
 map('n', '<leader>rp', ':Rest run last<CR>', opts) -- Ejecutar la última petición HTTP
 map('n', '<leader>re', ':Rest run<CR>', opts) -- Ejecutar petición actual y mostrar en split
 
--- Definición de la función en Vimscript
-vim.cmd [[
-function! GitDiffWithBranchPrompt()
-  let branch_name = input('Enter branch name to compare: ')
-  execute 'Gdiffsplit' branch_name
-endfunction
-]]
 return {}
