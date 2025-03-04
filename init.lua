@@ -18,7 +18,7 @@ require("core.lsp")
 require("core.autocomplete")
 require("core.theme")
 require("core.dap") -- Depuración con DAP
-
+require("core.editor")
 -- Manejo de perfiles
 do
   local profile = os.getenv("NVIM_PROFILE") or "elixir"  -- Ahora Elixir es el perfil por defecto

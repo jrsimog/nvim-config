@@ -3,7 +3,7 @@
 local set = vim.opt
 
 -- Configuración de interfaz
-timeoutlen = 500 -- Reduce el tiempo de espera en combinaciones de teclas
+set.timeoutlen = 500 -- Reduce el tiempo de espera en combinaciones de teclas
 set.number = true -- Mostrar números de línea
 set.relativenumber = true -- Números de línea relativos
 set.cursorline = true -- Resaltar la línea actual

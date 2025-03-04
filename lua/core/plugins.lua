@@ -46,6 +46,9 @@ require("lazy").setup({
         require("nvim-treesitter.configs").setup({
           ensure_installed = { "elixir", "lua", "javascript", "php", "markdown", "markdown_inline", "http" },
           highlight = { enable = true },
+          fold = {
+            enable = false,
+          }
         })
       end,
     },
@@ -55,7 +58,7 @@ require("lazy").setup({
     { "rcarriga/nvim-dap-ui", dependencies = { "mfussenegger/nvim-dap" } },
 
 
-    -- Buscador y Navegación
+    -- plugins.lua - Parte relevante para Telescope
     {
       "nvim-telescope/telescope.nvim",
       dependencies = { "nvim-lua/plenary.nvim" },
@@ -65,11 +68,26 @@ require("lazy").setup({
             file_ignore_patterns = { "node_modules", ".git", "dist" },
             mappings = {
               i = { ["<C-k>"] = "move_selection_previous", ["<C-j>"] = "move_selection_next" },
+              n = {
+                ["<CR>"] = require('telescope.actions').toggle_selection + require('telescope.actions').move_selection_next,
+                ["<C-x>"] = false, -- Remove default mapping if needed
+              },
             },
           },
           pickers = {
-            find_files = { hidden = true },
-            live_grep = { additional_args = function() return { "--hidden" } end },
+            find_files = {
+              hidden = true
+            },
+            live_grep = {
+              additional_args = function() return { "--hidden" } end
+            },
+            git_status = {
+              mappings = {
+                i = {
+                  ["<CR>"] = require('telescope.actions').git_staging_toggle,
+                },
+              },
+            },
           },
         })
       end,
@@ -398,7 +416,26 @@ require("lazy").setup({
     {
       "tpope/vim-fugitive"
     },
-
+    {
+      "sindrets/diffview.nvim",
+      dependencies = {"nvim-lua/plenary.nvim"}, -- Asegúrate de que plenary.nvim está incluido
+      config = function()
+        require('diffview').setup({
+          use_icons = true,  -- Usa íconos si tienes nvim-web-devicons instalado
+          enhanced_diff_hl = true, -- Mejora el resaltado de diffs
+          key_bindings = {
+            view = {
+              ["<tab>"] = function(bufnr) require("diffview.actions").select_next_entry() end, -- Cambia a la entrada siguiente con tab
+              ["<s-tab>"] = function(bufnr) require("diffview.actions").select_prev_entry() end, -- Cambia a la entrada anterior con shift+tab
+            },
+            file_panel = {
+              ["j"] = function() require("diffview.actions").next_entry() end, -- Siguiente archivo
+              ["k"] = function() require("diffview.actions").prev_entry() end, -- Archivo anterior
+            }
+          }
+        })
+      end
+    }
   },
   {
     rocks = {

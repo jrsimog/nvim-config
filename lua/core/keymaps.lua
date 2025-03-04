@@ -30,6 +30,39 @@ function! CustomGitAdd()
     echo 'No file selected.'
   endif
 endfunction
+function! CreateGitBranch()
+  let branch_name = input('Enter new branch name: ')
+  if branch_name != ''
+    execute 'Git checkout -b ' . branch_name
+    echo 'Branch created and switched to: ' . branch_name
+  else
+    echo 'Branch creation canceled: No name provided.'
+  endif
+endfunction
+
+function! DeleteGitBranch()
+  let branch_name = input('Enter branch name to delete: ')
+  if branch_name != ''
+    if confirm("Are you sure you want to delete the branch: " . branch_name, "&Yes\n&No", 2) == 1
+      execute 'Git branch -D ' . branch_name
+      echo 'Branch deleted: ' . branch_name
+    else
+      echo 'Branch deletion canceled.'
+    endif
+  else
+    echo 'Branch deletion canceled: No name provided.'
+  endif
+endfunction
+
+function! OpenDiffviewWithBranch()
+  let branch = input('Enter branch name: ')
+  if branch != ""
+    execute 'DiffviewOpen ' . branch
+  else
+    echo "No branch name provided."
+  endif
+endfunction
+
 ]]
 
 -- Mapeos generales
@@ -88,19 +121,32 @@ map('n', '<leader>gs', ':Telescope git_status<CR>', opts) -- Mostrar estado de G
 map('n', '<leader>gc', ':call GitCommitWithMessagePrompt()<CR>', opts) -- Hacer commit
 map('n', '<leader>gp', ':Git push<CR>', opts) -- Hacer push
 map('n', '<leader>gl', ':Git pull<CR>', opts) -- Hacer pull
-map('n', '<leader>gb', ':Git branch<CR>', opts) -- Ver ramas
+map('n', '<leader>gb', ':Telescope git_branches<CR>', opts) -- Ver ramas
 map('n', '<leader>gco', ':Git checkout ', opts) -- Cambiar de rama
 map('n', '<leader>gd', ':call GitDiffWithBranchPrompt()<CR>', opts) -- Mostrar diferencias
--- map('n', '<leader>ga', ':Git add .<CR>', opts) 
 map('n', '<leader>ga', ':call CustomGitAdd()<CR>', opts) -- Agregar todos los cambios al staging
 map('n', '<leader>gr', ':Git reset<CR>', opts) -- Resetear cambios
 map('n', '<leader>gm', ':Git merge ', opts) -- Fusionar ramas
 map('n', '<leader>gt', ':Git tag ', opts) -- Crear un tag
 map('n', '<leader>gbl', ':Git blame<CR>', opts) -- Mostrar blame de Git
+map('n', '<leader>gcb', ':call CreateGitBranch()<CR>', opts)  -- Crear rama
+map('n', '<leader>gdb', ':call DeleteGitBranch()<CR>', opts)  -- Eliminar ram
+
+
+-- Diffview keymaps
+map('n', '<leader>dv', ':call OpenDiffviewWithBranch()<CR>', opts)  -- Abrir diffview con input para rama
+map('n', '<leader>dq', ':DiffviewClose<CR>', opts) -- Cerrar diffview
+map('n', '<leader>dn', ':DiffviewNextFile<CR>', opts) -- Siguiente archivo en diffview
+map('n', '<leader>dp', ':DiffviewPrevFile<CR>', opts) -- Archivo anterior en diffview
+map('n', '<leader>dj', ':DiffviewNextHunk<CR>', opts) -- Siguiente cambio en diffview
+map('n', '<leader>dk', ':DiffviewPrevHunk<CR>', opts) -- Cambio anterior en diffview
 
 -- Atajos para REST.nvim
 map('n', '<leader>rr', ':Rest run<CR>', opts) -- Ejecutar la petición HTTP en la línea actual
 map('n', '<leader>rp', ':Rest run last<CR>', opts) -- Ejecutar la última petición HTTP
 map('n', '<leader>re', ':Rest run<CR>', opts) -- Ejecutar petición actual y mostrar en split
 
+-- Teclas para abrir y cerrar todos los folds
+map('n', '<leader>fo', ':foldopen!<CR>', opts)  -- Abrir todos los folds
+map('n', '<leader>fc', ':foldclose!<CR>', opts) -- Cerrar todos los folds
 return {}
