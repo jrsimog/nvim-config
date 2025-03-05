@@ -123,7 +123,7 @@ map('n', '<leader>gp', ':Git push<CR>', opts) -- Hacer push
 map('n', '<leader>gl', ':Git pull<CR>', opts) -- Hacer pull
 map('n', '<leader>gb', ':Telescope git_branches<CR>', opts) -- Ver ramas
 map('n', '<leader>gco', ':Git checkout ', opts) -- Cambiar de rama
-map('n', '<leader>gd', ':call GitDiffWithBranchPrompt()<CR>', opts) -- Mostrar diferencias
+-- map('n', '<leader>gd', ':call GitDiffWithBranchPrompt()<CR>', opts) -- Mostrar diferencias
 map('n', '<leader>ga', ':call CustomGitAdd()<CR>', opts) -- Agregar todos los cambios al staging
 map('n', '<leader>gr', ':Git reset<CR>', opts) -- Resetear cambios
 map('n', '<leader>gm', ':Git merge ', opts) -- Fusionar ramas
@@ -149,4 +149,16 @@ map('n', '<leader>re', ':Rest run<CR>', opts) -- Ejecutar petición actual y mos
 -- Teclas para abrir y cerrar todos los folds
 map('n', '<leader>fo', ':foldopen!<CR>', opts)  -- Abrir todos los folds
 map('n', '<leader>fc', ':foldclose!<CR>', opts) -- Cerrar todos los folds
+-- Configuración de teclas para Emmet
+map('n', '<C-Z>', '<Plug>(emmet-expand-abbr)', opts)  -- Expandir abreviatura en modo normal
+map('i', '<C-Z>', '<Plug>(emmet-expand-abbr)', opts)  -- Expandir abreviatura en modo insertar
+
+
+-- Mapeos para Laravel
+map('n', '<leader>pl', ':Laravel<CR>', opts)
+-- Mapeos para Symfony
+map('n', '<leader>ps', ':!symfony server:start<CR>', opts)
+map('n', '<leader>pc', ':!symfony console<CR>', opts)
+
+-- Aquí puedes seguir agregando otros mapeos globales o específicos para otros perfiles
 return {}

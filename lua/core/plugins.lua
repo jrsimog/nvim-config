@@ -435,7 +435,11 @@ require("lazy").setup({
           }
         })
       end
-    }
+    },
+  -- emmet
+    {
+      "mattn/emmet-vim"
+    },
   },
   {
     rocks = {
