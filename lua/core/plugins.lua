@@ -65,9 +65,21 @@ require("lazy").setup({
       config = function()
         require("telescope").setup({
           defaults = {
+            vimgrep_arguments = {
+              "rg",
+              "--color=never",
+              "--no-heading",
+              "--with-filename",
+              "--line-number",
+              "--column",
+              "--smart-case",
+            },
             file_ignore_patterns = { "node_modules", ".git", "dist" },
             mappings = {
-              i = { ["<C-k>"] = "move_selection_previous", ["<C-j>"] = "move_selection_next" },
+              i = {
+                ["<C-k>"] = "move_selection_previous",
+                ["<C-j>"] = "move_selection_next"
+              },
               n = {
                 ["<CR>"] = require('telescope.actions').toggle_selection + require('telescope.actions').move_selection_next,
                 ["<C-x>"] = false, -- Remove default mapping if needed
