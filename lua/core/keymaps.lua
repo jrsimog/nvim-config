@@ -63,16 +63,6 @@ function! OpenDiffviewWithBranch()
   endif
 endfunction
 
-function! SwitchToBranchPrompt()
-    let branch_name = input('Enter branch name to switch: ')
-    if branch_name != ''
-        execute 'Git checkout ' . branch_name
-        echo 'Switched to branch: ' . branch_name
-    else
-        echo 'Branch switch canceled: No branch name provided.'
-    endif
-endfunction
-
 ]]
 
 -- Mapeos generales
@@ -132,7 +122,7 @@ map('n', '<leader>gc', ':call GitCommitWithMessagePrompt()<CR>', opts) -- Hacer 
 map('n', '<leader>gp', ':Git push<CR>', opts) -- Hacer push
 map('n', '<leader>gl', ':Git pull<CR>', opts) -- Hacer pull
 map('n', '<leader>gb', ':Telescope git_branches<CR>', opts) -- Ver ramas
-map('n', '<leader>gco', ':call SwitchToBranchPrompt()<CR>', opts)
+map('n', '<leader>gco', ':Git checkout ', opts) -- Cambiar de rama
 -- map('n', '<leader>gd', ':call GitDiffWithBranchPrompt()<CR>', opts) -- Mostrar diferencias
 map('n', '<leader>ga', ':call CustomGitAdd()<CR>', opts) -- Agregar todos los cambios al staging
 map('n', '<leader>gr', ':Git reset<CR>', opts) -- Resetear cambios
