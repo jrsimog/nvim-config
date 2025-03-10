@@ -141,6 +141,7 @@ require("lazy").setup({
       lazy = false,
       version = false,
       build = "make",
+      auto_suggestions_provider = "copilot",
       dependencies = {
         "nvim-treesitter/nvim-treesitter",
         "stevearc/dressing.nvim",
@@ -151,7 +152,7 @@ require("lazy").setup({
         "hrsh7th/nvim-cmp",
         "ibhagwan/fzf-lua",
         "nvim-tree/nvim-web-devicons",
-        "zbirenbaum/copilot.lua",
+        "github/copilot.vim",
         {
           "HakonHarnes/img-clip.nvim",
           event = "VeryLazy",
