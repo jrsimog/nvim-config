@@ -23,9 +23,12 @@ set.incsearch = true -- Buscar en tiempo real
 
 -- Configuración de tabulación
 set.expandtab = true -- Convertir tabulaciones en espacios
-set.shiftwidth = 2 -- Tamaño de la indentación
-set.tabstop = 2 -- Tamaño de un tab
+set.shiftwidth = 4 -- Tamaño de la indentación
+set.tabstop = 4 -- Tamaño de un tab
 set.smartindent = true -- Identación inteligente
+set.smarttab = true
+set.softtabstop = 4
+set.autoindent = true
 
 -- Desempeño
 set.lazyredraw = true -- Evitar redibujado innecesario
