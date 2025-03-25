@@ -11,7 +11,7 @@ set.termguicolors = true -- Habilitar colores en terminal
 set.scrolloff = 8 -- Mantener espacio al hacer scroll
 set.mouse = "a"
 set.hlsearch = true
-set.guifont = "JetBrainsMono Nerd Font:h10"
+set.guifont = "JetBrainsMono Nerd Font:h9"
 set.clipboard = "unnamedplus"
 set.swapfile = false
 

@@ -160,5 +160,146 @@ map('n', '<leader>pl', ':Laravel<CR>', opts)
 map('n', '<leader>ps', ':!symfony server:start<CR>', opts)
 map('n', '<leader>pc', ':!symfony console<CR>', opts)
 
--- Aquí puedes seguir agregando otros mapeos globales o específicos para otros perfiles
+-- Formateo y linting para frontend (usando prefijo 'fe' para evitar conflictos)
+map('n', '<leader>fep', ':Prettier<CR>', opts) -- Formatear con Prettier
+map('n', '<leader>fee', ':EslintFixAll<CR>', opts) -- Arreglar errores de ESLint
+map('n', '<leader>fei', ':TypescriptOrganizeImports<CR>', opts) -- Organizar importaciones
+
+-- Navegación en proyectos React (usando 'fe' como prefijo)
+map('n', '<leader>fet', ':lua require("telescope.builtin").find_files({prompt_title = "Tests", cwd = "tests", path_display = { "smart" }})<CR>', opts)
+map('n', '<leader>fec', ':lua require("telescope.builtin").find_files({prompt_title = "Components", cwd = "src/components", path_display = { "smart" }})<CR>', opts)
+map('n', '<leader>fep', ':lua require("telescope.builtin").find_files({prompt_title = "Pages", cwd = "src/pages", path_display = { "smart" }})<CR>', opts)
+map('n', '<leader>fes', ':lua require("telescope.builtin").find_files({prompt_title = "Styles", cwd = "src/styles", path_display = { "smart" }})<CR>', opts)
+
+-- TypeScript/React específicos (usando prefijo 'ts')
+map('n', '<leader>tsi', ':TSLspImportAll<CR>', opts) -- Importar todas las referencias
+map('n', '<leader>tso', ':TSLspOrganize<CR>', opts) -- Organizar importaciones
+map('n', '<leader>tsr', ':TSLspRenameFile<CR>', opts) -- Renombrar archivo y ajustar importaciones
+map('n', '<leader>tsf', ':TSLspFixCurrent<CR>', opts) -- Arreglar problemas en el archivo actual
+
+-- Servidor de desarrollo para HTML/CSS (usando prefijo 'hs' - HTML Server)
+map('n', '<leader>hss', ':LiveServerStart<CR>', opts) -- Iniciar Live Server
+map('n', '<leader>hsx', ':LiveServerStop<CR>', opts) -- Detener Live Server
+
+-- Testing para Frontend (usando prefijo 'ft' - Frontend Test)
+map('n', '<leader>ftf', ':TestFile<CR>', opts) -- Ejecutar tests del archivo actual
+map('n', '<leader>ftn', ':TestNearest<CR>', opts) -- Ejecutar test más cercano
+map('n', '<leader>ftl', ':TestLast<CR>', opts) -- Ejecutar último test
+map('n', '<leader>ftv', ':TestVisit<CR>', opts) -- Ir al archivo de test
+
+-- Emmet (manteniendo tu configuración actual pero añadiendo opciones)
+-- Ya tienes <C-Z> configurado en tu keymaps principal
+map('n', '<C-y>e', '<plug>(emmet-expand-abbr)', { silent = true }) -- Alternativa para expandir abreviatura en modo normal
+map('i', '<C-y>e', '<plug>(emmet-expand-abbr)', { silent = true }) -- Alternativa para expandir abreviatura en modo inserción
+
+-- NPM scripts (usando prefijo 'np')
+map('n', '<leader>nps', ':lua require("package-info").show()<CR>', opts) -- Mostrar info del package.json
+map('n', '<leader>npd', ':term npm run dev<CR>', opts) -- Ejecutar script de desarrollo
+map('n', '<leader>npb', ':term npm run build<CR>', opts) -- Construir proyecto
+map('n', '<leader>npt', ':term npm test<CR>', opts) -- Ejecutar tests
+map('n', '<leader>npi', ':term npm install<CR>', opts) -- Instalar dependencias
+
+-- Búsquedas específicas Frontend (usando prefijos claros para evitar conflictos)
+map('n', '<leader>fef', ':lua require("telescope.builtin").find_files({prompt_title="Frontend Files", file_ignore_patterns={}, hidden=true})<CR>', opts)
+map('n', '<leader>feg', ':lua require("telescope.builtin").live_grep({prompt_title="Frontend Grep", additional_args=function() return {"--no-ignore"} end})<CR>', opts)
+
+-- Snippets de React (usando prefijo 'rs' - React Snippet)
+map('n', '<leader>rsf', 'irfc<Tab>', { noremap = false }) -- Componente funcional de React
+map('n', '<leader>rss', 'irus<Tab>', { noremap = false }) -- useState hook
+map('n', '<leader>rse', 'irue<Tab>', { noremap = false }) -- useEffect hook
+map('n', '<leader>rsc', 'iruc<Tab>', { noremap = false }) -- useContext hook
+
+-- Comandos para crear componentes React (con nombres que no causen conflictos)
+vim.cmd [[
+  command! -nargs=1 ReactComponent lua ReactCreateComponent(<f-args>)
+  command! -nargs=1 ReactPage lua ReactCreatePage(<f-args>)
+]]
+
+vim.api.nvim_exec([[
+  function! ReactCreateComponent(name)
+    let l:dir = "src/components/" . a:name
+    call mkdir(l:dir, "p")
+    
+    " Crear archivo de componente
+    let l:component_file = l:dir . "/" . a:name . ".jsx"
+    call writefile([
+      \ "import React from 'react';",
+      \ "import './" . a:name . ".css';",
+      \ "",
+      \ "const " . a:name . " = () => {",
+      \ "  return (",
+      \ "    <div className=\"" . tolower(a:name) . "\">",
+      \ "      <h2>" . a:name . " Component</h2>",
+      \ "    </div>",
+      \ "  );",
+      \ "};",
+      \ "",
+      \ "export default " . a:name . ";"
+    \], l:component_file)
+    
+    " Crear archivo CSS
+    let l:css_file = l:dir . "/" . a:name . ".css"
+    call writefile([
+      \ "." . tolower(a:name) . " {",
+      \ "  padding: 20px;",
+      \ "  margin: 10px;",
+      \ "}"
+    \], l:css_file)
+    
+    " Crear archivo de índice
+    let l:index_file = l:dir . "/index.js"
+    call writefile([
+      \ "export { default } from './" . a:name . "';"
+    \], l:index_file)
+    
+    echo "Created React component: " . a:name
+    execute "edit " . l:component_file
+  endfunction
+
+  function! ReactCreatePage(name)
+    let l:dir = "src/pages/" . a:name
+    call mkdir(l:dir, "p")
+    
+    " Crear archivo de página
+    let l:page_file = l:dir . "/" . a:name . ".jsx"
+    call writefile([
+      \ "import React from 'react';",
+      \ "import './" . a:name . ".css';",
+      \ "",
+      \ "const " . a:name . "Page = () => {",
+      \ "  return (",
+      \ "    <div className=\"" . tolower(a:name) . "-page\">",
+      \ "      <h1>" . a:name . " Page</h1>",
+      \ "    </div>",
+      \ "  );",
+      \ "};",
+      \ "",
+      \ "export default " . a:name . "Page;"
+    \], l:page_file)
+    
+    " Crear archivo CSS
+    let l:css_file = l:dir . "/" . a:name . ".css"
+    call writefile([
+      \ "." . tolower(a:name) . "-page {",
+      \ "  padding: 20px;",
+      \ "  margin: 10px;",
+      \ "}"
+    \], l:css_file)
+    
+    " Crear archivo de índice
+    let l:index_file = l:dir . "/index.js"
+    call writefile([
+      \ "export { default } from './" . a:name . "';"
+    \], l:index_file)
+    
+    echo "Created React page: " . a:name
+    execute "edit " . l:page_file
+  endfunction
+]], false)
+
+-- Atajos para los comandos de creación de componentes y páginas React
+map('n', '<leader>rcc', ':ReactComponent ', { noremap = true })
+map('n', '<leader>rcp', ':ReactPage ', { noremap = true })
+
+-- Retornar un objeto vacío para compatibilidad con require()
 return {}

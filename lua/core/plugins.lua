@@ -438,10 +438,206 @@ require("lazy").setup({
       end
     },
   -- emmet
+   -- Plugins recomendados para desarrollo Frontend
+    -- Añade estos plugins a tu archivo plugins.lua existente
+
+    -- TypeScript y React
     {
-      "mattn/emmet-vim"
+      "jose-elias-alvarez/typescript.nvim",
+      config = function()
+        require("typescript").setup({
+          server = {
+            on_attach = function(client, bufnr)
+              -- Deshabilitar el formateo de TSServer, ya que usaremos Prettier
+              client.server_capabilities.documentFormattingProvider = false
+              client.server_capabilities.documentRangeFormattingProvider = false
+            end,
+          }
+        })
+      end,
     },
-  },
+
+    -- TailwindCSS
+    {
+      "neovim/nvim-lspconfig",
+      dependencies = {
+        "b0o/schemastore.nvim", -- Esquemas JSON para autocompletado
+      }
+    },
+
+    -- Auto-cierre de etiquetas para HTML/JSX
+    {
+      "windwp/nvim-ts-autotag",
+      dependencies = "nvim-treesitter/nvim-treesitter",
+      config = function()
+        require("nvim-ts-autotag").setup()
+      end,
+    },
+
+    -- Formateo con Prettier
+    {
+      "MunifTanjim/prettier.nvim",
+      dependencies = { "jose-elias-alvarez/null-ls.nvim" },
+      config = function()
+        require("prettier").setup({
+          bin = 'prettier',
+          filetypes = {
+            "css", "scss", "less",
+            "javascript", "javascriptreact", "typescript", "typescriptreact",
+            "json", "jsonc", "yaml", "html", "vue", "graphql"
+          },
+          cli_options = {
+            single_quote = true,
+            trailing_comma = "all",
+          }
+        })
+      end,
+    },
+
+    -- CSS Color Preview (visualización de colores en archivos CSS)
+    {
+      "NvChad/nvim-colorizer.lua",
+      config = function()
+        require("colorizer").setup({
+          filetypes = { "css", "scss", "html", "javascript", "typescript", "jsx", "tsx", "vue" },
+          user_default_options = {
+            RGB = true,           -- #RGB hex codes
+            RRGGBB = true,        -- #RRGGBB hex codes
+            names = true,         -- "Name" codes like Blue
+            RRGGBBAA = true,      -- #RRGGBBAA hex codes
+            rgb_fn = true,        -- CSS rgb() and rgba() functions
+            hsl_fn = true,        -- CSS hsl() and hsla() functions
+            mode = "background",  -- Set the display mode
+          }
+        })
+      end,
+    },
+
+    -- Live Server para HTML
+    {
+      "turbio/bracey.vim",
+      build = "npm install --prefix server",
+      config = function()
+        vim.g.bracey_auto_start_browser = 1
+        vim.g.bracey_refresh_on_save = 1
+      end,
+    },
+
+    -- Snippets para React
+    {
+      "dsznajder/vscode-react-javascript-snippets",
+      build = "yarn install --frozen-lockfile && yarn compile",
+    },
+
+    -- Soporte mejorado para GraphQL
+    {
+      "jparise/vim-graphql",
+    },
+
+    -- Soporte para Styled Components
+    {
+      "styled-components/vim-styled-components",
+    },
+
+    -- Emmet mejorado para JSX/React
+    {
+      "mattn/emmet-vim",
+      config = function()
+        vim.g.user_emmet_settings = {
+          javascript = {
+            extends = 'jsx',
+          },
+          typescript = {
+            extends = 'tsx',
+          }
+        }
+        -- Activar Emmet solo en estos tipos de archivo
+        vim.g.user_emmet_install_global = 0
+        vim.cmd [[
+          autocmd FileType html,css,javascript,javascriptreact,typescript,typescriptreact EmmetInstall
+        ]]
+      end,
+    },
+
+    -- Soporte para testing (Jest)
+    {
+      "vim-test/vim-test",
+      config = function()
+        vim.g['test#javascript#jest#executable'] = 'npm test --'
+        vim.g['test#strategy'] = 'neovim'
+      end,
+    },
+
+    -- Complementar información de React en statusline
+    {
+      "nvim-lualine/lualine.nvim",
+      dependencies = { "nvim-tree/nvim-web-devicons" },
+      config = function()
+        require("lualine").setup({
+          sections = {
+            lualine_c = {
+              {
+                function()
+                  -- Detectar componente de React actual
+                  local filename = vim.fn.expand('%:t')
+                  local filetype = vim.bo.filetype
+                  if filetype == "typescriptreact" or filetype == "javascriptreact" then
+                    local name = filename:match("(.+)%..+$")
+                    if name then
+                      return "React: " .. name
+                    end
+                  end
+                  return filename
+                end,
+              }
+            }
+          }
+        })
+      end,
+    },
+
+    -- Integración con NPM (run scripts desde nvim)
+    {
+      "vuki656/package-info.nvim",
+      dependencies = { "MunifTanjim/nui.nvim" },
+      config = function()
+        require("package-info").setup()
+      end,
+    },
+
+    -- Comentarios JSX mejorados
+    {
+      "JoosepAlviste/nvim-ts-context-commentstring",
+      config = function()
+        require('ts_context_commentstring').setup({
+          enable_autocmd = false,
+        })
+        -- Configurar Comment.nvim para usar context commentstring
+        require('Comment').setup({
+          pre_hook = require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook(),
+        })
+      end,
+    }, 
+    -- Para mejorar soporte de CSS en HTML
+    {
+      "norcalli/nvim-colorizer.lua",
+      config = function()
+        require('colorizer').setup({'html', 'css', 'javascript'}, {
+          css = true,
+          css_fn = true,
+          mode = 'background'
+        })
+      end
+    },
+
+    -- Para un mejor resaltado de sintaxis de CSS
+    {
+      "othree/csscomplete.vim",
+      config = function()
+        vim.cmd('autocmd FileType css,scss,less,html setlocal omnifunc=csscomplete#CompleteCSS')
+      end
+    },
+    },
   {
     rocks = {
       hererocks = true, -- Habilita la instalación automática de hererocks
