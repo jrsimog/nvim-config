@@ -29,7 +29,7 @@ require("lazy").setup({
           automatic_installation = true,
         })
 
-        require("lspconfig").lua_ls.setup({})
+        
       end,
     },
 
@@ -79,7 +79,7 @@ require("lazy").setup({
               hidden = true
             },
             live_grep = {
-              additional_args = function() return { "--hidden" } end
+              additional_args = function() return { "--hidden", "--no-ignore-parent" } end
             },
             git_status = {
               mappings = {

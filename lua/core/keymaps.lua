@@ -209,7 +209,7 @@ map('n', '<leader>rss', 'irus<Tab>', { noremap = false }) -- useState hook
 map('n', '<leader>rse', 'irue<Tab>', { noremap = false }) -- useEffect hook
 map('n', '<leader>rsc', 'iruc<Tab>', { noremap = false }) -- useContext hook
 
--- Comandos para crear componentes React (con nombres que no causen conflictos)
+-- Comandos para crear componentes React
 vim.cmd [[
   command! -nargs=1 ReactComponent lua ReactCreateComponent(<f-args>)
   command! -nargs=1 ReactPage lua ReactCreatePage(<f-args>)

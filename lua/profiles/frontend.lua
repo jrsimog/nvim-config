@@ -107,7 +107,7 @@ end
 -- Cargar keymaps específicos para frontend
 local function load_keymaps()
   -- Comprobamos si existe el archivo de keymaps de frontend
-  local ok, _ = pcall(require, "keymaps.frontend")
+  -- local ok, _ = pcall(require, "keymaps.frontend")
   if not ok then
     -- Si no existe, definimos algunos keymaps básicos aquí
     local map = vim.api.nvim_set_keymap
