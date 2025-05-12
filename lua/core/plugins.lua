@@ -1,4 +1,4 @@
--- plugins.lua - Gestión de plugins con Lazy.nvim
+-- core/plugins.lua - Gestión de plugins con Lazy.nvim
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -17,29 +17,69 @@ require("lazy").setup({
             dependencies = {
                 "williamboman/mason.nvim",
                 "williamboman/mason-lspconfig.nvim",
-                "b0o/schemastore.nvim", -- <--- AÑADIR AQUÍ
+                "b0o/schemastore.nvim",
             },
             config = function()
+                local lsp_flags = { debounce_text_changes = 150 }
+
+                local function on_attach_common(client, bufnr)
+                    -- Tus keymaps comunes de LSP aquí
+                    local buf_map = vim.api.nvim_buf_set_keymap
+                    local opts = { noremap = true, silent = true }
+                    buf_map(bufnr, 'n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
+                    buf_map(bufnr, 'n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
+                    buf_map(bufnr, 'n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+                    buf_map(bufnr, 'n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+                    -- Puedes añadir más keymaps o lógica común aquí
+                end
+
                 require("mason").setup()
                 require("mason-lspconfig").setup({
                     ensure_installed = {
-                        "lua_ls",
-                        "ts_ls",
-                        "html",
-                        "cssls",
-                        "intelephense",
-                        "elixirls",
-                        "tailwindcss", -- Asegúrate de que tailwindcss esté aquí si lo quieres con Mason
-                        -- O configúralo manualmente después de mason-lspconfig.setup
+                        "lua_ls", "ts_ls", "html", "cssls",
+                        "intelephense", "elixirls", "tailwindcss",
                     },
                     automatic_installation = true,
+                    handlers = {
+                        -- Handler por defecto para todos los servidores no especificados abajo
+                        function(server_name)
+                            require('lspconfig')[server_name].setup({
+                                on_attach = on_attach_common,
+                                flags = lsp_flags,
+                            })
+                        end,
+                        -- Configuración específica para intelephense si la necesitas diferente
+                        ["intelephense"] = function()
+                            require('lspconfig').intelephense.setup({
+                                on_attach = on_attach_common,
+                                flags = lsp_flags,
+                                settings = {
+                                    intelephense = {
+                                        files = { associations = { "*.php", "*.inc" } },
+                                        environment = { phpVersion = "7.4" },
+                                        diagnostics = { enable = true },
+                                    }
+                                }
+                            })
+                        end,
+                        -- Puedes añadir más handlers específicos si otros servidores necesitan
+                        -- configuraciones de 'settings' o 'cmd' muy particulares.
+                        -- Por ejemplo, para elixirls si la configuración en tu perfil no fuera suficiente:
+                        -- ["elixirls"] = function()
+                        --   require('lspconfig').elixirls.setup({
+                        --     on_attach = on_attach_common,
+                        --     flags = lsp_flags,
+                        --     cmd = { "/home/jose/.local/share/nvim/mason/bin/elixir-ls" }, -- Ejemplo
+                        --     settings = { -- ... tus settings de elixirLS ... }
+                        --   })
+                        -- end,
+                    }
                 })
 
-                -- Si quieres configurar tailwindcss manualmente con lspconfig:
-                -- require('lspconfig').tailwindcss.setup({})
+                -- Activar autocompletado (si no está en otro lado)
+                vim.o.completeopt = 'menuone,noselect'
             end,
         },
-
         { "hrsh7th/nvim-cmp",   dependencies = { "hrsh7th/cmp-nvim-lsp", "saadparwaiz1/cmp_luasnip", "L3MON4D3/LuaSnip" } },
         { "hrsh7th/cmp-buffer" },
         { "hrsh7th/cmp-path" },
@@ -210,7 +250,7 @@ require("lazy").setup({
                 },
             },
             opts = {
-                provider = "groq",
+                provider = "gemini",
                 vendors = {
                     groq = {
                         __inherited_from = "openai",
@@ -278,42 +318,64 @@ require("lazy").setup({
                 })
             end,
         },
-        ---- inicio
+        ---- inicio alpha
         {
             "goolord/alpha-nvim",
-            dependencies = { "nvim-tree/nvim-web-devicons" },
+            event = "VimEnter",
+            dependencies = {
+                "nvim-tree/nvim-web-devicons", -- Ya está listado arriba, lazy.nvim lo manejará
+            },
             config = function()
                 local alpha = require("alpha")
                 local dashboard = require("alpha.themes.dashboard")
 
-                -- Encabezado del dashboard
                 dashboard.section.header.val = {
-                    "███╗   ██╗██╗   ██╗██╗███╗   ███╗",
-                    "████╗  ██║██║   ██║██║████╗ ████║",
-                    "██╔██╗ ██║██║   ██║██║██╔████╔██║",
-                    "██║╚██╗██║╚██╗ ██╔╝██║██║╚██╔╝██║",
-                    "██║ ╚████║ ╚████╔╝ ██║██║ ╚═╝ ██║",
-                    "╚═╝  ╚═══╝  ╚═══╝  ╚═╝╚═╝     ╚═╝",
+                    "███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗",
+                    "████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║",
+                    "██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║",
+                    "██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║",
+                    "██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║",
+                    "╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝",
                 }
 
-                -- Botones personalizados (rescatados de tu backup)
                 dashboard.section.buttons.val = {
                     dashboard.button("e", "📄  Nuevo archivo", ":ene <BAR> startinsert<CR>"),
                     dashboard.button("f", "🔍  Buscar archivo", ":Telescope find_files<CR>"),
                     dashboard.button("r", "📋  Archivos recientes", ":Telescope oldfiles<CR>"),
-                    dashboard.button("p", "📂  Proyectos", ":Telescope projects<CR>"),
+                    dashboard.button("p", "📂  Proyectos", ":Telescope projects<CR>"), -- Asegúrate que tienes la extensión de Telescope para proyectos
+                    -- dashboard.button("t", "💻  Terminal", ":lua _G.ToggleFloatTerm()<CR>"), -- Llama a la función de ToggleTerm
                     dashboard.button("s", "⚙️  Configuración", ":e $MYVIMRC<CR>"),
                     dashboard.button("u", "🔄  Actualizar plugins", ":Lazy sync<CR>"),
                     dashboard.button("q", "🚪  Salir", ":qa<CR>"),
                 }
 
-                -- Pie de página
                 dashboard.section.footer.val = "🚀 Configuración restaurada desde backup"
-
-                -- Configurar layout del dashboard
                 alpha.setup(dashboard.opts)
             end,
         },
+        -- --- FIN NUEVO BLOQUE: Pantalla de Inicio (Alpha Nvim) ---
+        -- En core/plugins.lua
+        -- {
+        --     "akinsho/toggleterm.nvim",
+        --     version = "*",
+        --     cmd = { "ToggleTerm" }, -- Carga diferida cuando se usa el comando
+        --     -- O si quieres un atajo global definido por el plugin directamente:
+        --     -- keys = {
+        --     --     { "<leader>ft", "<cmd>ToggleTerm direction=float<cr>", desc = "Floating terminal" },
+        --     -- },
+        --     opts = {
+        --         -- ... (tus opts de size, open_mapping, etc.) ...
+        --         direction = 'float', -- Establece float como la dirección por defecto
+        --         float_opts = {
+        --             border = 'rounded',
+        --             -- ...
+        --         },
+        --     },
+        --     config = function(_, opts)
+        --         require("toggleterm").setup(opts)
+        --         -- Ya no es necesaria la función _G.ToggleFloatTerm si usas el comando
+        --     end,
+        -- },
         -- proyectos
         {
             "ahmedkhalf/project.nvim",

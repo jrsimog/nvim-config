@@ -1,4 +1,4 @@
--- keymaps.lua - Configuración de atajos de teclado en Neovim
+-- core/keymaps.lua - Configuración de atajos de teclado en Neovim
 
 local map = vim.api.nvim_set_keymap
 local opts = { noremap = true, silent = true }
@@ -317,6 +317,10 @@ vim.api.nvim_exec([[
 -- Atajos para los comandos de creación de componentes y páginas React
 map('n', '<leader>rcc', ':ReactComponent ', { noremap = true })
 map('n', '<leader>rcp', ':ReactPage ', { noremap = true })
+
+-- En core/keymaps.lua
+map('n', '<C-t>', ':ToggleTerm direction=float<CR>', opts)
+map('t', '<C-t>', '<C-\\><C-n>:ToggleTerm direction=float<CR>', opts) -- Para cerrar desde modo terminal
 
 -- Retornar un objeto vacío para compatibilidad con require()
 return {}
