@@ -353,29 +353,27 @@ require("lazy").setup({
                 alpha.setup(dashboard.opts)
             end,
         },
-        -- --- FIN NUEVO BLOQUE: Pantalla de Inicio (Alpha Nvim) ---
-        -- En core/plugins.lua
-        -- {
-        --     "akinsho/toggleterm.nvim",
-        --     version = "*",
-        --     cmd = { "ToggleTerm" }, -- Carga diferida cuando se usa el comando
-        --     -- O si quieres un atajo global definido por el plugin directamente:
-        --     -- keys = {
-        --     --     { "<leader>ft", "<cmd>ToggleTerm direction=float<cr>", desc = "Floating terminal" },
-        --     -- },
-        --     opts = {
-        --         -- ... (tus opts de size, open_mapping, etc.) ...
-        --         direction = 'float', -- Establece float como la dirección por defecto
-        --         float_opts = {
-        --             border = 'rounded',
-        --             -- ...
-        --         },
-        --     },
-        --     config = function(_, opts)
-        --         require("toggleterm").setup(opts)
-        --         -- Ya no es necesaria la función _G.ToggleFloatTerm si usas el comando
-        --     end,
-        -- },
+        {
+            "akinsho/toggleterm.nvim",
+            version = "*",
+            cmd = { "ToggleTerm" }, -- Carga diferida cuando se usa el comando
+            -- O si quieres un atajo global definido por el plugin directamente:
+            -- keys = {
+            --     { "<leader>ft", "<cmd>ToggleTerm direction=float<cr>", desc = "Floating terminal" },
+            -- },
+            opts = {
+                -- ... (tus opts de size, open_mapping, etc.) ...
+                direction = 'float', -- Establece float como la dirección por defecto
+                float_opts = {
+                    border = 'rounded',
+                    -- ...
+                },
+            },
+            config = function(_, opts)
+                require("toggleterm").setup(opts)
+                -- Ya no es necesaria la función _G.ToggleFloatTerm si usas el comando
+            end,
+        },
         -- proyectos
         {
             "ahmedkhalf/project.nvim",

@@ -318,9 +318,9 @@ vim.api.nvim_exec([[
 map('n', '<leader>rcc', ':ReactComponent ', { noremap = true })
 map('n', '<leader>rcp', ':ReactPage ', { noremap = true })
 
--- En core/keymaps.lua
-map('n', '<C-t>', ':ToggleTerm direction=float<CR>', opts)
-map('t', '<C-t>', '<C-\\><C-n>:ToggleTerm direction=float<CR>', opts) -- Para cerrar desde modo terminal
+-- -- En core/keymaps.lua
+-- map('n', '<C-t>', ':ToggleTerm direction=float<CR>', opts)
+-- map('t', '<C-t>', '<C-\\><C-n>:ToggleTerm direction=float<CR>', opts) -- Para cerrar desde modo terminal
 
 -- Retornar un objeto vacío para compatibilidad con require()
 return {}
