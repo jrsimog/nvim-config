@@ -212,8 +212,8 @@ require("lazy").setup({
         {
             "yetone/avante.nvim",
             event = "VeryLazy",
-            lazy = false,
-            version = false,
+            -- lazy = false,
+            -- version = false,
             build = "make",
             auto_suggestions_provider = "copilot",
             dependencies = {
@@ -382,6 +382,9 @@ require("lazy").setup({
                 require("project_nvim").setup({
                     detection_methods = { "pattern" },
                     patterns = { ".git", "Makefile", "package.json", "mix.exs" },
+                    manual_mode = false,
+                    show_hidden = true,
+                    silent_chdir = false,
                 })
                 require("telescope").load_extension("projects")
             end,
@@ -667,13 +670,15 @@ require("lazy").setup({
             config = function()
                 vim.cmd('autocmd FileType css,scss,less,html setlocal omnifunc=csscomplete#CompleteCSS')
             end
-        }, -- Coma aquí, porque `rocks` es otro elemento de la tabla principal que `lazy.nvim` interpreta como opciones.
-    },     -- Esta llave cierra la LISTA de plugins.
-    {      -- Esta llave abre una SEGUNDA TABLA que lazy.nvim interpreta como OPCIONES DE LAZY.
+        },
+        -- Navegar entre test
+        {
+            "tpope/vim-projectionist",
+            lazy = false, -- importante para que cargue desde el inicio
+        }
+    },
+    {
         rocks = {
             hererocks = true,
         },
-        -- Aquí podrías poner otras opciones de lazy.nvim como:
-        -- ui = { border = "rounded" },
-        -- performance = { ... }
-    }) -- Cierra la tabla de opciones y la llamada a setup.
+    })

@@ -18,6 +18,7 @@ require("core.autocomplete")
 require("core.theme")
 require("core.dap") -- Depuración con DAP
 require("core.editor")
+require("core.projectionist")
 
 -- Funciones mejoradas para manejo de perfiles
 local function list_available_profiles()

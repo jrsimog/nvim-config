@@ -1,4 +1,4 @@
--- core/keymaps.lua - Configuración de atajos de teclado en Neovim
+-- lua/core/keymaps.lua - Configuración de atajos de teclado en Neovim
 
 local map = vim.api.nvim_set_keymap
 local opts = { noremap = true, silent = true }
@@ -87,6 +87,15 @@ map('n', '<leader>fg', ':Telescope live_grep no_ignore=true<CR>', opts)  -- Busc
 map('n', '<leader>fb', ':Telescope buffers<CR>', opts)                   -- Buscar buffers abiertos
 map('n', '<leader>fh', ':Telescope help_tags<CR>', opts)                 -- Buscar en ayuda
 map('n', '<leader>fm', ':Telescope marks<CR>', opts)                     -- Buscar marcadores
+
+map('n', '<leader>fv', ':Telescope find_files<CR>', opts)                -- Buscar archivo normal
+map('n', '<leader>fs', ':Telescope find_files<CR><C-x>', opts)           -- Buscar y abrir en split horizontal
+map('n', '<leader>fv', ':Telescope find_files<CR><C-v>', opts)           -- Buscar y abrir en split vertical
+map('n', '<leader>ft', ':Telescope find_files<CR><C-t>', opts)           -- Buscar y abrir en una nueva pestaña
+
+map('n', '<leader>gv', ':Telescope git_status<CR><C-v>', opts)           -- Buscar cambios en split vertical
+map('n', '<leader>gs', ':Telescope git_status<CR><C-x>', opts)           -- Buscar cambios en split horizontal
+map('n', '<leader>gt', ':Telescope git_status<CR><C-t>', opts)           -- Buscar cambios en nueva pestaña
 
 -- Atajos para LSP
 map('n', 'gd', ':lua vim.lsp.buf.definition()<CR>', opts)          -- Ir a definición
@@ -226,6 +235,24 @@ map('n', '<leader>rss', 'irus<Tab>', { noremap = false }) -- useState hook
 map('n', '<leader>rse', 'irue<Tab>', { noremap = false }) -- useEffect hook
 map('n', '<leader>rsc', 'iruc<Tab>', { noremap = false }) -- useContext hook
 
+-- Alternancia de archivos con vim-projectionist (sin conflictos)
+map('n', '<leader>pa', ':A<CR>', opts)  -- Alternar entre código y test
+map('n', '<leader>ps', ':AS<CR>', opts) -- Split horizontal con archivo alternativo
+map('n', '<leader>pv', ':AV<CR>', opts) -- Split vertical con archivo alternativo
+map('n', '<leader>pr', ':R<CR>', opts)  -- Ejecutar proyección del tipo 'run'
+
+-- 📁 Documentos recientes y buffers
+map('n', '<leader>br', ':Telescope oldfiles<CR>', opts)
+map('n', '<leader>bb', ':Telescope buffers<CR>', opts)
+map('n', '<leader>bR', ':Telescope oldfiles<CR><C-v>', opts)
+map('n', '<leader>bB', ':Telescope buffers<CR><C-v>', opts)
+
+-- 🔍 Buscar en buffers abiertos
+map('n', '<leader>sb',
+    ':lua require("telescope.builtin").live_grep({ grep_open_files = true, prompt_title = "Grep en Buffers Abiertos" })<CR>',
+    opts)
+map('n', '<leader>sB', ':Telescope current_buffer_fuzzy_find<CR>', opts)
+
 -- Comandos para crear componentes React
 vim.cmd [[
   command! -nargs=1 ReactComponent lua ReactCreateComponent(<f-args>)
@@ -318,9 +345,20 @@ vim.api.nvim_exec([[
 map('n', '<leader>rcc', ':ReactComponent ', { noremap = true })
 map('n', '<leader>rcp', ':ReactPage ', { noremap = true })
 
--- -- En core/keymaps.lua
 -- map('n', '<C-t>', ':ToggleTerm direction=float<CR>', opts)
 -- map('t', '<C-t>', '<C-\\><C-n>:ToggleTerm direction=float<CR>', opts) -- Para cerrar desde modo terminal
 
 -- Retornar un objeto vacío para compatibilidad con require()
+
+-- Comandos para abrir en splits directamente
+map('n', '<leader>sh', ':split<Space>', opts)  -- Split horizontal
+map('n', '<leader>sv', ':vsplit<Space>', opts) -- Split vertical
+map('n', '<leader>st', ':tabnew<Space>', opts) -- Nueva pestaña
+
+-- Mover entre ventanas de forma más cómoda
+map('n', '<C-h>', '<C-w>h', opts) -- Mover a la ventana izquierda
+map('n', '<C-j>', '<C-w>j', opts) -- Mover a la ventana abajo
+map('n', '<C-k>', '<C-w>k', opts) -- Mover a la ventana arriba
+map('n', '<C-l>', '<C-w>l', opts) -- Mover a la ventana derecha
+
 return {}
