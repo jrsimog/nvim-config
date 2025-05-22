@@ -361,4 +361,8 @@ map('n', '<C-j>', '<C-w>j', opts) -- Mover a la ventana abajo
 map('n', '<C-k>', '<C-w>k', opts) -- Mover a la ventana arriba
 map('n', '<C-l>', '<C-w>l', opts) -- Mover a la ventana derecha
 
+-- Teclas útiles durante resolución de conflictos con git mergetool
+map("n", "<leader>do", ":diffget //2<CR>", { desc = "Get from ours" })   -- Nuestro lado (local)
+map("n", "<leader>dt", ":diffget //3<CR>", { desc = "Get from theirs" }) -- De ellos (remoto)
+
 return {}
