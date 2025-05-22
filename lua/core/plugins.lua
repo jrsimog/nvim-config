@@ -1,4 +1,4 @@
--- core/plugins.lua - Gestión de plugins con Lazy.nvim
+-- lua/core/plugins.lua - Gestión de plugins con Lazy.nvim
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -22,16 +22,16 @@ require("lazy").setup({
             config = function()
                 local lsp_flags = { debounce_text_changes = 150 }
 
-                local function on_attach_common(client, bufnr)
-                    -- Tus keymaps comunes de LSP aquí
-                    local buf_map = vim.api.nvim_buf_set_keymap
-                    local opts = { noremap = true, silent = true }
-                    buf_map(bufnr, 'n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
-                    buf_map(bufnr, 'n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
-                    buf_map(bufnr, 'n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
-                    buf_map(bufnr, 'n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
-                    -- Puedes añadir más keymaps o lógica común aquí
-                end
+                -- local function on_attach_common(client, bufnr)
+                --     -- Tus keymaps comunes de LSP aquí
+                --     local buf_map = vim.api.nvim_buf_set_keymap
+                --     local opts = { noremap = true, silent = true }
+                --     buf_map(bufnr, 'n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
+                --     buf_map(bufnr, 'n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
+                --     buf_map(bufnr, 'n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+                --     buf_map(bufnr, 'n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+                --     -- Puedes añadir más keymaps o lógica común aquí
+                -- end
 
                 require("mason").setup()
                 require("mason-lspconfig").setup({
@@ -41,10 +41,8 @@ require("lazy").setup({
                     },
                     automatic_installation = true,
                     handlers = {
-                        -- Handler por defecto para todos los servidores no especificados abajo
                         function(server_name)
                             require('lspconfig')[server_name].setup({
-                                on_attach = on_attach_common,
                                 flags = lsp_flags,
                             })
                         end,
@@ -423,7 +421,7 @@ require("lazy").setup({
             end,
         },
 
-        -- Barra de estado (Lualine)
+        -- Barra de estado (Lualine)pl
         {
             "nvim-lualine/lualine.nvim",
             dependencies = { "nvim-tree/nvim-web-devicons" },
@@ -612,33 +610,6 @@ require("lazy").setup({
             end,
         },
 
-        -- Complementar información de React en statusline
-        {
-            "nvim-lualine/lualine.nvim",
-            dependencies = { "nvim-tree/nvim-web-devicons" },
-            config = function()
-                require("lualine").setup({
-                    sections = {
-                        lualine_c = {
-                            {
-                                function()
-                                    -- Detectar componente de React actual
-                                    local filename = vim.fn.expand('%:t')
-                                    local filetype = vim.bo.filetype
-                                    if filetype == "typescriptreact" or filetype == "javascriptreact" then
-                                        local name = filename:match("(.+)%..+$")
-                                        if name then
-                                            return "React: " .. name
-                                        end
-                                    end
-                                    return filename
-                                end,
-                            }
-                        }
-                    }
-                })
-            end,
-        },
 
         -- Integración con NPM (run scripts desde nvim)
         {
