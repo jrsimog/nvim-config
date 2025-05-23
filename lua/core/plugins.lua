@@ -1,5 +1,31 @@
 -- lua/core/plugins.lua - Gestión de plugins con Lazy.nvim
 
+local function get_avante_profile_prompt()
+    local profile_name = vim.env.NVIM_PROFILE or os.getenv("NVIM_PROFILE") or "default" -- Perfil por defecto
+    local prompt_path = vim.fn.stdpath("config") .. "/lua/prompts/" .. profile_name .. ".lua"
+    local default_prompt_path = vim.fn.stdpath("config") .. "/lua/prompts/default.lua"
+    local final_prompt_str = "You are a helpful AI assistant." -- Prompt ultra genérico si todo falla
+
+    local ok, prompt_str_or_err = pcall(dofile, prompt_path)
+    if ok and type(prompt_str_or_err) == "string" then
+        final_prompt_str = prompt_str_or_err
+    else
+        -- Intentar cargar el prompt por defecto
+        local default_ok, default_prompt_str_or_err = pcall(dofile, default_prompt_path)
+        if default_ok and type(default_prompt_str_or_err) == "string" then
+            final_prompt_str = default_prompt_str_or_err
+        else
+            if not ok then
+                vim.notify("Error loading prompt for profile '" .. profile_name .. "': " .. tostring(prompt_str_or_err), vim.log.levels.WARN)
+            end
+            if not default_ok and profile_name ~= "default" then -- Solo notificar si el default falla y no era el perfil que se intentaba cargar
+                vim.notify("Error loading default prompt: " .. tostring(default_prompt_str_or_err), vim.log.levels.WARN)
+            end
+        end
+    end
+    return final_prompt_str
+end
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
     vim.fn.system({
@@ -249,18 +275,24 @@ require("lazy").setup({
             },
             opts = {
                 provider = "gemini",
+                gemini = {
+                    system_prompt = get_avante_profile_prompt(),
+                    -- Puedes añadir otras configuraciones específicas de gemini aquí si es necesario
+                },
                 vendors = {
                     groq = {
                         __inherited_from = "openai",
                         api_key_name = "GROQ_API_KEY",
                         endpoint = "https://api.groq.com/openai/v1/",
                         model = "deepseek-r1-distill-qwen-32b",
+                        system_prompt = get_avante_profile_prompt(),
                     },
                     ollama = {
                         __inherited_from = "openai",
                         endpoint = "http://127.0.0.1:11434/v1",
                         model = "openthinker",
                         api_key_name = "",
+                        system_prompt = get_avante_profile_prompt(),
                     },
                 },
             },

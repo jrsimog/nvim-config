@@ -22,31 +22,60 @@ require("core.projectionist")
 
 -- Función para cargar y configurar el prompt de IA específico del perfil
 local function load_and_set_ai_prompt(profile_name)
-    local prompt_path = vim.fn.stdpath("config") .. "/lua/prompts/" .. profile_name .. ".lua"
+    local profile_name_to_load = profile_name
+    local prompt_path = vim.fn.stdpath("config") .. "/lua/prompts/" .. profile_name_to_load .. ".lua"
+    local default_prompt_path = vim.fn.stdpath("config") .. "/lua/prompts/default.lua"
+    local generic_fallback_prompt = "You are a helpful AI assistant."
+    local prompt_to_set = generic_fallback_prompt -- Inicia con el fallback genérico
 
-    if vim.fn.filereadable(prompt_path) == 1 then
-        local load_success, prompt_content = pcall(dofile, prompt_path)
-        if load_success then
-            if type(prompt_content) == "string" then
-                local avante_config_success, avante_config = pcall(require, "avante.config")
-                if avante_config_success and avante_config then
-                    local override_success, override_err = pcall(avante_config.override, { system_prompt = prompt_content })
-                    if override_success then
-                        print("[🤖] Prompt de IA para '" .. profile_name .. "' cargado y configurado.")
-                    else
-                        print("[⚠️] Error al configurar prompt de IA para '" .. profile_name .. "': " .. tostring(override_err))
-                    end
-                else
-                    print("[⚠️] Avante.nvim config no disponible al intentar cargar prompt para '" .. profile_name .. "'.")
-                end
-            else
-                print("[⚠️] El archivo de prompt para '" .. profile_name .. "' no devolvió una cadena.")
-            end
+    local notify_opts = { title = "AI Prompt" }
+
+    -- Intentar cargar el prompt del perfil
+    local ok, loaded_str = pcall(dofile, prompt_path)
+    if ok and type(loaded_str) == "string" and #loaded_str > 0 then
+        prompt_to_set = loaded_str
+        vim.notify("Prompt for profile '" .. profile_name_to_load .. "' loaded.", vim.log.levels.INFO, notify_opts)
+    else
+        if not ok then
+            vim.notify("Error loading prompt for profile '" .. profile_name_to_load .. "': " .. tostring(loaded_str) .. ". Trying default.", vim.log.levels.WARN, notify_opts)
+        elseif type(loaded_str) ~= "string" or #loaded_str == 0 then
+            -- Esto también cubre el caso de vim.fn.filereadable(prompt_path) == 0 porque dofile fallaría
+            vim.notify("Prompt file for profile '" .. profile_name_to_load .. "' not found, empty, or invalid. Trying default.", vim.log.levels.WARN, notify_opts)
+        end
+
+        -- Intentar cargar el prompt por defecto
+        local default_ok, default_loaded_str = pcall(dofile, default_prompt_path)
+        if default_ok and type(default_loaded_str) == "string" and #default_loaded_str > 0 then
+            prompt_to_set = default_loaded_str
+            vim.notify("Default prompt loaded.", vim.log.levels.INFO, notify_opts)
         else
-            print("[⚠️] Error al cargar el archivo de prompt para '" .. profile_name .. "': " .. tostring(prompt_content)) -- prompt_content es el error aquí
+            if not default_ok then
+                vim.notify("Error loading default prompt: " .. tostring(default_loaded_str) .. ". Using hardcoded default.", vim.log.levels.WARN, notify_opts)
+            elseif type(default_loaded_str) ~= "string" or #default_loaded_str == 0 then
+                vim.notify("Default prompt is empty or invalid. Using hardcoded default.", vim.log.levels.WARN, notify_opts)
+            end
+            -- Si prompt_to_set sigue siendo el genérico, notificar que se está usando el hardcoded.
+            if prompt_to_set == generic_fallback_prompt then
+                 vim.notify("Using hardcoded default system prompt for Avante.", vim.log.levels.INFO, notify_opts)
+            end
+        end
+    end
+
+    -- Después de determinar prompt_to_set, intentar actualizar Avante
+    local avante_config_ok, avante_config = pcall(require, "avante.config")
+    if avante_config_ok and avante_config and type(avante_config.override) == "function" then
+        local override_ok, override_err = pcall(avante_config.override, { system_prompt = prompt_to_set })
+        if override_ok then
+            vim.notify("Avante system_prompt updated for profile '" .. profile_name_to_load .. "'.", vim.log.levels.INFO, notify_opts)
+        else
+            vim.notify("Error overriding Avante system_prompt: " .. tostring(override_err), vim.log.levels.ERROR, notify_opts)
         end
     else
-        print("[ℹ️] No se encontró archivo de prompt para el perfil '" .. profile_name .. "' en: " .. prompt_path)
+        if not avante_config_ok then
+             vim.notify("Failed to load avante.config: " .. tostring(avante_config) .. ". Prompt will be set when Avante loads.", vim.log.levels.WARN, notify_opts)
+        else
+             vim.notify("avante.config.override not available or not a function. Prompt will be set when Avante loads.", vim.log.levels.WARN, notify_opts)
+        end
     end
 end
 
