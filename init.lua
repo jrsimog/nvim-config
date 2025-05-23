@@ -20,6 +20,36 @@ require("core.dap") -- Depuración con DAP
 require("core.editor")
 require("core.projectionist")
 
+-- Función para cargar y configurar el prompt de IA específico del perfil
+local function load_and_set_ai_prompt(profile_name)
+    local prompt_path = vim.fn.stdpath("config") .. "/lua/prompts/" .. profile_name .. ".lua"
+
+    if vim.fn.filereadable(prompt_path) == 1 then
+        local load_success, prompt_content = pcall(dofile, prompt_path)
+        if load_success then
+            if type(prompt_content) == "string" then
+                local avante_config_success, avante_config = pcall(require, "avante.config")
+                if avante_config_success and avante_config then
+                    local override_success, override_err = pcall(avante_config.override, { system_prompt = prompt_content })
+                    if override_success then
+                        print("[🤖] Prompt de IA para '" .. profile_name .. "' cargado y configurado.")
+                    else
+                        print("[⚠️] Error al configurar prompt de IA para '" .. profile_name .. "': " .. tostring(override_err))
+                    end
+                else
+                    print("[⚠️] Avante.nvim config no disponible al intentar cargar prompt para '" .. profile_name .. "'.")
+                end
+            else
+                print("[⚠️] El archivo de prompt para '" .. profile_name .. "' no devolvió una cadena.")
+            end
+        else
+            print("[⚠️] Error al cargar el archivo de prompt para '" .. profile_name .. "': " .. tostring(prompt_content)) -- prompt_content es el error aquí
+        end
+    else
+        print("[ℹ️] No se encontró archivo de prompt para el perfil '" .. profile_name .. "' en: " .. prompt_path)
+    end
+end
+
 -- Funciones mejoradas para manejo de perfiles
 local function list_available_profiles()
     local profiles_dir = vim.fn.stdpath("config") .. "/lua/profiles"
@@ -84,6 +114,7 @@ local function change_profile(profile)
         -- Guardar el perfil actual en una variable de entorno
         vim.env.NVIM_PROFILE = profile
         print("[✅] Perfil cambiado a: " .. profile)
+        load_and_set_ai_prompt(profile) -- Cargar prompt de IA
     else
         print("[⚠️] Error al cargar el perfil '" .. profile .. "':")
         print(result) -- Muestra el error específico
@@ -95,6 +126,7 @@ local function change_profile(profile)
         if dofile_success then
             vim.env.NVIM_PROFILE = profile
             print("[✅] Perfil cargado con dofile exitosamente.")
+            load_and_set_ai_prompt(profile) -- Cargar prompt de IA
         else
             print("[❌] También falló con dofile: " .. tostring(dofile_error))
         end
@@ -128,10 +160,17 @@ do
 
     -- Intentar cargar el perfil
     local success, err = pcall(require, "profiles." .. profile)
-    if not success then
+    if success then
+        load_and_set_ai_prompt(profile) -- Cargar prompt de IA para el perfil inicial
+    else
         print("[❌] Error al cargar el perfil '" .. profile .. "': " .. tostring(err))
         print("[🔄] Intentando cargar con dofile...")
-        pcall(dofile, vim.fn.stdpath("config") .. "/lua/profiles/" .. profile .. ".lua")
+        local dofile_success, dofile_err = pcall(dofile, vim.fn.stdpath("config") .. "/lua/profiles/" .. profile .. ".lua")
+        if dofile_success then
+            load_and_set_ai_prompt(profile) -- Cargar prompt de IA si dofile tuvo éxito
+        else
+            print("[❌] Error al cargar el perfil '" .. profile .. "' con dofile: " .. tostring(dofile_err))
+        end
     end
 end
 
