@@ -1,156 +1,150 @@
-# Configuración de Neovim
+# ai-git.nvim
 
-Esta es mi configuración personalizada de **Neovim**, optimizada para **Elixir, PHP (Laravel/Symfony), JavaScript, TypeScript y más**. Utiliza **Lazy.nvim** como gestor de plugins y está diseñada para ser **portátil** y fácil de desplegar en cualquier máquina.
+**Locally-Powered Git Commit Messages, Right in Neovim.**
 
----
-
-##  Características Principales
-
-✅ **Gestión de Plugins con Lazy.nvim**  
-✅ **LSP y Autocompletado (Intelephense, ElixirLS, etc.)**  
-✅ **Explorador de archivos con Nvim-Tree y Bufferline**  
-✅ **Telescope para búsquedas avanzadas**  
-✅ **Alpha.nvim como pantalla de inicio personalizada**  
-✅ **Project.nvim para detección de proyectos**  
-✅ **Perfiles de desarrollo (PHP, Elixir, etc.)**  
+[![Neovim](https://img.shields.io/badge/Neovim-0.8+-blue?logo=neovim)](https://neovim.io/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
-## 🔧 Instalación
+### ✨ Introduction
 
-### **1️ Clonar el Repositorio**
-Ejecuta este comando en tu terminal para descargar la configuración:
+**`ai-git.nvim`** is a Neovim plugin designed to enhance your Git workflow. It provides a dedicated UI to generate concise, relevant, and Conventional Commit style messages for your **commits**, directly within your editor. Review staged changes, see their diffs, and edit the generated message before committing.
 
-```bash
-cd ~/.config
-rm -rf nvim  # (Si ya tienes una configuración previa)
-git clone git@github.com:tu-usuario/nvim-config.git nvim
+### 🚀 Key Features
+
+- **Locally Generated Commit Messages:** Analyzes staged changes (from `git diff --staged`) to propose Conventional Commit messages (e.g., `feat:`, `fix:`).
+- **Interactive Commit UI:** Provides a dedicated UI to view staged files, their diffs, and edit the generated commit message before committing.
+- **Seamless Neovim Integration:** Works directly within your Neovim session.
+- **Vim-Fugitive Integration:** Uses `vim-fugitive` for the commit action.
+- **Contextual Merge Messages:** (Merge message generation is currently disabled as it relied on the previous AI backend).
+- **Improved Consistency:** Fosters a clearer and more readable Git history, ideal for teams and long-term projects.
+
+### 💡 How It Works (Plugin Usage)
+
+The primary way to use `ai-git.nvim` for commit messages is via its interactive UI:
+
+1.  **Stage your changes in Git:**
+    ```bash
+    git add .
+    ```
+2.  **Open the Commit UI:** Run the command `:GeminiCommitMsg` (or press `<leader>gc`).
+    _(Note: The command name `GeminiCommitMsg` is a remnant of previous versions; it now triggers the local commit message UI)._
+3.  **The plugin interface will open, showing three main panels:**
+    - **Top-Right (DBB-1): Staged Files List:** Lists all files you've staged for the commit.
+      - Navigate this list and press `<CR>` (Enter) on a file to view its diff in the left panel.
+    - **Left (DBA): Diff View:** Shows the diff for the file selected from the Staged Files List.
+    - **Bottom-Right (DBB-2): Commit Message Area:**
+      - An initial commit message is automatically generated based on your staged changes.
+      - You can edit this message as needed.
+      - To commit, press `<leader>c` while your cursor is in this panel. This will use `vim-fugitive` to perform the commit with the message content.
+
+### ⚙️ Installation
+
+#### Requirements:
+
+- **Neovim:** Version 0.8 or higher (tested with 0.8, UI features might benefit from 0.9+ but not strictly required by current implementation).
+- **Git:** Essential for version control.
+- **`tpope/vim-fugitive`:** Required for the commit action.
+- **`lewis6991/gitsigns.nvim`:** Recommended for a better Git experience within Neovim (provides sign column, blame, etc.).
+- **`sindrets/diffview.nvim`:** Recommended for an enhanced diff viewing experience (the plugin uses a basic diff view in one of its panels).
+
+##### Installation with `lazy.nvim`:
+
+Add the plugin to your `lazy.nvim` configuration:
+
+```lua
+-- In your lazy.nvim plugin configuration:
+{
+    "jrsimog/ai-git.nvim", -- Ensure this is the correct GitHub path
+    dependencies = {
+        "tpope/vim-fugitive",
+        "lewis6991/gitsigns.nvim", -- Recommended
+        "sindrets/diffview.nvim", -- Recommended for enhanced diff viewing
+    },
+    config = function()
+        require("ai-git").setup() -- Initializes the plugin
+    end,
+    -- Optional: Specify a version tag if available
+    -- version = "*"
+}
 ```
 
-### **2️ Instalar Neovim y Dependencias**
-Si Neovim no está instalado, instálalo en **Ubuntu 20.04**:
+Then, open Neovim and run `:Lazy sync` (or your lazy.nvim update command) to install the plugin.
 
-```bash
-sudo apt update
-sudo apt install neovim -y
+##### Installation with `packer.nvim`:
+
+Add the plugin to your Packer configuration:
+
+```lua
+-- ~/.config/nvim/lua/plugins.lua (or where you configure packer)
+
+return require('packer').startup(function(use)
+    -- ... your other plugins
+
+    use {
+        "jrsimog/ai-git.nvim",
+        requires = {
+            {"tpope/vim-fugitive"},
+            {"lewis6991/gitsigns.nvim"}, -- Optional but recommended
+            {"sindrets/diffview.nvim"}, -- Optional but recommended
+        },
+        config = function()
+            require("ai-git").setup() -- Initialize the plugin
+        end,
+    }
+
+    -- ... your other plugins
+end)
 ```
 
-O en Arch Linux:
-```bash
-sudo pacman -S neovim
-```
+Then, open Neovim and run `:PackerSync` (or `:PackerInstall`).
 
-Además, instala las dependencias necesarias:
+##### Installation with `vim-plug`:
 
-```bash
-sudo apt install ripgrep fd-find git curl fzf -y
-```
-
-Si usas **Elixir**, instala `elixir-ls`:
-```bash
-mix escript.install hex elixir-ls
-```
-
-### **3️ Sincronizar los Plugins**
-Abre Neovim y ejecuta:
+Add the plugin to your `init.vim` (or `~/.vimrc`) file:
 
 ```vim
-:Lazy sync
+" ~/.vimrc or ~/.config/nvim/init.vim
+
+call plug#begin()
+
+" ... your other plugins
+
+Plug 'tpope/vim-fugitive' " Dependency
+Plug 'lewis6991/gitsigns.nvim' " Recommended
+Plug 'sindrets/diffview.nvim' " Recommended
+Plug 'jrsimog/ai-git.nvim'
+
+" ... your other plugins
+
+call plug#end()
+
+" Configuration for ai-git.nvim (needs to be in Lua)
+lua << EOF
+require("ai-git").setup() -- Initialize the plugin
+EOF
 ```
 
-Esto instalará todos los plugins automáticamente.
+Then, open Neovim and run `:PlugInstall`.
 
----
+#### Keymaps
 
-##  Perfiles de Desarrollo
-Esta configuración permite cargar diferentes **perfiles** según el stack que estés usando. Puedes cambiar de perfil exportando la variable `NVIM_PROFILE` antes de abrir Neovim.
+The plugin automatically sets up the following keymap:
 
-### **Activar un Perfil Específico**
-```bash
-export NVIM_PROFILE=php
-nvim
-```
+- `<leader>gc`: Triggers the `:GeminiCommitMsg` command, opening the AI Commit Message UI.
+- `<leader>gm`: Triggers `:GeminiMergeMsg`. (Note: Merge message generation is currently non-functional as it relied on a previous AI backend and is pending rework).
 
-Si no defines un perfil, **Elixir será el perfil por defecto**.
+The command `:GeminiMergeMsg` is also available but its core functionality is currently disabled.
 
----
+### 🤝 Contributing
 
-##  Atajos de Teclado Claves
+Contributions are welcome! If you find a bug, have a feature request, or want to improve the codebase, please feel free to open an issue or submit a pull request.
 
-| Acción | Atajo |
-|--------|-------|
-| Abrir/cerrar Nvim-Tree | `<leader>e` |
-| Buscar archivos con Telescope | `<leader>ff` |
-| Buscar en el contenido de archivos | `<leader>fg` |
-| Navegar buffers | `<Tab>` / `<S-Tab>` |
-| Cerrar buffer actual | `<leader>bd` |
-| Ejecutar Laravel CLI | `<leader>pl` |
-| Iniciar servidor Symfony | `<leader>ps` |
-| Ejecutar consola de Symfony | `<leader>pc` |
+### 📄 License
 
-> **Nota:** `<leader>` está configurado como `Space (espacio)`.
+This plugin is licensed under the MIT License.
 
----
+### Hashtags for Search
 
-## Mantener la Configuración Actualizada
-Si haces cambios en la configuración y quieres sincronizarla entre tu casa y la oficina, usa estos comandos:
-
- **Subir cambios desde tu máquina actual:**
-```bash
-cd ~/.config/nvim
-git add .
-git commit -m "Actualización de configuración"
-git push origin main
-```
-
- **Actualizar la configuración en otra máquina (ej. oficina):**
-```bash
-cd ~/.config/nvim
-git pull origin main
-:Lazy sync
-```
-
-Para hacerlo aún más rápido, puedes crear un **alias en `~/.bashrc` o `~/.zshrc`**:
-```bash
-alias sync-nvim="cd ~/.config/nvim && git pull origin main && nvim"
-```
-Así, solo tendrás que ejecutar:
-```bash
-sync-nvim
-```
-
----
-
-##  Solución de Problemas
-
-Si algo no funciona correctamente, prueba estos comandos:
-
-**Verificar que los plugins están instalados:**
-```vim
-:Lazy list
-```
-
-**Verificar que el LSP está activo:**
-```vim
-:LspInfo
-```
-
-**Reinstalar todos los plugins y limpiar caché:**
-```vim
-:Lazy clean
-:Lazy sync
-```
-
-Si sigues teniendo problemas, revisa `:checkhealth` en Neovim:
-```vim
-:checkhealth
-```
-
----
-
-## Licencia
-Este proyecto está bajo la licencia **MIT**, lo que significa que puedes modificarlo y adaptarlo libremente.
-
- **Autor:** José Simo  
- **Configurado para máxima productividad en Neovim**.
-
+#Neovim #Nvim #Git #CommitMessage #ConventionalCommits #GitUI #Productivity #DevTools #Lua #VimPlugin #DeveloperTools #GitWorkflow #LazyNvim #PackerNvim #VimPlug #Fugitive

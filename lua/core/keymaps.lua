@@ -93,10 +93,6 @@ map('n', '<leader>fs', ':Telescope find_files<CR><C-x>', opts)           -- Busc
 map('n', '<leader>fv', ':Telescope find_files<CR><C-v>', opts)           -- Buscar y abrir en split vertical
 map('n', '<leader>ft', ':Telescope find_files<CR><C-t>', opts)           -- Buscar y abrir en una nueva pestaña
 
-map('n', '<leader>gv', ':Telescope git_status<CR><C-v>', opts)           -- Buscar cambios en split vertical
-map('n', '<leader>gs', ':Telescope git_status<CR><C-x>', opts)           -- Buscar cambios en split horizontal
-map('n', '<leader>gt', ':Telescope git_status<CR><C-t>', opts)           -- Buscar cambios en nueva pestaña
-
 -- Atajos para LSP
 map('n', 'gd', ':lua vim.lsp.buf.definition()<CR>', opts)          -- Ir a definición
 map('n', 'gr', ':lua vim.lsp.buf.references()<CR>', opts)          -- Buscar referencias
@@ -126,20 +122,21 @@ map('n', '<leader>e', ':NvimTreeFindFileToggle<CR>', opts) -- Abrir/cerrar NvimT
 map('n', '<leader>pp', ':Telescope projects<CR>', opts)    -- Abrir proyectos recientes
 
 -- Atajos para Git
-map('n', '<leader>gs', ':Telescope git_status<CR>', opts)              -- Mostrar estado de Git
-map('n', '<leader>gc', ':call GitCommitWithMessagePrompt()<CR>', opts) -- Hacer commit
-map('n', '<leader>gp', ':Git push<CR>', opts)                          -- Hacer push
-map('n', '<leader>gl', ':Git pull<CR>', opts)                          -- Hacer pull
-map('n', '<leader>gb', ':Telescope git_branches<CR>', opts)            -- Ver ramas
-map('n', '<leader>gco', ':Git checkout ', opts)                        -- Cambiar de rama
+map('n', '<leader>gs', ':Telescope git_status<CR>', opts)
+map('n', '<leader>gc', ':call GitCommitWithMessagePrompt()<CR>', opts)
+map('n', '<leader>gp', ':Git push<CR>', opts)
+map('n', '<leader>gl', ':Git pull<CR>', opts)
+map('n', '<leader>gb', ':Telescope git_branches<CR>', opts)
+map('n', '<leader>gco', ':Git checkout ', opts)
+map('n', '<leader>ga', ':call CustomGitAdd()<CR>', opts)
+map('n', '<leader>gr', ':Git reset<CR>', opts)
+map('n', '<leader>gm', ':Git merge ', opts)
+map('n', '<leader>gt', ':Git tag ', opts)
+map('n', '<leader>gbl', ':Git blame<CR>', opts)
 -- map('n', '<leader>gd', ':call GitDiffWithBranchPrompt()<CR>', opts) -- Mostrar diferencias
-map('n', '<leader>ga', ':call CustomGitAdd()<CR>', opts)               -- Agregar todos los cambios al staging
-map('n', '<leader>gr', ':Git reset<CR>', opts)                         -- Resetear cambios
-map('n', '<leader>gm', ':Git merge ', opts)                            -- Fusionar ramas
-map('n', '<leader>gt', ':Git tag ', opts)                              -- Crear un tag
-map('n', '<leader>gbl', ':Git blame<CR>', opts)                        -- Mostrar blame de Git
-map('n', '<leader>gcb', ':call CreateGitBranch()<CR>', opts)           -- Crear rama
-map('n', '<leader>gdb', ':call DeleteGitBranch()<CR>', opts)           -- Eliminar ram
+map('n', '<leader>gcb', ':call CreateGitBranch()<CR>', opts)
+map('n', '<leader>gdb', ':call DeleteGitBranch()<CR>', opts)
+
 
 
 -- Diffview keymaps
@@ -364,5 +361,35 @@ map('n', '<C-l>', '<C-w>l', opts) -- Mover a la ventana derecha
 -- Teclas útiles durante resolución de conflictos con git mergetool
 map("n", "<leader>do", ":diffget //2<CR>", { desc = "Get from ours" })   -- Nuestro lado (local)
 map("n", "<leader>dt", ":diffget //3<CR>", { desc = "Get from theirs" }) -- De ellos (remoto)
+
+-- ===========================================
+-- 🐛 Depuración de errores (LSP Diagnostics)
+-- ===========================================
+
+-- Ver los errores del archivo actual en una ventana flotante
+map('n', '<leader>e', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
+
+-- Ver todos los errores del proyecto con Telescope
+map('n', '<leader>xx', '<cmd>lua require("telescope.builtin").diagnostics()<CR>', opts)
+
+-- Navegar al error anterior y siguiente
+map('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
+map('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
+
+-- Abrir lista de errores del buffer actual (location list)
+map('n', '<leader>dl', ':lopen<CR>', opts)
+
+-- Mostrar detalles del símbolo bajo el cursor (ya lo tenés configurado como "K")
+map('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts) -- Ver doc y errores si aplica
+
+-- Mostrar todos los keymaps de Neovim
+map('n', '<leader>km', ':Telescope keymaps<CR>', opts) -- Mostrar todos los keymaps
+
+
+-- 🔍 Buscar en buffers abiertos
+map('n', '<leader>sb',
+    ':lua require("telescope.builtin").live_grep({ grep_open_files = true, prompt_title = "Grep en Buffers Abiertos" })<CR>',
+    opts)
+map('n', '<leader>sB', ':Telescope current_buffer_fuzzy_find<CR>', opts) -- Búsqueda fuzzy en el archivo actual
 
 return {}

@@ -1,4 +1,4 @@
--- lua/core/plugins.lua - Gestión de plugins con Lazy.nvim
+--a lua/core/plugins.lua - Gestión de plugins con Lazy.nvim
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -645,8 +645,19 @@ require("lazy").setup({
         -- Navegar entre test
         {
             "tpope/vim-projectionist",
-            lazy = false, -- importante para que cargue desde el inicio
-        }
+            lazy = false,
+        },
+        -- {
+        --     "jrsimog/ai-git.nvim",
+        --     dependencies = {
+        --         "tpope/vim-fugitive",
+        --         "lewis6991/gitsigns.nvim",
+        --         "sindrets/diffview.nvim",
+        --     },
+        --     config = function()
+        --         require("ai-git").setup()
+        --     end,
+        -- }
     },
     {
         rocks = {

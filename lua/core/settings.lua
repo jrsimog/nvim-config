@@ -11,7 +11,7 @@ set.termguicolors = true  -- Habilitar colores en terminal
 set.scrolloff = 8         -- Mantener espacio al hacer scroll
 set.mouse = "a"
 set.hlsearch = true
-set.guifont = "JetBrainsMono Nerd Font:h8"
+set.guifont = "JetBrainsMono Nerd Font:h12"
 set.clipboard = "unnamedplus"
 set.swapfile = false
 
@@ -25,7 +25,7 @@ set.incsearch = true  -- Buscar en tiempo real
 set.expandtab = true   -- Convertir tabulaciones en espacios
 set.shiftwidth = 4     -- Tamaño de la indentación
 set.tabstop = 4        -- Tamaño de un tab
-set.smartindent = true -- Identación inteligente
+set.smartindent = true -- Identación intel wigente
 set.smarttab = true
 set.softtabstop = 4
 set.autoindent = true
