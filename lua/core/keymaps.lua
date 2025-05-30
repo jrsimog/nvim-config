@@ -367,7 +367,7 @@ map("n", "<leader>dt", ":diffget //3<CR>", { desc = "Get from theirs" }) -- De e
 -- ===========================================
 
 -- Ver los errores del archivo actual en una ventana flotante
-map('n', '<leader>e', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
+map('n', '<leader>xz' '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
 
 -- Ver todos los errores del proyecto con Telescope
 map('n', '<leader>xx', '<cmd>lua require("telescope.builtin").diagnostics()<CR>', opts)
