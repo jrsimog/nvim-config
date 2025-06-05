@@ -84,6 +84,7 @@ map('n', '<leader>bc', ':BufferLineCloseLeft<CR>:BufferLineCloseRight<CR>', opts
 -- Atajos de Telescope (búsquedas avanzadas)
 map('n', '<leader>ff', ':Telescope find_files no_ignore=true<CR>', opts) -- Buscar archivos
 map('n', '<leader>fg', ':Telescope live_grep no_ignore=true<CR>', opts)  -- Buscar en contenido
+map('n', '<leader>fr', ':Telescope oldfiles<CR>', opts)                  -- Buscar buffers abriertos recientemente
 map('n', '<leader>fb', ':Telescope buffers<CR>', opts)                   -- Buscar buffers abiertos
 map('n', '<leader>fh', ':Telescope help_tags<CR>', opts)                 -- Buscar en ayuda
 map('n', '<leader>fm', ':Telescope marks<CR>', opts)                     -- Buscar marcadores
@@ -367,7 +368,7 @@ map("n", "<leader>dt", ":diffget //3<CR>", { desc = "Get from theirs" }) -- De e
 -- ===========================================
 
 -- Ver los errores del archivo actual en una ventana flotante
--- mp('n', '<leader>xz' '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
+map('n', '<leader>xc', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
 
 -- Ver todos los errores del proyecto con Telescope
 map('n', '<leader>xx', '<cmd>lua require("telescope.builtin").diagnostics()<CR>', opts)
