@@ -130,7 +130,8 @@ map('n', '<leader>gl', ':Git pull<CR>', opts)
 map('n', '<leader>gb', ':Telescope git_branches<CR>', opts)
 map('n', '<leader>gco', ':Git checkout ', opts)
 map('n', '<leader>ga', ':call CustomGitAdd()<CR>', opts)
-map('n', '<leader>gr', ':Git reset<CR>', opts)
+map('n', '<leader>gr', ':Git reset <CR>', opts)
+map('n', '<leader>grs', ':Git reset --soft HEAD~1<CR>', opts) -- Resetear cambios commiteados
 map('n', '<leader>gm', ':Git merge ', opts)
 map('n', '<leader>gt', ':Git tag ', opts)
 map('n', '<leader>gbl', ':Git blame<CR>', opts)
@@ -175,7 +176,6 @@ map('v', '<leader>f', '<cmd>Format<CR>', { noremap = true, silent = true, desc =
 
 
 map('n', '<leader>fee', ':EslintFixAll<CR>', opts)              -- Arreglar errores de ESLint
-map('n', '<leader>fei', ':TypescriptOrganizeImports<CR>', opts) -- Organizar importaciones
 
 -- Navegación en proyectos React (usando 'fe' como prefijo)
 map('n', '<leader>fet',
@@ -191,11 +191,8 @@ map('n', '<leader>fes',
     ':lua require("telescope.builtin").find_files({prompt_title = "Styles", cwd = "src/styles", path_display = { "smart" }})<CR>',
     opts)
 
--- TypeScript/React específicos (usando prefijo 'ts')
-map('n', '<leader>tsi', ':TSLspImportAll<CR>', opts)  -- Importar todas las referencias
-map('n', '<leader>tso', ':TSLspOrganize<CR>', opts)   -- Organizar importaciones
-map('n', '<leader>tsr', ':TSLspRenameFile<CR>', opts) -- Renombrar archivo y ajustar importaciones
-map('n', '<leader>tsf', ':TSLspFixCurrent<CR>', opts) -- Arreglar problemas en el archivo actual
+map('n', '<leader>tso', '<cmd>lua vim.lsp.buf.code_action({context = {only = {"source.organizeImports"}}})<CR>', opts)
+map('n', '<leader>tsr', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
 
 -- Servidor de desarrollo para HTML/CSS (usando prefijo 'hs' - HTML Server)
 map('n', '<leader>hss', ':LiveServerStart<CR>', opts) -- Iniciar Live Server
