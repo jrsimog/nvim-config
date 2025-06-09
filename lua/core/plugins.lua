@@ -196,7 +196,7 @@ require("lazy").setup({
 			providers = {
 				gemini = {
 					endpoint = "https://generativelanguage.googleapis.com/v1beta/models",
-					model = "gemini-2.0-flash-exp",
+					model = "gemini-2.0-flash",
 					api_key_name = "GEMINI_API_KEY",
 					timeout = 30000,
 					temperature = 0.1,
