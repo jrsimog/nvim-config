@@ -200,18 +200,14 @@ require("lazy").setup({
 		},
 		opts = {
 			provider = "gemini",
-			vendors = {
-				groq = {
-					__inherited_from = "openai",
-					api_key_name = "GROQ_API_KEY",
-					endpoint = "https://api.groq.com/openai/v1/",
-					model = "deepseek-r1-distill-qwen-32b",
-				},
-				ollama = {
-					__inherited_from = "openai",
-					endpoint = "http://127.0.0.1:11434/v1",
-					model = "openthinker",
-					api_key_name = "",
+			providers = {
+				gemini = {
+					enabled = true,
+					model = "gemini-2.0-flash",
+					max_tokens = 2048,
+					temperature = 0.7,
+					top_p = 0.9,
+					use_cache = true,
 				},
 			},
 		},
