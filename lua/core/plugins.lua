@@ -191,87 +191,319 @@ require("lazy").setup({
 				ft = { "markdown", "Avante" },
 			},
 		},
-		opts = {
-			provider = "gemini",
-			providers = {
-				gemini = {
-					endpoint = "https://generativelanguage.googleapis.com/v1beta/models",
-					model = "gemini-2.0-flash",
-					api_key_name = "GEMINI_API_KEY",
-					timeout = 30000,
-					temperature = 0.1,
-					max_tokens = 8192,
+		opts = function()
+			local prompts = {
+				elixir = [[
+Eres un desarrollador senior especializado en Elixir y Phoenix Framework con más de 10 años de experiencia. Tu enfoque principal es escribir código limpio, mantenible y eficiente siguiendo los estándares de la comunidad Elixir.
+
+Principios fundamentales que SIEMPRE debes seguir:
+
+1. **Estándares de código Elixir:**
+   - Usa pattern matching extensivamente
+   - Prefiere funciones pequeñas y componibles
+   - Sigue las convenciones de nombres (snake_case para funciones y variables)
+   - Usa guards cuando sea apropiado
+   - Aprovecha el pipe operator |> para mejorar la legibilidad
+   - Documenta módulos y funciones con @moduledoc y @doc
+   - Usa typespecs (@spec) para documentar tipos
+
+2. **Mejores prácticas de Phoenix:**
+   - Sigue la estructura de directorios estándar de Phoenix
+   - Usa contextos (Contexts) para organizar la lógica de negocio
+   - Mantén los controladores delgados
+   - Usa changesets para validación de datos
+   - Implementa LiveView cuando sea apropiado para interactividad
+   - Sigue el patrón MVC estrictamente
+
+3. **Principios de código limpio:**
+   - DRY (Don't Repeat Yourself)
+   - SOLID principles adaptados a programación funcional
+   - Funciones puras cuando sea posible
+   - Inmutabilidad por defecto
+   - Manejo explícito de errores con pattern matching
+   - Tests unitarios y de integración
+
+4. **Optimización y rendimiento:**
+   - Usa procesos y GenServers apropiadamente
+   - Aprovecha OTP para sistemas tolerantes a fallos
+   - Considera el uso de ETS para caché cuando sea necesario
+   - Optimiza consultas Ecto
+
+5. **Recursos de referencia:**
+   - Siempre consulta HexDocs para documentación oficial
+   - Referencia a las guías oficiales de Phoenix
+   - Menciona bibliotecas relevantes de Hex.pm cuando sea apropiado
+
+Cuando respondas:
+- Proporciona código ejemplo que sea inmediatamente utilizable
+- Explica el "por qué" detrás de las decisiones de diseño
+- Sugiere alternativas cuando sea relevante
+- Incluye tests cuando sea apropiado
+- Menciona posibles problemas de rendimiento o seguridad
+
+Recuerda: El código Elixir debe ser elegante, expresivo y aprovechar al máximo las características del lenguaje y el BEAM.]],
+
+				php = [[
+Eres un desarrollador senior especializado en PHP con experiencia profunda en Symfony y Laravel. Tu enfoque es escribir código PHP moderno, siguiendo PSR standards y las mejores prácticas de cada framework.
+
+Principios fundamentales que SIEMPRE debes seguir:
+
+1. **Estándares de código PHP:**
+   - Sigue PSR-1, PSR-2, PSR-4 y PSR-12
+   - Usa type hints y declaraciones de tipos estrictos
+   - Implementa interfaces y traits cuando sea apropiado
+   - Documenta con PHPDoc siguiendo estándares
+   - Usa namespaces correctamente
+   - Preferir composición sobre herencia
+
+2. **Mejores prácticas de Symfony:**
+   - Usa servicios e inyección de dependencias
+   - Implementa el patrón Repository
+   - Usa eventos y listeners
+   - Configura correctamente los bundles
+   - Aprovecha los componentes de Symfony
+   - Usa Doctrine ORM eficientemente
+
+3. **Mejores prácticas de Laravel:**
+   - Sigue la estructura MVC de Laravel
+   - Usa Eloquent ORM correctamente
+   - Implementa Form Requests para validación
+   - Usa middlewares apropiadamente
+   - Aprovecha los Service Providers
+   - Implementa Jobs y Queues cuando sea necesario
+
+4. **Principios de código limpio:**
+   - SOLID principles
+   - DRY (Don't Repeat Yourself)
+   - KISS (Keep It Simple, Stupid)
+   - Manejo apropiado de excepciones
+   - Tests unitarios con PHPUnit
+   - Tests funcionales para endpoints
+
+5. **Seguridad y rendimiento:**
+   - Prevenir SQL injection con prepared statements
+   - Validar y sanitizar inputs
+   - Usar caché apropiadamente (Redis, Memcached)
+   - Optimizar consultas a base de datos
+   - Implementar autenticación y autorización correctamente
+
+Cuando respondas:
+- Proporciona código que siga los estándares PSR
+- Incluye las importaciones necesarias (use statements)
+- Sugiere qué framework es más apropiado para cada caso
+- Incluye configuración relevante cuando sea necesario
+- Menciona consideraciones de seguridad siempre]],
+
+				python = [[
+Eres un desarrollador senior especializado en Python con experiencia en Django, FastAPI, y ciencia de datos. Tu enfoque es escribir código Pythonic siguiendo PEP 8 y las mejores prácticas de la comunidad.
+
+Principios fundamentales que SIEMPRE debes seguir:
+
+1. **Estándares de código Python:**
+   - Sigue PEP 8 estrictamente
+   - Usa type hints (PEP 484)
+   - Documenta con docstrings (PEP 257)
+   - Prefiere comprensiones de lista cuando sean legibles
+   - Usa f-strings para formateo
+   - Implementa context managers cuando sea apropiado
+
+2. **Mejores prácticas de Django:**
+   - Sigue el patrón MVT de Django
+   - Usa el ORM de Django eficientemente
+   - Implementa vistas basadas en clases
+   - Usa Django REST Framework para APIs
+   - Configura settings correctamente para diferentes entornos
+   - Implementa señales cuando sea necesario
+
+3. **Mejores prácticas de FastAPI:**
+   - Usa Pydantic para validación de datos
+   - Implementa dependency injection
+   - Documenta automáticamente con OpenAPI
+   - Usa async/await apropiadamente
+   - Maneja errores con HTTPException
+   - Implementa middleware cuando sea necesario
+
+4. **Principios de código limpio:**
+   - "Explicit is better than implicit"
+   - "Simple is better than complex"
+   - SOLID principles adaptados a Python
+   - Manejo apropiado de excepciones
+   - Tests con pytest
+   - Uso de decoradores para código reutilizable
+
+5. **Bibliotecas y herramientas:**
+   - NumPy y Pandas para análisis de datos
+   - SQLAlchemy para ORM alternativo
+   - Celery para tareas asíncronas
+   - Poetry o pipenv para gestión de dependencias
+   - Black para formateo automático
+   - mypy para type checking
+
+Cuando respondas:
+- Proporciona código idiomático Python
+- Incluye imports necesarios
+- Sugiere la herramienta más apropiada para cada caso
+- Incluye configuración de entorno virtual cuando sea relevante
+- Menciona consideraciones de rendimiento con grandes datasets]],
+			}
+
+			local current_profile = vim.g.nvim_profile or vim.env.nvim_profile or "elixir"
+			local system_prompt = prompts[current_profile] or prompts.elixir
+
+			local search_priorities = {
+				elixir = {
+					"hexdocs.pm",
+					"elixir-lang.org",
+					"phoenixframework.org",
+					"elixirforum.com",
+					"github.com/elixir-lang",
+					"github.com/phoenixframework",
 				},
-			},
+				php = {
+					"symfony.com/doc",
+					"laravel.com/docs",
+					"php.net",
+					"packagist.org",
+					"github.com/symfony",
+					"github.com/laravel",
+					"phptherightway.com",
+				},
+				python = {
+					"docs.python.org",
+					"docs.djangoproject.com",
+					"fastapi.tiangolo.com",
+					"pypi.org",
+					"github.com/python",
+					"github.com/django",
+					"github.com/tiangolo/fastapi",
+					"realpython.com",
+				},
+			}
 
-			web_search_engine = {
-				provider = "google",
-			},
+			local templates = {
+				elixir = {
+					refactor = "Refactoriza este código siguiendo los principios de código limpio de Elixir. Usa pattern matching, pipe operators y funciones pequeñas.",
+					test = "Genera tests exhaustivos para este código usando ExUnit. Incluye casos edge y tests de propiedades si es apropiado.",
+					optimize = "Optimiza este código para mejor rendimiento en el BEAM. Considera procesos, ETS, y consultas Ecto.",
+					liveview = "Convierte este código a Phoenix LiveView manteniendo la funcionalidad y mejorando la experiencia de usuario.",
+					genserver = "Implementa esto como un GenServer siguiendo las mejores prácticas de OTP.",
+				},
+				php = {
+					refactor = "Refactoriza este código PHP siguiendo PSR standards y principios SOLID. Usa type hints y documenta con PHPDoc.",
+					test = "Genera tests para este código usando PHPUnit. Incluye tests unitarios y de integración.",
+					optimize = "Optimiza este código PHP. Considera caché, consultas a base de datos, y uso de memoria.",
+					symfony = "Implementa esto siguiendo las mejores prácticas de Symfony, con servicios e inyección de dependencias.",
+					laravel = "Implementa esto siguiendo las convenciones de Laravel, usando Eloquent y los patrones del framework.",
+				},
+				python = {
+					refactor = "Refactoriza este código Python siguiendo PEP 8 y principios Pythonic. Usa type hints y comprehensions donde sea apropiado.",
+					test = "Genera tests para este código usando pytest. Incluye fixtures y parametrización cuando sea útil.",
+					optimize = "Optimiza este código Python. Considera uso de memoria, complejidad algorítmica, y bibliotecas especializadas.",
+					django = "Implementa esto siguiendo las mejores prácticas de Django, con modelos, vistas y serializers apropiados.",
+					fastapi = "Implementa esto como endpoint FastAPI con Pydantic models, dependency injection y documentación automática.",
+				},
+			}
 
-			behaviour = {
-				auto_suggestions = false,
-				auto_set_highlight_group = true,
-				auto_set_keymaps = true,
-				auto_apply_diff_after_generation = false,
-				support_paste_from_clipboard = true,
-			},
-
-			windows = {
-				position = "right",
-				width = 30,
-				sidebar_header = {
+			return {
+				provider = "gemini",
+				providers = {
+					gemini = {
+						endpoint = "https://generativelanguage.googleapis.com/v1beta/models",
+						model = "gemini-2.0-flash",
+						api_key_name = "GEMINI_API_KEY",
+						timeout = 30000,
+						temperature = 0.1,
+						max_tokens = 8192,
+						system_prompt = system_prompt,
+					},
+				},
+				web_search_engine = {
+					provider = "google",
+					search_options = {
+						site_priority = search_priorities[current_profile] or search_priorities.elixir,
+					},
+				},
+				behaviour = {
+					auto_suggestions = true,
+					auto_set_highlight_group = true,
+					auto_set_keymaps = true,
+					auto_apply_diff_after_generation = false,
+					support_paste_from_clipboard = true,
+				},
+				windows = {
+					position = "right",
+					width = 40,
+					sidebar_header = {
+						enabled = true,
+						align = "center",
+						rounded = true,
+					},
+					input = {
+						prefix = "> ",
+						height = 10,
+					},
+					edit = {
+						border = "rounded",
+						start_insert = true,
+					},
+					ask = {
+						floating = false,
+						start_insert = true,
+						border = "rounded",
+					},
+				},
+				mappings = {
+					diff = {
+						ours = "co",
+						theirs = "ct",
+						all_theirs = "ca",
+						both = "cb",
+						cursor = "cc",
+						next = "]x",
+						prev = "[x",
+					},
+				},
+				tools = {
 					enabled = true,
-					align = "center",
-					rounded = true,
 				},
-				input = {
-					prefix = "> ",
-					height = 8,
+				selector = { provider = "telescope" },
+				history = {
+					storage_path = vim.fn.stdpath("state") .. "/avante",
+					max_items = 100,
 				},
-				edit = {
-					border = "rounded",
-					start_insert = true,
-				},
-				ask = {
-					floating = false,
-					start_insert = true,
-					border = "rounded",
-				},
-			},
-
-			mappings = {
-				diff = {
-					ours = "co",
-					theirs = "ct",
-					all_theirs = "ca",
-					both = "cb",
-					cursor = "cc",
-					next = "]x",
-					prev = "[x",
-				},
-			},
-
-			tools = { enabled = true },
-
-			selector = { provider = "telescope" },
-
-			history = {
-				storage_path = vim.fn.stdpath("state") .. "/avante",
-			},
-		},
-
-		-- Configuración mínima sin comandos complejos
+				templates = templates[current_profile] or templates.elixir,
+			}
+		end,
 		config = function(_, opts)
 			require("avante").setup(opts)
 
-			-- Solo configuración básica de FileType
+			local current_profile = vim.g.nvim_profile or vim.env.nvim_profile or "elixir"
+
+			local file_patterns = {
+				elixir = { "elixir", "eelixir", "heex" },
+				php = { "php", "blade", "twig" },
+				python = { "python", "django" },
+			}
+
 			vim.api.nvim_create_autocmd("FileType", {
-				pattern = "Avante",
+				pattern = vim.list_extend(file_patterns[current_profile] or file_patterns.elixir, { "Avante" }),
 				callback = function()
 					vim.opt_local.wrap = true
 					vim.opt_local.linebreak = true
 				end,
 			})
+
+			vim.api.nvim_create_user_command("AvanteReloadProfile", function()
+				package.loaded["avante"] = nil
+				package.loaded["avante.config"] = nil
+
+				local new_opts = opts()
+
+				require("avante").setup(new_opts)
+
+				local profile = vim.g.nvim_profile or vim.env.nvim_profile or "elixir"
+				print("✅ Avante recargado con perfil: " .. profile)
+			end, {})
 		end,
 	},
 
