@@ -202,13 +202,27 @@ require("lazy").setup({
 			provider = "gemini",
 			providers = {
 				gemini = {
-					enabled = true,
 					model = "gemini-2.0-flash",
-					max_tokens = 2048,
-					temperature = 0.7,
-					top_p = 0.9,
-					use_cache = true,
 				},
+			},
+			system_prompt = [[
+            Eres un asistente experto en desarrollo enfocado en:
+            - Escribir código limpio, eficiente y mantenible
+            - Seguir mejores prácticas y patrones de diseño
+            - Proporcionar explicaciones claras cuando sea necesario
+            - Ser conciso y directo
+            Mantén las respuestas enfocadas en la tarea de código. Responde en español.]],
+			templates = {
+				ask = [[
+            {{{input}}}]],
+				edit = [[
+            {{{input}}}
+
+            {{{code_snippet}}}]],
+				suggest = [[
+            {{{code_snippet}}}
+
+            {{{input}}}]],
 			},
 		},
 	},
