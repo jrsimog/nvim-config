@@ -1,3 +1,5 @@
+-- lua/core/keymaps.lua - Configuración de atajos de teclado en Neovim
+
 local map = vim.api.nvim_set_keymap
 local opts = { noremap = true, silent = true }
 
@@ -101,14 +103,224 @@ map("n", "K", ":lua vim.lsp.buf.hover()<CR>", opts) -- Mostrar información de s
 map("n", "<leader>rn", ":lua vim.lsp.buf.rename()<CR>", opts) -- Renombrar variable
 map("n", "<leader>ca", ":lua vim.lsp.buf.code_action()<CR>", opts) -- Sugerencias de código
 
--- Atajos para Depuración con DAP
-map("n", "<leader>dc", ':lua require"dap".continue()<CR>', opts) -- Continuar depuración
-map("n", "<leader>db", ':lua require"dap".toggle_breakpoint()<CR>', opts) -- Agregar/Quitar breakpoint
-map("n", "<leader>do", ':lua require"dap".step_over()<CR>', opts) -- Paso sobre la línea
-map("n", "<leader>di", ':lua require"dap".step_into()<CR>', opts) -- Paso dentro de la función
-map("n", "<leader>du", ':lua require"dap".step_out()<CR>', opts) -- Salir de la función actual
-map("n", "<leader>dt", ':lua require"dap".terminate()<CR>', opts) -- Terminar sesión de depuración
+-- Agrega estos keymaps MEJORADOS al final de tu lua/core/keymaps.lua
+-- Se integran perfectamente con tu configuración existente
 
+-- ========================================
+-- 🐛 KEYMAPS MEJORADOS PARA DIAGNÓSTICOS Y ERRORES
+-- ========================================
+
+-- Reemplaza tus keymaps existentes de diagnósticos con estos mejorados:
+
+-- Diagnósticos principales (mejores que los que ya tienes)
+map("n", "<leader>e", "<cmd>lua vim.diagnostic.open_float({ scope = 'cursor', border = 'rounded' })<CR>", opts) -- Ver error en cursor
+map("n", "<leader>E", "<cmd>lua vim.diagnostic.open_float({ scope = 'buffer', border = 'rounded' })<CR>", opts) -- Resumen del buffer
+
+-- Navegación de errores mejorada (conserva tus existentes [d y ]d pero mejora su funcionalidad)
+map("n", "[e", "<cmd>lua vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR })<CR>", opts) -- Solo errores
+map("n", "]e", "<cmd>lua vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR })<CR>", opts) -- Solo errores
+map("n", "[w", "<cmd>lua vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.WARN })<CR>", opts) -- Solo warnings
+map("n", "]w", "<cmd>lua vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.WARN })<CR>", opts) -- Solo warnings
+
+-- Listas de diagnósticos (mejora tus existentes)
+map("n", "<leader>xx", "<cmd>Telescope diagnostics bufnr=0 severity_limit=1<CR>", opts) -- Solo errores del buffer
+map("n", "<leader>xX", "<cmd>Telescope diagnostics<CR>", opts) -- Todos los diagnósticos del workspace
+map("n", "<leader>xe", "<cmd>lua vim.diagnostic.setqflist({ severity = vim.diagnostic.severity.ERROR })<CR>", opts) -- Solo errores en quickfix
+map("n", "<leader>xw", "<cmd>lua vim.diagnostic.setqflist({ severity = vim.diagnostic.severity.WARN })<CR>", opts) -- Solo warnings en quickfix
+
+-- Información y estadísticas
+map("n", "<leader>xi", ":DiagnosticsInfo<CR>", opts) -- Mostrar estadísticas
+map("n", "<leader>xf", "<cmd>lua vim.diagnostic.open_float({ scope = 'line', border = 'rounded' })<CR>", opts) -- Errores de la línea
+
+-- ========================================
+-- 🧪 KEYMAPS ESPECÍFICOS POR PERFIL (ELIXIR MEJORADOS)
+-- ========================================
+
+-- Compilación y testing de Elixir con mejor manejo de errores
+map("n", "<leader>mcc", ":!mix compile --warnings-as-errors<CR>", opts) -- Compile con warnings como errores
+map("n", "<leader>mcd", ":!mix deps.compile --force<CR>", opts) -- Recompilar dependencias
+map("n", "<leader>mcf", ":!mix format --check-formatted<CR>", opts) -- Verificar formato
+
+-- Tests con mejor información de errores
+map("n", "<leader>mte", ":!mix test --failed --max-failures=1<CR>", opts) -- Un error a la vez
+map("n", "<leader>mtv", ":!mix test --trace --verbose<CR>", opts) -- Verbose con trace
+map("n", "<leader>mtw", ":!mix test.watch --stale<CR>", opts) -- Watch mode
+
+-- Análisis de código Elixir
+map("n", "<leader>mce", ":!mix credo --strict --all<CR>", opts) -- Credo estricto
+map("n", "<leader>mcs", ":!mix credo suggest --help<CR>", opts) -- Sugerencias de Credo
+map("n", "<leader>mcd", ":!mix dialyzer --format dialyzer<CR>", opts) -- Dialyzer con formato
+
+-- Logs y debugging específico de Elixir
+map("n", "<leader>mll", ":!tail -f _build/dev/lib/*/ebin/*.log<CR>", opts) -- Ver logs
+map("n", "<leader>mlc", ":!mix clean && mix compile<CR>", opts) -- Clean compile
+
+-- ========================================
+-- 🔧 FUNCIONES AUXILIARES PARA MEJOR EXPERIENCIA
+-- ========================================
+
+-- Función para filtrar diagnósticos por tipo
+vim.cmd([[
+function! ShowDiagnosticsSummary()
+  lua << EOF
+    local count = _G.get_diagnostics_count()
+    local total = count.errors + count.warnings + count.info + count.hints
+    
+    if total == 0 then
+      print("✅ ¡Todo limpio! Sin errores ni warnings")
+      return
+    end
+    
+    -- Crear mensaje con colores
+    local msg = "📊 Estado del archivo:\n"
+    if count.errors > 0 then
+      msg = msg .. string.format("❌ %d errores\n", count.errors)
+    end
+    if count.warnings > 0 then
+      msg = msg .. string.format("⚠️  %d warnings\n", count.warnings)
+    end
+    if count.info > 0 then
+      msg = msg .. string.format("ℹ️  %d info\n", count.info)
+    end
+    if count.hints > 0 then
+      msg = msg .. string.format("💡 %d hints\n", count.hints)
+    end
+    
+    print(msg)
+    
+    -- Si hay errores, preguntar si quiere ir al primero
+    if count.errors > 0 then
+      local response = vim.fn.input("¿Ir al primer error? (y/n): ")
+      if response:lower() == "y" then
+        vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR })
+      end
+    end
+EOF
+endfunction
+]])
+
+-- Función para limpiar todos los diagnósticos antiguos
+vim.cmd([[
+function! RefreshDiagnostics()
+  lua << EOF
+    -- Reiniciar LSP clients
+    for _, client in ipairs(vim.lsp.get_active_clients()) do
+      if client.name == "elixirls" then
+        vim.notify("🔄 Reiniciando ElixirLS...", vim.log.levels.INFO)
+        vim.lsp.buf.refresh()
+      end
+    end
+    
+    -- Limpiar diagnósticos del buffer actual
+    vim.diagnostic.reset()
+    
+    -- Forzar actualización
+    vim.schedule(function()
+      vim.lsp.buf.refresh()
+      vim.notify("✅ Diagnósticos actualizados", vim.log.levels.INFO)
+    end)
+EOF
+endfunction
+]])
+
+-- Función específica para Elixir: compilar y mostrar errores
+vim.cmd([[
+function! ElixirCompileAndCheck()
+  lua << EOF
+    vim.notify("⚗️ Compilando proyecto Elixir...", vim.log.levels.INFO)
+    
+    vim.fn.jobstart("mix compile", {
+      on_stdout = function(_, data)
+        -- Procesar salida de mix compile
+        for _, line in ipairs(data) do
+          if line:match("error") or line:match("Error") then
+            vim.schedule(function()
+              vim.notify("❌ " .. line, vim.log.levels.ERROR)
+            end)
+          elseif line:match("warning") or line:match("Warning") then
+            vim.schedule(function()
+              vim.notify("⚠️ " .. line, vim.log.levels.WARN)
+            end)
+          end
+        end
+      end,
+      on_exit = function(_, exit_code)
+        vim.schedule(function()
+          if exit_code == 0 then
+            vim.notify("✅ Compilación exitosa", vim.log.levels.INFO)
+            -- Actualizar diagnósticos
+            vim.lsp.buf.refresh()
+          else
+            vim.notify("❌ Compilación falló - revisa los errores", vim.log.levels.ERROR)
+            -- Ir al primer error si existe
+            vim.defer_fn(function()
+              local diagnostics = vim.diagnostic.get(0, { severity = vim.diagnostic.severity.ERROR })
+              if #diagnostics > 0 then
+                vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR })
+              end
+            end, 500)
+          end
+        end)
+      end
+    })
+EOF
+endfunction
+]])
+
+-- Mapeos para las funciones auxiliares
+map("n", "<leader>ds", ":call ShowDiagnosticsSummary()<CR>", opts) -- Resumen de diagnósticos
+map("n", "<leader>dr", ":call RefreshDiagnostics()<CR>", opts) -- Refrescar diagnósticos
+map("n", "<leader>mxx", ":call ElixirCompileAndCheck()<CR>", opts) -- Compile Elixir con info
+
+-- ========================================
+-- 💡 KEYMAPS DE AYUDA Y QUICKFIX
+-- ========================================
+
+-- Navegación en quickfix mejorada
+map("n", "<leader>qo", ":copen<CR>", opts) -- Abrir quickfix
+map("n", "<leader>qc", ":cclose<CR>", opts) -- Cerrar quickfix
+map("n", "<leader>qn", ":cnext<CR>", opts) -- Siguiente en quickfix
+map("n", "<leader>qp", ":cprev<CR>", opts) -- Anterior en quickfix
+map("n", "<leader>qf", ":cfirst<CR>", opts) -- Primer item en quickfix
+map("n", "<leader>ql", ":clast<CR>", opts) -- Último item en quickfix
+
+-- Location list mejorada
+map("n", "<leader>lo", ":lopen<CR>", opts) -- Abrir location list
+map("n", "<leader>lc", ":lclose<CR>", opts) -- Cerrar location list
+map("n", "<leader>ln", ":lnext<CR>", opts) -- Siguiente en location list
+map("n", "<leader>lp", ":lprev<CR>", opts) -- Anterior en location list
+
+-- ========================================
+-- 📝 RESUMEN DE NUEVOS KEYMAPS PARA ERRORES
+-- ========================================
+-- NAVEGACIÓN DE ERRORES:
+-- <leader>e    - Ver error en cursor (flotante)
+-- <leader>E    - Resumen del buffer
+-- [e / ]e      - Navegar solo errores
+-- [w / ]w      - Navegar solo warnings
+-- [d / ]d      - Navegar todos los diagnósticos (tu original)
+--
+-- LISTAS Y VISTAS:
+-- <leader>xx   - Errores del buffer (Telescope)
+-- <leader>xX   - Errores del workspace (Telescope)
+-- <leader>xe   - Solo errores en quickfix
+-- <leader>xw   - Solo warnings en quickfix
+--
+-- INFORMACIÓN:
+-- <leader>xi   - Estadísticas de diagnósticos
+-- <leader>ds   - Resumen interactivo
+-- <leader>dr   - Refrescar diagnósticos
+--
+-- ELIXIR ESPECÍFICO:
+-- <leader>mcc  - Compile con warnings como errores
+-- <leader>mte  - Test solo fallos, uno a la vez
+-- <leader>mce  - Credo estricto
+-- <leader>mxx  - Compile con notificaciones
+--
+-- QUICKFIX:
+-- <leader>qo/qc - Abrir/cerrar quickfix
+-- <leader>qn/qp - Navegar quickfix
+-- <leader>lo/lc - Abrir/cerrar location list
 -- ========================================
 -- 🧪 ATAJOS MEJORADOS PARA AVANTE.NVIM (ELIXIR/PHOENIX)
 -- ========================================
