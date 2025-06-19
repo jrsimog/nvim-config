@@ -539,6 +539,17 @@ map("n", "<leader>gbl", ":Git blame<CR>", opts)
 map("n", "<leader>gcb", ":call CreateGitBranch()<CR>", opts)
 map("n", "<leader>gdb", ":call DeleteGitBranch()<CR>", opts)
 
+-- Atajos para Git Stash (nuevos)
+map("n", "<leader>gst", ":Git stash<CR>", opts) -- Crear stash
+map("n", "<leader>gstm", ":call GitStashWithMessage()<CR>", opts) -- Stash con mensaje
+map("n", "<leader>gsl", ":Git stash list<CR>", opts) -- Listar stashes
+map("n", "<leader>gsa", ":Git stash apply<CR>", opts) -- Aplicar último stash
+map("n", "<leader>gsp", ":Git stash pop<CR>", opts) -- Pop último stash
+map("n", "<leader>gsd", ":Git stash drop<CR>", opts) -- Eliminar último stash
+map("n", "<leader>gsw", ":Git stash show<CR>", opts) -- Mostrar contenido del stash
+map("n", "<leader>gsc", ":Git stash clear<CR>", opts) -- Limpiar todos los stashes
+map("n", "<leader>gss", ":call InteractiveGitStash()<CR>", opts) -- Stash interactivo
+
 -- Diffview keymaps
 map("n", "<leader>dv", ":call OpenDiffviewWithBranch()<CR>", opts)
 map("n", "<leader>dq", ":DiffviewClose<CR>", opts)
@@ -667,6 +678,74 @@ map("n", "<leader>sB", ":Telescope current_buffer_fuzzy_find<CR>", opts)
 vim.cmd([[
   command! -nargs=1 ReactComponent lua ReactCreateComponent(<f-args>)
   command! -nargs=1 ReactPage lua ReactCreatePage(<f-args>)
+]])
+
+-- Funciones auxiliares para Git Stash
+vim.cmd([[
+function! GitStashWithMessage()
+  let l:message = input('Mensaje del stash: ')
+  if l:message != ''
+    execute 'Git stash push -m "' . l:message . '"'
+  else
+    echo 'Operación cancelada'
+  endif
+endfunction
+
+function! InteractiveGitStash()
+  let l:options = [
+    '1. Crear stash',
+    '2. Crear stash con mensaje',
+    '3. Listar stashes',
+    '4. Aplicar stash',
+    '5. Pop stash',
+    '6. Mostrar stash',
+    '7. Eliminar stash',
+    '8. Limpiar todos los stashes'
+  ]
+  
+  let l:choice = inputlist(['Selecciona una opción:'] + l:options)
+  
+  if l:choice == 1
+    execute 'Git stash'
+  elseif l:choice == 2
+    call GitStashWithMessage()
+  elseif l:choice == 3
+    execute 'Git stash list'
+  elseif l:choice == 4
+    let l:stash = input('Número del stash (0 para el último): ')
+    if l:stash != ''
+      execute 'Git stash apply stash@{' . l:stash . '}'
+    else
+      execute 'Git stash apply'
+    endif
+  elseif l:choice == 5
+    let l:stash = input('Número del stash (0 para el último): ')
+    if l:stash != ''
+      execute 'Git stash pop stash@{' . l:stash . '}'
+    else
+      execute 'Git stash pop'
+    endif
+  elseif l:choice == 6
+    let l:stash = input('Número del stash (0 para el último): ')
+    if l:stash != ''
+      execute 'Git stash show stash@{' . l:stash . '}'
+    else
+      execute 'Git stash show'
+    endif
+  elseif l:choice == 7
+    let l:stash = input('Número del stash a eliminar: ')
+    if l:stash != ''
+      execute 'Git stash drop stash@{' . l:stash . '}'
+    endif
+  elseif l:choice == 8
+    let l:confirm = input('¿Estás seguro de eliminar todos los stashes? (y/N): ')
+    if l:confirm ==? 'y'
+      execute 'Git stash clear'
+    endif
+  else
+    echo 'Operación cancelada'
+  endif
+endfunction
 ]])
 
 vim.api.nvim_exec(
