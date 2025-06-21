@@ -67,7 +67,7 @@ lspconfig.intelephense.setup({
 			end,
 		})
 
-		print("✅ Intelephense conectado con importación automática para PHP")
+		-- print("✅ Intelephense conectado con importación automática para PHP")
 	end,
 })
 
@@ -80,7 +80,13 @@ vim.api.nvim_set_keymap("n", "<leader>ps", ":!symfony server:start<CR>", { norem
 vim.api.nvim_set_keymap("n", "<leader>pc", ":!symfony console<CR>", { noremap = true, silent = true })
 
 -- Formateo automático con php-cs-fixer antes de guardar
-vim.cmd([[autocmd BufWritePre *.php lua vim.lsp.buf.format()]])
+vim.cmd([[
+  augroup PhpFormat
+    autocmd!
+    autocmd BufWritePre *.php silent! execute '!php-cs-fixer fix % --quiet'
+    autocmd BufWritePost *.php edit!
+  augroup END
+]])
 
 -- Comandos útiles para PHP
 vim.api.nvim_create_user_command("PhpIndexRefresh", function()

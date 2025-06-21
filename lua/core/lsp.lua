@@ -119,7 +119,7 @@ local on_attach = function(client, bufnr)
 				vim.log.levels.INFO
 			)
 		else
-			vim.notify("LSP cargado - Sin errores detectados ✅", vim.log.levels.INFO)
+			-- vim.notify("LSP cargado - Sin errores detectados ✅", vim.log.levels.INFO)
 		end
 	end)
 end
