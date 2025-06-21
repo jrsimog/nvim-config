@@ -1,5 +1,15 @@
--- lua/core/lsp.lua - Configuración de LSP mejorada con diagnósticos
+-- lua/core/lsp.lua - Configuración de LSP mejorada con diagnósticos y autocompletado
 local lspconfig = require("lspconfig")
+
+-- IMPORTANTE: Agregar capacidades de autocompletado
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+-- Verificar si cmp_nvim_lsp está disponible
+local has_cmp, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
+if has_cmp then
+	capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
+else
+	print("⚠️ cmp_nvim_lsp no encontrado - autocompletado limitado")
+end
 
 -- Configuración global de diagnósticos (aplicable a todos los perfiles)
 vim.diagnostic.config({
@@ -77,29 +87,15 @@ local on_attach = function(client, bufnr)
 	if client.name == "elixirls" then
 		print("⚗️ ElixirLS conectado - Diagnósticos habilitados para buffer " .. bufnr)
 		-- Deshabilitar formato si usas mix format
-		client.server_capabilities.documentFormattingProvider = false
+		client.server_capabilities.documentFormattingProvider = true
 
 		-- Configurar autocomandos específicos para Elixir
-		vim.api.nvim_create_autocmd("BufWritePost", {
+
+		vim.api.nvim_create_autocmd("BufWritePre", {
 			group = group,
 			buffer = bufnr,
-			pattern = "*.ex,*.exs",
 			callback = function()
-				-- Ejecutar mix compile después de guardar para obtener errores actualizados
-				vim.fn.jobstart("mix compile", {
-					on_exit = function(_, exit_code)
-						if exit_code ~= 0 then
-							vim.schedule(function()
-								vim.notify("Mix compile falló - revisa los errores", vim.log.levels.WARN)
-							end)
-						else
-							vim.schedule(function()
-								vim.diagnostic.reset(bufnr) -- Limpiar diagnósticos antiguos
-								vim.lsp.buf.refresh() -- Refrescar LSP
-							end)
-						end
-					end,
-				})
+				vim.lsp.buf.format()
 			end,
 		})
 	elseif client.name == "intelephense" then
@@ -132,6 +128,7 @@ end
 local server_configs = {
 	-- Configuración para Lua (útil para configurar Neovim)
 	lua_ls = {
+		capabilities = capabilities, -- AGREGAR CAPABILITIES
 		on_attach = on_attach,
 		settings = {
 			Lua = {
@@ -166,6 +163,7 @@ end
 -- Configurar servidores con configuración estándar
 for _, server in ipairs(standard_servers) do
 	lspconfig[server].setup({
+		capabilities = capabilities, -- AGREGAR CAPABILITIES
 		on_attach = on_attach,
 		flags = { debounce_text_changes = 150 },
 	})
@@ -234,4 +232,8 @@ vim.api.nvim_create_autocmd("LspAttach", {
 	end,
 })
 
-return {}
+-- Exportar capabilities para que los perfiles puedan usarlas
+return {
+	capabilities = capabilities,
+	on_attach = on_attach,
+}

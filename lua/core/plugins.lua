@@ -17,6 +17,63 @@ require("lazy").setup({
 	-- LSP y Autocompletado
 	{ "neovim/nvim-lspconfig" },
 
+	-- Motor de autocompletado (INDEPENDIENTE, no en dependencias)
+	{
+		"hrsh7th/nvim-cmp",
+		event = "InsertEnter",
+		dependencies = {
+			-- Fuentes de autocompletado
+			"hrsh7th/cmp-nvim-lsp",
+			"hrsh7th/cmp-buffer",
+			"hrsh7th/cmp-path",
+			"hrsh7th/cmp-cmdline",
+			"saadparwaiz1/cmp_luasnip",
+			"hrsh7th/cmp-nvim-lua",
+
+			-- Motor de snippets
+			{
+				"L3MON4D3/LuaSnip",
+				version = "v2.*",
+				build = "make install_jsregexp",
+				dependencies = {
+					"rafamadriz/friendly-snippets",
+				},
+			},
+
+			-- -- Copilot
+			-- {
+			-- 	"zbirenbaum/copilot-cmp",
+			-- 	config = function()
+			-- 		require("copilot_cmp").setup()
+			-- 	end,
+			-- 	dependencies = {
+			-- 		"zbirenbaum/copilot.lua",
+			-- 		cmd = "Copilot",
+			-- 		config = function()
+			-- 			require("copilot").setup({
+			-- 				suggestion = { enabled = false },
+			-- 				panel = { enabled = false },
+			-- 			})
+			-- 		end,
+			-- 	},
+			-- },
+
+			-- Íconos para el menú
+			"onsails/lspkind.nvim",
+		},
+	},
+
+	-- Snippets específicos para Elixir
+	{
+		"florinpatrascu/vscode-elixir-snippets",
+		event = { "BufReadPre *.ex", "BufReadPre *.exs", "BufReadPre *.heex" },
+	},
+
+	-- Schema store para JSON LSP
+	{
+		"b0o/schemastore.nvim",
+		lazy = true,
+	},
 	-- Treesitter
 	{
 		"nvim-treesitter/nvim-treesitter",
@@ -172,7 +229,7 @@ require("lazy").setup({
 			"MunifTanjim/nui.nvim",
 			"echasnovski/mini.pick",
 			"nvim-telescope/telescope.nvim",
-			"hrsh7th/nvim-cmp",
+			-- "hrsh7th/nvim-cmp",
 			"ibhagwan/fzf-lua",
 			"nvim-tree/nvim-web-devicons",
 			"github/copilot.vim",
