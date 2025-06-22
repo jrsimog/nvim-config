@@ -1,9 +1,7 @@
 -- lua/core/lsp.lua - Configuración de LSP mejorada con diagnósticos y autocompletado
 local lspconfig = require("lspconfig")
 
--- IMPORTANTE: Agregar capacidades de autocompletado
 local capabilities = vim.lsp.protocol.make_client_capabilities()
--- Verificar si cmp_nvim_lsp está disponible
 local has_cmp, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
 if has_cmp then
 	capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
@@ -11,14 +9,12 @@ else
 	print("⚠️ cmp_nvim_lsp no encontrado - autocompletado limitado")
 end
 
--- Configuración global de diagnósticos (aplicable a todos los perfiles)
 vim.diagnostic.config({
 	virtual_text = {
 		enabled = true,
-		prefix = "●", -- Ícono para errores inline
-		source = "always", -- Mostrar fuente del error
+		prefix = "●",
+		source = "always",
 		format = function(diagnostic)
-			-- Mostrar solo los primeros 50 caracteres del mensaje
 			local message = diagnostic.message
 			if #message > 50 then
 				return string.sub(message, 1, 50) .. "..."
@@ -28,7 +24,7 @@ vim.diagnostic.config({
 	},
 	float = {
 		enabled = true,
-		source = "always", -- Mostrar fuente en ventanas flotantes
+		source = "always",
 		border = "rounded",
 		header = "Diagnóstico",
 		prefix = "● ",
@@ -39,14 +35,13 @@ vim.diagnostic.config({
 	},
 	signs = {
 		enabled = true,
-		priority = 8, -- Prioridad alta para que se vean sobre otros signos
+		priority = 8,
 	},
 	underline = true,
-	update_in_insert = false, -- No actualizar en modo inserción para mejor rendimiento
-	severity_sort = true, -- Ordenar por severidad (errores primero)
+	update_in_insert = false,
+	severity_sort = true,
 })
 
--- Configurar signos de diagnóstico con íconos más llamativos
 local signs = {
 	Error = "󰅚 ",
 	Warn = "󰀪 ",
@@ -58,20 +53,15 @@ for type, icon in pairs(signs) do
 	vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
 end
 
--- Configuración común para on_attach mejorada
 local on_attach = function(client, bufnr)
-	-- Habilitar completion triggered by <c-x><c-o>
 	vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
 
-	-- Configurar hover automático para mostrar errores
 	local group = vim.api.nvim_create_augroup("lsp_diagnostics_" .. bufnr, { clear = true })
 
-	-- Mostrar diagnósticos automáticamente al mantener el cursor
 	vim.api.nvim_create_autocmd("CursorHold", {
 		group = group,
 		buffer = bufnr,
 		callback = function()
-			-- Solo mostrar si hay diagnósticos en la línea actual
 			local diagnostics = vim.diagnostic.get(bufnr, { lnum = vim.fn.line(".") - 1 })
 			if #diagnostics > 0 then
 				vim.diagnostic.open_float(nil, {
@@ -83,13 +73,9 @@ local on_attach = function(client, bufnr)
 		end,
 	})
 
-	-- Configuraciones específicas por cliente
 	if client.name == "elixirls" then
 		print("⚗️ ElixirLS conectado - Diagnósticos habilitados para buffer " .. bufnr)
-		-- Deshabilitar formato si usas mix format
 		client.server_capabilities.documentFormattingProvider = true
-
-		-- Configurar autocomandos específicos para Elixir
 
 		vim.api.nvim_create_autocmd("BufWritePre", {
 			group = group,
@@ -100,17 +86,16 @@ local on_attach = function(client, bufnr)
 		})
 	elseif client.name == "intelephense" then
 		print("🐘 Intelephense conectado - Diagnósticos habilitados para buffer " .. bufnr)
-		client.server_capabilities.documentFormattingProvider = false -- Usar php-cs-fixer
+		client.server_capabilities.documentFormattingProvider = false
 	elseif client.name == "ts_ls" then
 		print("📜 TypeScript LSP conectado - Diagnósticos habilitados para buffer " .. bufnr)
-		client.server_capabilities.documentFormattingProvider = false -- Usar Prettier
+		client.server_capabilities.documentFormattingProvider = false
 	elseif client.name == "pyright" then
 		print("🐍 Pyright conectado - Diagnósticos habilitados para buffer " .. bufnr)
 	elseif client.name == "jdtls" then
 		print("☕ Java LSP conectado - Diagnósticos habilitados para buffer " .. bufnr)
 	end
 
-	-- Mensaje de confirmación
 	vim.schedule(function()
 		local diagnostics_count = #vim.diagnostic.get(bufnr)
 		if diagnostics_count > 0 then
@@ -124,18 +109,15 @@ local on_attach = function(client, bufnr)
 	end)
 end
 
--- Configuraciones específicas por servidor (solo servidores comunes)
 local server_configs = {
-	-- Configuración para Lua (útil para configurar Neovim)
 	lua_ls = {
-		capabilities = capabilities, -- AGREGAR CAPABILITIES
+		capabilities = capabilities,
 		on_attach = on_attach,
 		settings = {
 			Lua = {
 				runtime = { version = "LuaJIT" },
 				diagnostics = {
 					globals = { "vim" },
-					-- Configurar severidad de diagnósticos
 					severity = {
 						["undefined-global"] = "Error",
 						["trailing-space"] = "Warning",
@@ -152,27 +134,22 @@ local server_configs = {
 	},
 }
 
--- Servidores LSP comunes (que NO están en ningún perfil específico)
 local standard_servers = { "html", "cssls", "jsonls" }
 
--- Configurar servidores con configuración personalizada
 for server_name, config in pairs(server_configs) do
 	lspconfig[server_name].setup(config)
 end
 
--- Configurar servidores con configuración estándar
 for _, server in ipairs(standard_servers) do
 	lspconfig[server].setup({
-		capabilities = capabilities, -- AGREGAR CAPABILITIES
+		capabilities = capabilities,
 		on_attach = on_attach,
 		flags = { debounce_text_changes = 150 },
 	})
 end
 
--- Activar autocompletado
 vim.o.completeopt = "menuone,noselect"
 
--- Función global para obtener estadísticas de diagnósticos
 function _G.get_diagnostics_count()
 	local bufnr = vim.api.nvim_get_current_buf()
 	local diagnostics = vim.diagnostic.get(bufnr)
@@ -193,7 +170,6 @@ function _G.get_diagnostics_count()
 	return count
 end
 
--- Comando para mostrar estadísticas
 vim.api.nvim_create_user_command("DiagnosticsInfo", function()
 	local count = _G.get_diagnostics_count()
 	local total = count.errors + count.warnings + count.info + count.hints
@@ -213,7 +189,6 @@ vim.api.nvim_create_user_command("DiagnosticsInfo", function()
 	end
 end, {})
 
--- Auto-comando para mostrar conteo al abrir archivos
 vim.api.nvim_create_autocmd("LspAttach", {
 	callback = function(args)
 		local client = vim.lsp.get_client_by_id(args.data.client_id)
@@ -227,12 +202,11 @@ vim.api.nvim_create_autocmd("LspAttach", {
 						vim.log.levels.WARN
 					)
 				end
-			end, 1000) -- Esperar 1 segundo para que el LSP termine de cargar
+			end, 1000)
 		end
 	end,
 })
 
--- Exportar capabilities para que los perfiles puedan usarlas
 return {
 	capabilities = capabilities,
 	on_attach = on_attach,

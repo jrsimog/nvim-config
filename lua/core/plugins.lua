@@ -345,12 +345,81 @@ require("lazy").setup({
 		config = function()
 			require("bufferline").setup({
 				options = {
-					separator_style = "slam",
+					separator_style = "slant",
 					diagnostics = "nvim_lsp",
-					show_buffer_close_icons = false,
-					show_close_icon = false,
+					diagnostics_update_in_insert = false,
+					diagnostics_indicator = function(count, level, diagnostics_dict, context)
+						local icon = level:match("error") and " " or " "
+						return " " .. icon .. count
+					end,
+					show_buffer_close_icons = true,
+					show_close_icon = true,
 					always_show_bufferline = true,
 					enforce_regular_tabs = false,
+					show_buffer_icons = true,
+					show_tab_indicators = true,
+					persist_buffer_sort = true,
+					sort_by = "insert_after_current",
+					custom_filter = function(buf_number, buf_numbers)
+						local filetype = vim.bo[buf_number].filetype
+						if filetype == "qf" or filetype == "help" or filetype == "fugitive" then
+							return false
+						end
+						return true
+					end,
+					offsets = {
+						{
+							filetype = "NvimTree",
+							text = "📁 Explorador",
+							text_align = "center",
+							separator = true,
+						},
+						{
+							filetype = "neo-tree",
+							text = "📁 Neo Tree",
+							text_align = "center",
+							separator = true,
+						},
+					},
+					groups = {
+						items = {
+							{
+								name = "Tests",
+								highlight = { underline = true, sp = "blue" },
+								priority = 2,
+								icon = "",
+								matcher = function(buf)
+									return buf.name:match("%_test") or buf.name:match("%.test%.")
+								end,
+							},
+							{
+								name = "Docs",
+								highlight = { underline = true, sp = "green" },
+								priority = 1,
+								icon = "",
+								matcher = function(buf)
+									return buf.name:match("%.md") or buf.name:match("README")
+								end,
+							},
+						},
+					},
+				},
+				highlights = {
+					buffer_selected = {
+						bold = true,
+						italic = false,
+					},
+					diagnostic_selected = {
+						bold = true,
+					},
+					error_selected = {
+						fg = "#e06c75",
+						bold = true,
+					},
+					warning_selected = {
+						fg = "#e5c07b",
+						bold = true,
+					},
 				},
 			})
 		end,
