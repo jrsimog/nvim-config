@@ -82,6 +82,7 @@ map("n", "<Tab>", ":BufferLineCycleNext<CR>", opts) -- Siguiente buffer
 map("n", "<S-Tab>", ":BufferLineCyclePrev<CR>", opts) -- Buffer anterior
 map("n", "<leader>bp", ":BufferLinePick<CR>", opts) -- Seleccionar buffer
 map("n", "<leader>bc", ":BufferLineCloseLeft<CR>:BufferLineCloseRight<CR>", opts) -- Cerrar buffers excepto el actual
+map("n", "<leader>bq", ":BufferLineClose<CR>", opts) -- Cerrar buffer actual
 
 -- Atajos de Telescope (búsquedas avanzadas)
 map("n", "<leader>ff", ":Telescope find_files no_ignore=true<CR>", opts) -- Buscar archivos

@@ -221,7 +221,6 @@ require("lazy").setup({
 		"yetone/avante.nvim",
 		event = "VeryLazy",
 		build = "make",
-		auto_suggestions_provider = "copilot",
 		dependencies = {
 			"nvim-treesitter/nvim-treesitter",
 			"stevearc/dressing.nvim",
@@ -256,34 +255,60 @@ require("lazy").setup({
 			},
 		},
 		opts = {
+			mode = "agentic",
+			auto_suggestions_provider = "copilot",
 			provider = "gemini",
 			providers = {
 				gemini = {
 					model = "gemini-2.0-flash",
 				},
 			},
+			web_search_engine = {
+				provider = "google",
+				providers = {
+					google = {
+						api_key_name = "GOOGLE_SEARCH_API_KEY",
+						engine_id_name = "GOOGLE_SEARCH_ENGINE_ID",
+						extra_request_body = {},
+						---@type WebSearchEngineProviderResponseBodyFormatter
+						format_response_body = function(body)
+							if body.items ~= nil then
+								local jsn = vim.iter(body.items)
+									:map(function(result)
+										return {
+											title = result.title,
+											link = result.link,
+											snippet = result.snippet,
+										}
+									end)
+									:take(10)
+									:totable()
+								return vim.json.encode(jsn), nil
+							end
+							return "", nil
+						end,
+					},
+				},
+			},
 			system_prompt = [[
-            Eres un asistente experto en desarrollo enfocado en:
-            - Escribir código limpio, eficiente y mantenible
-            - Seguir mejores prácticas y patrones de diseño
-            - Proporcionar explicaciones claras cuando sea necesario
-            - Ser conciso y directo
-            Mantén las respuestas enfocadas en la tarea de código. Responde en español.]],
+		Eres un asistente experto en desarrollo enfocado en:
+		- Escribir código limpio, eficiente y mantenible
+		- Seguir mejores prácticas y patrones de diseño
+		- Proporcionar explicaciones claras cuando sea necesario
+		- Ser conciso y directo
+		Mantén las respuestas enfocadas en la tarea de código. Responde en español.]],
 			templates = {
 				ask = [[
-            {{{input}}}]],
+			{{{input}}}]],
 				edit = [[
-            {{{input}}}
-
-            {{{code_snippet}}}]],
+			{{{input}}}
+			{{{code_snippet}}}]],
 				suggest = [[
-            {{{code_snippet}}}
-
-            {{{input}}}]],
+			{{{code_snippet}}}
+			{{{input}}}]],
 			},
 		},
-	},
-	-- Explorador de directorios
+	}, -- Explorador de directorios
 	{
 		"nvim-tree/nvim-tree.lua",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
