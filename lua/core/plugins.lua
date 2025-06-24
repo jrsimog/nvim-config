@@ -257,7 +257,6 @@ require("lazy").setup({
 		opts = {
 			provider = "gemini",
 			auto_suggestions_provider = "copilot",
-
 			providers = {
 				gemini = {
 					model = "gemini-2.5-pro",
@@ -267,7 +266,6 @@ require("lazy").setup({
 					max_tokens = 8192,
 				},
 			},
-
 			web_search_engine = {
 				provider = "google",
 				providers = {
@@ -345,15 +343,13 @@ require("lazy").setup({
             Proporciona sugerencias específicas en español.
             ]],
 			},
-
 			behaviour = {
 				auto_suggestions = false,
-				auto_set_keymaps = false,
+				-- auto_set_keymaps = false,
 				auto_apply_diff_after_generation = false,
 				minimize_diff = true,
 				enable_token_counting = true,
 			},
-
 			windows = {
 				position = "right",
 				width = 35,
@@ -374,14 +370,12 @@ require("lazy").setup({
 					border = "rounded",
 				},
 			},
-
 			highlights = {
 				diff = {
 					current = "DiffText",
 					incoming = "DiffAdd",
 				},
 			},
-
 			suggestion = {
 				debounce = 1000,
 				throttle = 1000,
@@ -389,82 +383,13 @@ require("lazy").setup({
 		},
 		config = function(_, opts)
 			require("avante").setup(opts)
-
-			local map = vim.keymap.set
-			local opts_map = { noremap = true, silent = true }
-
-			map("n", "<leader>aa", function()
-				require("avante.api").ask()
-			end, vim.tbl_extend("force", opts_map, { desc = "Avante: Ask" }))
-
-			map("v", "<leader>aa", function()
-				require("avante.api").ask()
-			end, vim.tbl_extend("force", opts_map, { desc = "Avante: Ask with selection" }))
-
-			map("n", "<leader>ae", function()
-				require("avante.api").edit()
-			end, vim.tbl_extend("force", opts_map, { desc = "Avante: Edit" }))
-
-			map("v", "<leader>ae", function()
-				require("avante.api").edit()
-			end, vim.tbl_extend("force", opts_map, { desc = "Avante: Edit selection" }))
-
-			map("n", "<leader>ar", function()
-				require("avante.api").refresh()
-			end, vim.tbl_extend("force", opts_map, { desc = "Avante: Refresh" }))
-
-			map(
-				"n",
-				"<leader>at",
-				"<cmd>AvanteToggle<CR>",
-				vim.tbl_extend("force", opts_map, { desc = "Avante: Toggle" })
-			)
-
-			map(
-				"n",
-				"<leader>af",
-				"<cmd>AvanteFocus<CR>",
-				vim.tbl_extend("force", opts_map, { desc = "Avante: Focus" })
-			)
-
 			vim.api.nvim_create_autocmd("FileType", {
 				pattern = "Avante",
-				callback = function(args)
-					local bufnr = args.buf
-
-					map("n", "co", function()
-						require("avante.diff").choose("ours")
-					end, { buffer = bufnr, desc = "Choose ours" })
-
-					map("n", "ct", function()
-						require("avante.diff").choose("theirs")
-					end, { buffer = bufnr, desc = "Choose theirs" })
-
-					map("n", "ca", function()
-						require("avante.diff").choose("all_theirs")
-					end, { buffer = bufnr, desc = "Choose all theirs" })
-
-					map("n", "cb", function()
-						require("avante.diff").choose("both")
-					end, { buffer = bufnr, desc = "Choose both" })
-
-					map("n", "cc", function()
-						require("avante.diff").choose("cursor")
-					end, { buffer = bufnr, desc = "Choose cursor" })
-
-					map("n", "]x", function()
-						require("avante.diff").next()
-					end, { buffer = bufnr, desc = "Next diff" })
-
-					map("n", "[x", function()
-						require("avante.diff").prev()
-					end, { buffer = bufnr, desc = "Previous diff" })
-
+				callback = function()
 					vim.opt_local.wrap = true
 					vim.opt_local.linebreak = true
 				end,
 			})
-
 			vim.api.nvim_create_user_command("AvanteElixir", function()
 				require("avante.api").ask({
 					question = "Analiza este código Elixir siguiendo principios OTP y mejores prácticas. Responde en español.",
@@ -501,8 +426,7 @@ require("lazy").setup({
 			end, { desc = "Avante: Modo debugging con diagnósticos" })
 			-- vim.notify("✅ Avante.nvim configurado correctamente", vim.log.levels.INFO)
 		end,
-	},
-	-- Explorador de directorios
+	}, -- Explorador de directorios
 	{
 		"nvim-tree/nvim-tree.lua",
 		dependencies = { "nvim-tree/nvim-web-devicons" },

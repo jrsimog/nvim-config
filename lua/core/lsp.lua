@@ -111,6 +111,7 @@ end
 
 local server_configs = {
 	lua_ls = {
+		cmd = { "/home/jose/.asdf/shims/lua-language-server" }, -- ← AGREGAR ESTA LÍNEA
 		capabilities = capabilities,
 		on_attach = on_attach,
 		settings = {
