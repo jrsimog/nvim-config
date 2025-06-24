@@ -1,7 +1,6 @@
 -- lua/profiles/elixir.lua - Perfil Elixir con autocompletado mejorado
 print("⚗️ Cargando perfil Elixir...")
 vim.g.mapleader = " "
-
 require("core.plugins")
 local lsp_config = require("core.lsp")
 local lspconfig = require("lspconfig")
@@ -22,36 +21,33 @@ local function find_elixir_ls()
 end
 
 local elixir_ls_cmd = find_elixir_ls()
+
 if elixir_ls_cmd then
 	local source = elixir_ls_cmd:match("mason") and "Mason" or "Manual"
 	print("✅ ElixirLS encontrado (" .. source .. "): " .. elixir_ls_cmd)
 
-	-- IMPORTANTE: Usar las capacidades del core LSP
 	lspconfig.elixirls.setup({
 		cmd = { elixir_ls_cmd },
-		capabilities = lsp_config.capabilities, -- Usar capabilities con nvim-cmp
+		capabilities = lsp_config.capabilities,
 		on_attach = function(client, bufnr)
-			-- Usar on_attach del core
 			lsp_config.on_attach(client, bufnr)
 
-			-- Configuración adicional específica de Elixir
 			vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
 			client.server_capabilities.documentFormattingProvider = true
 
-			-- Configurar autocompletado específico para Elixir
-			vim.api.nvim_buf_create_autocmd("TextChangedI", {
+			vim.api.nvim_create_autocmd("TextChangedI", {
 				buffer = bufnr,
 				callback = function()
-					-- Forzar actualización del autocompletado
 					local row, col = unpack(vim.api.nvim_win_get_cursor(0))
 					local line = vim.api.nvim_get_current_line()
 					local before_cursor = line:sub(1, col)
 
-					-- Si estamos escribiendo una palabra que empieza con 'def'
 					if before_cursor:match("def[a-z]*$") then
-						-- Trigger autocompletado
 						vim.schedule(function()
-							require("cmp").complete()
+							local cmp_ok, cmp = pcall(require, "cmp")
+							if cmp_ok then
+								cmp.complete()
+							end
 						end)
 					end
 				end,
@@ -78,20 +74,16 @@ else
 	print("💡 Instala con: :MasonInstall elixir-ls")
 end
 
--- Configuración básica sin conflictos
 vim.api.nvim_create_autocmd("FileType", {
 	pattern = { "elixir", "eelixir", "heex" },
 	callback = function()
 		vim.opt_local.shiftwidth = 2
 		vim.opt_local.tabstop = 2
 		vim.opt_local.expandtab = true
-
-		-- Configurar timeout para mejor respuesta del autocompletado
 		vim.opt_local.updatetime = 300
 	end,
 })
 
--- Comandos útiles
 vim.api.nvim_create_user_command("ElixirStatus", function()
 	print("🔍 Estado de ElixirLS:")
 	print("- Comando: " .. (elixir_ls_cmd or "❌ No encontrado"))
@@ -110,7 +102,6 @@ vim.api.nvim_create_user_command("ElixirStatus", function()
 		print("- LSP: ❌ No hay clientes activos")
 	end
 
-	-- Verificar nvim-cmp
 	local has_cmp = pcall(require, "cmp")
 	print("- nvim-cmp: " .. (has_cmp and "✅ Instalado" or "❌ No instalado"))
 end, {})

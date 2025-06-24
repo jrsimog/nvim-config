@@ -598,8 +598,8 @@ map("n", "<leader>rn", ":lua vim.lsp.buf.rename()<CR>", opts)
 map("n", "<leader>ca", ":lua vim.lsp.buf.code_action()<CR>", opts)
 
 -- Diagnósticos principales
-map("n", "<leader>e", "<cmd>lua vim.diagnostic.open_float({ scope = 'cursor', border = 'rounded' })<CR>", opts)
-map("n", "<leader>E", "<cmd>lua vim.diagnostic.open_float({ scope = 'buffer', border = 'rounded' })<CR>", opts)
+-- map("n", "<leader>e", "<cmd>lua vim.diagnostic.open_float({ scope = 'cursor', border = 'rounded' })<CR>", opts)
+-- map("n", "<leader>E", "<cmd>lua vim.diagnostic.open_float({ scope = 'buffer', border = 'rounded' })<CR>", opts)
 
 -- Navegación de diagnósticos
 map("n", "[d", "<cmd>lua vim.diagnostic.goto_prev()<CR>", opts)

@@ -149,6 +149,12 @@ require("lazy").setup({
 				json = { "prettier" },
 				yaml = { "prettier" },
 				markdown = { "prettier" },
+				php = { "php-cs-fixer" },
+				elixir = { "mix_format" },
+				sql = { "sql_formatter" },
+				heex = { "mix_format" },
+				exs = { "mix_format" },
+				ex = { "mix_format" },
 			},
 			format_on_save = {
 				timeout_ms = 500,
@@ -220,18 +226,16 @@ require("lazy").setup({
 	{
 		"yetone/avante.nvim",
 		event = "VeryLazy",
-		build = "make",
+		version = false,
+		build = "make BUILD_FROM_SOURCE=true",
 		dependencies = {
 			"nvim-treesitter/nvim-treesitter",
 			"stevearc/dressing.nvim",
 			"nvim-lua/plenary.nvim",
 			"MunifTanjim/nui.nvim",
-			"echasnovski/mini.pick",
-			"nvim-telescope/telescope.nvim",
-			-- "hrsh7th/nvim-cmp",
-			"ibhagwan/fzf-lua",
 			"nvim-tree/nvim-web-devicons",
 			"github/copilot.vim",
+			"hrsh7th/nvim-cmp",
 			{
 				"HakonHarnes/img-clip.nvim",
 				event = "VeryLazy",
@@ -239,30 +243,31 @@ require("lazy").setup({
 					default = {
 						embed_image_as_base64 = false,
 						prompt_for_file_name = false,
-						drag_and_drop = {
-							insert_mode = true,
-						},
+						drag_and_drop = { insert_mode = true },
 						use_absolute_path = true,
 					},
 				},
 			},
 			{
 				"MeanderingProgrammer/render-markdown.nvim",
-				opts = {
-					file_types = { "markdown", "Avante" },
-				},
+				opts = { file_types = { "markdown", "Avante" } },
 				ft = { "markdown", "Avante" },
 			},
 		},
 		opts = {
-			mode = "agentic",
-			auto_suggestions_provider = "copilot",
 			provider = "gemini",
+			auto_suggestions_provider = "copilot",
+
 			providers = {
 				gemini = {
-					model = "gemini-2.0-flash",
+					model = "gemini-2.5-pro",
+					api_key_name = "GEMINI_API_KEY",
+					timeout = 30000,
+					temperature = 0,
+					max_tokens = 8192,
 				},
 			},
+
 			web_search_engine = {
 				provider = "google",
 				providers = {
@@ -270,7 +275,6 @@ require("lazy").setup({
 						api_key_name = "GOOGLE_SEARCH_API_KEY",
 						engine_id_name = "GOOGLE_SEARCH_ENGINE_ID",
 						extra_request_body = {},
-						---@type WebSearchEngineProviderResponseBodyFormatter
 						format_response_body = function(body)
 							if body.items ~= nil then
 								local jsn = vim.iter(body.items)
@@ -290,25 +294,215 @@ require("lazy").setup({
 					},
 				},
 			},
+
 			system_prompt = [[
-		Eres un asistente experto en desarrollo enfocado en:
-		- Escribir código limpio, eficiente y mantenible
-		- Seguir mejores prácticas y patrones de diseño
-		- Proporcionar explicaciones claras cuando sea necesario
-		- Ser conciso y directo
-		Mantén las respuestas enfocadas en la tarea de código. Responde en español.]],
+            Eres un asistente de programación experto que SIEMPRE responde en español.
+
+## Especialidades:
+            - **Elixir/Phoenix**: OTP, GenServer, LiveView, Ecto, pattern matching
+            - **React/TypeScript**: Hooks, componentes funcionales, type safety, performance
+            - **PHP/Laravel**: Eloquent, middleware, validation, dependency injection
+
+## Principios:
+            - Código limpio, eficiente y mantenible
+            - Mejores prácticas y patrones de diseño
+            - Explicaciones técnicas claras
+            - Comentarios en español, código en inglés
+            - Usar terminología técnica apropiada
+
+## Estilo de respuesta:
+            - Conciso pero completo
+            - Ejemplos prácticos
+            - Enfoque en soluciones productivas
+            - Considerar el contexto del proyecto actual
+
+            Mantén las respuestas enfocadas en la tarea de desarrollo.
+            ]],
+
+			-- Templates personalizadas
 			templates = {
 				ask = [[
-			{{{input}}}]],
+            {{{input}}}
+
+            Por favor responde en español con explicaciones técnicas detalladas.
+            ]],
 				edit = [[
-			{{{input}}}
-			{{{code_snippet}}}]],
+            Modifica este código siguiendo mejores prácticas:
+
+            {{{code_snippet}}}
+
+            Instrucciones específicas: {{{input}}}
+
+            Explica los cambios realizados en español.
+            ]],
 				suggest = [[
-			{{{code_snippet}}}
-			{{{input}}}]],
+            Analiza este código y sugiere mejoras:
+
+            {{{code_snippet}}}
+
+            Contexto adicional: {{{input}}}
+
+            Proporciona sugerencias específicas en español.
+            ]],
+			},
+
+			behaviour = {
+				auto_suggestions = false,
+				auto_set_keymaps = false,
+				auto_apply_diff_after_generation = false,
+				minimize_diff = true,
+				enable_token_counting = true,
+			},
+
+			windows = {
+				position = "right",
+				width = 35,
+				sidebar_header = {
+					enabled = true,
+					align = "center",
+					rounded = true,
+				},
+				input = {
+					height = 8,
+					border = "rounded",
+				},
+				edit = {
+					border = "rounded",
+				},
+				ask = {
+					floating = false,
+					border = "rounded",
+				},
+			},
+
+			highlights = {
+				diff = {
+					current = "DiffText",
+					incoming = "DiffAdd",
+				},
+			},
+
+			suggestion = {
+				debounce = 1000,
+				throttle = 1000,
 			},
 		},
-	}, -- Explorador de directorios
+		config = function(_, opts)
+			require("avante").setup(opts)
+
+			local map = vim.keymap.set
+			local opts_map = { noremap = true, silent = true }
+
+			map("n", "<leader>aa", function()
+				require("avante.api").ask()
+			end, vim.tbl_extend("force", opts_map, { desc = "Avante: Ask" }))
+
+			map("v", "<leader>aa", function()
+				require("avante.api").ask()
+			end, vim.tbl_extend("force", opts_map, { desc = "Avante: Ask with selection" }))
+
+			map("n", "<leader>ae", function()
+				require("avante.api").edit()
+			end, vim.tbl_extend("force", opts_map, { desc = "Avante: Edit" }))
+
+			map("v", "<leader>ae", function()
+				require("avante.api").edit()
+			end, vim.tbl_extend("force", opts_map, { desc = "Avante: Edit selection" }))
+
+			map("n", "<leader>ar", function()
+				require("avante.api").refresh()
+			end, vim.tbl_extend("force", opts_map, { desc = "Avante: Refresh" }))
+
+			map(
+				"n",
+				"<leader>at",
+				"<cmd>AvanteToggle<CR>",
+				vim.tbl_extend("force", opts_map, { desc = "Avante: Toggle" })
+			)
+
+			map(
+				"n",
+				"<leader>af",
+				"<cmd>AvanteFocus<CR>",
+				vim.tbl_extend("force", opts_map, { desc = "Avante: Focus" })
+			)
+
+			vim.api.nvim_create_autocmd("FileType", {
+				pattern = "Avante",
+				callback = function(args)
+					local bufnr = args.buf
+
+					map("n", "co", function()
+						require("avante.diff").choose("ours")
+					end, { buffer = bufnr, desc = "Choose ours" })
+
+					map("n", "ct", function()
+						require("avante.diff").choose("theirs")
+					end, { buffer = bufnr, desc = "Choose theirs" })
+
+					map("n", "ca", function()
+						require("avante.diff").choose("all_theirs")
+					end, { buffer = bufnr, desc = "Choose all theirs" })
+
+					map("n", "cb", function()
+						require("avante.diff").choose("both")
+					end, { buffer = bufnr, desc = "Choose both" })
+
+					map("n", "cc", function()
+						require("avante.diff").choose("cursor")
+					end, { buffer = bufnr, desc = "Choose cursor" })
+
+					map("n", "]x", function()
+						require("avante.diff").next()
+					end, { buffer = bufnr, desc = "Next diff" })
+
+					map("n", "[x", function()
+						require("avante.diff").prev()
+					end, { buffer = bufnr, desc = "Previous diff" })
+
+					vim.opt_local.wrap = true
+					vim.opt_local.linebreak = true
+				end,
+			})
+
+			vim.api.nvim_create_user_command("AvanteElixir", function()
+				require("avante.api").ask({
+					question = "Analiza este código Elixir siguiendo principios OTP y mejores prácticas. Responde en español.",
+				})
+			end, { desc = "Avante: Análisis específico para Elixir" })
+
+			vim.api.nvim_create_user_command("AvanteReact", function()
+				require("avante.api").ask({
+					question = "Revisa este componente React/TypeScript para performance, type safety y mejores prácticas. Responde en español.",
+				})
+			end, { desc = "Avante: Análisis específico para React" })
+
+			vim.api.nvim_create_user_command("AvantePHP", function()
+				require("avante.api").ask({
+					question = "Analiza este código PHP/Laravel siguiendo principios SOLID y convenciones de Laravel. Responde en español.",
+				})
+			end, { desc = "Avante: Análisis específico para PHP" })
+
+			vim.api.nvim_create_user_command("AvanteDebug", function()
+				local diagnostics = vim.diagnostic.get(0)
+				local diagnostic_text = ""
+
+				if #diagnostics > 0 then
+					diagnostic_text = "\n\nDiagnósticos actuales:\n"
+					for _, diag in ipairs(diagnostics) do
+						diagnostic_text = diagnostic_text .. "- " .. diag.message .. "\n"
+					end
+				end
+
+				require("avante.api").ask({
+					question = "Ayúdame a debuggear este código. Explica posibles problemas y soluciones en español."
+						.. diagnostic_text,
+				})
+			end, { desc = "Avante: Modo debugging con diagnósticos" })
+			-- vim.notify("✅ Avante.nvim configurado correctamente", vim.log.levels.INFO)
+		end,
+	},
+	-- Explorador de directorios
 	{
 		"nvim-tree/nvim-tree.lua",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
