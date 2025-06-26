@@ -226,15 +226,15 @@ require("lazy").setup({
 	{
 		"yetone/avante.nvim",
 		event = "VeryLazy",
+		lazy = false,
 		version = false,
-		build = "make BUILD_FROM_SOURCE=true",
+		build = "make",
 		dependencies = {
 			"nvim-treesitter/nvim-treesitter",
 			"stevearc/dressing.nvim",
 			"nvim-lua/plenary.nvim",
 			"MunifTanjim/nui.nvim",
 			"nvim-tree/nvim-web-devicons",
-			"github/copilot.vim",
 			"hrsh7th/nvim-cmp",
 			{
 				"HakonHarnes/img-clip.nvim",
@@ -243,170 +243,209 @@ require("lazy").setup({
 					default = {
 						embed_image_as_base64 = false,
 						prompt_for_file_name = false,
-						drag_and_drop = { insert_mode = true },
+						drag_and_drop = {
+							insert_mode = true,
+						},
 						use_absolute_path = true,
 					},
 				},
 			},
 			{
 				"MeanderingProgrammer/render-markdown.nvim",
-				opts = { file_types = { "markdown", "Avante" } },
+				opts = {
+					file_types = { "markdown", "Avante" },
+				},
 				ft = { "markdown", "Avante" },
 			},
 		},
 		opts = {
 			provider = "gemini",
-			auto_suggestions_provider = "copilot",
+			auto_suggestions_provider = "gemini",
+
 			providers = {
 				gemini = {
-					model = "gemini-2.5-pro",
+					-- endpoint = "https://generativelanguage.googleapis.com/v1beta/models",
+					model = "gemini-2.5-flash",
 					api_key_name = "GEMINI_API_KEY",
-					timeout = 30000,
-					temperature = 0,
-					max_tokens = 8192,
-				},
-			},
-			web_search_engine = {
-				provider = "google",
-				providers = {
-					google = {
-						api_key_name = "GOOGLE_SEARCH_API_KEY",
-						engine_id_name = "GOOGLE_SEARCH_ENGINE_ID",
-						extra_request_body = {},
-						format_response_body = function(body)
-							if body.items ~= nil then
-								local jsn = vim.iter(body.items)
-									:map(function(result)
-										return {
-											title = result.title,
-											link = result.link,
-											snippet = result.snippet,
-										}
-									end)
-									:take(10)
-									:totable()
-								return vim.json.encode(jsn), nil
-							end
-							return "", nil
-						end,
+					extra_request_body = {
+						temperature = 0,
+						max_tokens = 8192,
 					},
+					timeout = 30000,
 				},
 			},
 
-			system_prompt = [[
-            Eres un asistente de programación experto que SIEMPRE responde en español.
-
-## Especialidades:
-            - **Elixir/Phoenix**: OTP, GenServer, LiveView, Ecto, pattern matching
-            - **React/TypeScript**: Hooks, componentes funcionales, type safety, performance
-            - **PHP/Laravel**: Eloquent, middleware, validation, dependency injection
-
-## Principios:
-            - Código limpio, eficiente y mantenible
-            - Mejores prácticas y patrones de diseño
-            - Explicaciones técnicas claras
-            - Comentarios en español, código en inglés
-            - Usar terminología técnica apropiada
-
-## Estilo de respuesta:
-            - Conciso pero completo
-            - Ejemplos prácticos
-            - Enfoque en soluciones productivas
-            - Considerar el contexto del proyecto actual
-
-            Mantén las respuestas enfocadas en la tarea de desarrollo.
-            ]],
-
-			-- Templates personalizadas
-			templates = {
-				ask = [[
-            {{{input}}}
-
-            Por favor responde en español con explicaciones técnicas detalladas.
-            ]],
-				edit = [[
-            Modifica este código siguiendo mejores prácticas:
-
-            {{{code_snippet}}}
-
-            Instrucciones específicas: {{{input}}}
-
-            Explica los cambios realizados en español.
-            ]],
-				suggest = [[
-            Analiza este código y sugiere mejoras:
-
-            {{{code_snippet}}}
-
-            Contexto adicional: {{{input}}}
-
-            Proporciona sugerencias específicas en español.
-            ]],
-			},
 			behaviour = {
 				auto_suggestions = false,
-				-- auto_set_keymaps = false,
+				auto_set_highlight_group = true,
+				auto_set_keymaps = true,
 				auto_apply_diff_after_generation = false,
+				support_paste_from_clipboard = false,
 				minimize_diff = true,
 				enable_token_counting = true,
 			},
+
+			mappings = {
+				diff = {
+					ours = "co",
+					theirs = "ct",
+					all_theirs = "ca",
+					both = "cb",
+					cursor = "cc",
+					next = "]x",
+					prev = "[x",
+				},
+				suggestion = {
+					accept = "<M-l>",
+					next = "<M-]>",
+					prev = "<M-[>",
+					dismiss = "<C-]>",
+				},
+				jump = {
+					next = "]]",
+					prev = "[[",
+				},
+				submit = {
+					normal = "<CR>",
+					insert = "<C-s>",
+				},
+				cancel = {
+					normal = { "<C-c>", "<Esc>", "q" },
+					insert = { "<C-c>" },
+				},
+				sidebar = {
+					apply_all = "A",
+					apply_cursor = "a",
+					retry_user_request = "r",
+					edit_user_request = "e",
+					switch_windows = "<Tab>",
+					reverse_switch_windows = "<S-Tab>",
+					remove_file = "d",
+					add_file = "@",
+					close = { "<Esc>", "q" },
+					close_from_input = nil,
+				},
+			},
+
 			windows = {
 				position = "right",
-				width = 35,
+				wrap = true,
+				width = 30,
 				sidebar_header = {
 					enabled = true,
 					align = "center",
 					rounded = true,
 				},
 				input = {
+					prefix = "> ",
 					height = 8,
-					border = "rounded",
 				},
 				edit = {
 					border = "rounded",
+					start_insert = true,
 				},
 				ask = {
 					floating = false,
+					start_insert = true,
 					border = "rounded",
+					focus_on_apply = "ours",
 				},
 			},
+
 			highlights = {
 				diff = {
 					current = "DiffText",
 					incoming = "DiffAdd",
 				},
 			},
-			suggestion = {
-				debounce = 1000,
-				throttle = 1000,
+
+			diff = {
+				autojump = true,
+				list_opener = "copen",
+				override_timeoutlen = 500,
 			},
+
+			hints = { enabled = true },
+
+			suggestion = {
+				debounce = 600,
+				throttle = 600,
+			},
+
+			system_prompt = [[
+            Eres un asistente de programación experto que SIEMPRE responde en español.
+
+## Especialidades principales:
+            - **Elixir/Phoenix**: OTP, GenServer, LiveView, Ecto, pattern matching, procesos concurrentes, supervisión
+            - **React/TypeScript**: Hooks, componentes funcionales, gestión de estado, optimización de rendimiento, type safety
+            - **PHP/Laravel**: Eloquent, middleware, validation, dependency injection, Blade templates, Service Container
+
+## Principios de trabajo:
+            - Código limpio, eficiente y mantenible
+            - Aplicar mejores prácticas y patrones de diseño modernos
+            - Explicaciones técnicas claras y detalladas
+            - Comentarios en español, código en inglés
+            - Usar terminología técnica apropiada en español
+            - Considerar escalabilidad y performance
+
+## Estilo de respuesta:
+            - Respuestas concisas pero completas
+            - Incluir ejemplos prácticos cuando sea relevante
+            - Enfoque en soluciones productivas y escalables
+            - Considerar el contexto del proyecto actual
+            - Sugerir optimizaciones y mejores prácticas
+            - Proporcionar alternativas cuando sea apropiado
+
+            Mantén las respuestas enfocadas en la tarea de desarrollo y proporciona soluciones prácticas que mejoren la calidad del código.
+]],
 		},
 		config = function(_, opts)
 			require("avante").setup(opts)
+
 			vim.api.nvim_create_autocmd("FileType", {
 				pattern = "Avante",
 				callback = function()
 					vim.opt_local.wrap = true
 					vim.opt_local.linebreak = true
+					vim.opt_local.breakindent = true
 				end,
 			})
+
+			vim.api.nvim_create_user_command("AvanteAnalyze", function()
+				require("avante.api").ask({
+					question = "Analiza este código y sugiere mejoras de rendimiento, legibilidad y mejores prácticas. Incluye sugerencias específicas para optimización. Responde en español.",
+				})
+			end, { desc = "Avante: Análisis completo del código" })
+
 			vim.api.nvim_create_user_command("AvanteElixir", function()
 				require("avante.api").ask({
-					question = "Analiza este código Elixir siguiendo principios OTP y mejores prácticas. Responde en español.",
+					question = "Analiza este código Elixir siguiendo principios OTP y mejores prácticas. Considera el uso de GenServers, supervisores, pattern matching y procesos concurrentes. Evalúa la gestión de errores y la tolerancia a fallos. Responde en español.",
 				})
 			end, { desc = "Avante: Análisis específico para Elixir" })
 
+			vim.api.nvim_create_user_command("AvanteElixirTest", function()
+				require("avante.api").ask({
+					question = "Genera tests ExUnit exhaustivos para este código Elixir. Incluye casos edge, doctest, tests de integración y tests de concurrencia cuando sea apropiado. Asegúrate de testear fallos y recuperación. Responde en español.",
+				})
+			end, { desc = "Avante: Generar tests para Elixir" })
+
 			vim.api.nvim_create_user_command("AvanteReact", function()
 				require("avante.api").ask({
-					question = "Revisa este componente React/TypeScript para performance, type safety y mejores prácticas. Responde en español.",
+					question = "Revisa este componente React/TypeScript para optimización de rendimiento, type safety y mejores prácticas. Considera hooks, memoización, patrones de composición y accessibility. Responde en español.",
 				})
 			end, { desc = "Avante: Análisis específico para React" })
 
 			vim.api.nvim_create_user_command("AvantePHP", function()
 				require("avante.api").ask({
-					question = "Analiza este código PHP/Laravel siguiendo principios SOLID y convenciones de Laravel. Responde en español.",
+					question = "Analiza este código PHP/Laravel siguiendo principios SOLID y convenciones de Laravel. Considera el uso de Service Providers, Middleware, Eloquent relationships y optimización de queries. Responde en español.",
 				})
 			end, { desc = "Avante: Análisis específico para PHP" })
+
+			vim.api.nvim_create_user_command("AvanteRefactor", function()
+				require("avante.api").ask({
+					question = "Refactoriza este código para mejorar su legibilidad, mantenibilidad y rendimiento. Aplica patrones de diseño apropiados y elimina code smells. Explica los cambios realizados. Responde en español.",
+				})
+			end, { desc = "Avante: Refactorización avanzada" })
 
 			vim.api.nvim_create_user_command("AvanteDebug", function()
 				local diagnostics = vim.diagnostic.get(0)
@@ -420,13 +459,59 @@ require("lazy").setup({
 				end
 
 				require("avante.api").ask({
-					question = "Ayúdame a debuggear este código. Explica posibles problemas y soluciones en español."
+					question = "Ayúdame a debuggear este código. Identifica posibles problemas, explica las causas y proporciona soluciones paso a paso. Incluye estrategias de debugging específicas para el lenguaje. Responde en español."
 						.. diagnostic_text,
 				})
 			end, { desc = "Avante: Modo debugging con diagnósticos" })
-			-- vim.notify("✅ Avante.nvim configurado correctamente", vim.log.levels.INFO)
+
+			vim.api.nvim_create_user_command("AvanteDoc", function()
+				require("avante.api").ask({
+					question = "Genera documentación completa para este código incluyendo descripción, parámetros, valores de retorno, ejemplos de uso y posibles excepciones. Usa el formato de documentación apropiado para el lenguaje. Responde en español.",
+				})
+			end, { desc = "Avante: Generar documentación" })
+
+			vim.api.nvim_create_user_command("AvanteOptimize", function()
+				require("avante.api").ask({
+					question = "Optimiza este código para mejorar el rendimiento. Identifica cuellos de botella, sugiere mejoras algorítmicas y técnicas de optimización específicas del lenguaje. Explica el impacto de cada optimización. Responde en español.",
+				})
+			end, { desc = "Avante: Optimización de performance" })
+
+			vim.api.nvim_create_user_command("AvanteSecurity", function()
+				require("avante.api").ask({
+					question = "Revisa este código desde una perspectiva de seguridad. Identifica vulnerabilidades potenciales, problemas de validación de entrada, gestión de errores insegura y sugiere mejoras de seguridad. Responde en español.",
+				})
+			end, { desc = "Avante: Análisis de seguridad" })
+
+			-- local map = vim.api.nvim_set_keymap
+			-- local opts_map = { noremap = true, silent = true }
+
+			-- Atajos principales de Avante
+			-- map("n", "<leader>aa", ":AvanteAsk ", { noremap = true, desc = "Avante: Ask AI" })
+			-- map("v", "<leader>aa", ":AvanteAsk ", { noremap = true, desc = "Avante: Ask AI with selection" })
+			-- map("n", "<leader>ac", ":AvanteChat<CR>", opts_map)
+			-- map("n", "<leader>at", ":AvanteToggle<CR>", opts_map)
+			-- map("n", "<leader>ar", ":AvanteRefresh<CR>", opts_map)
+			-- map("n", "<leader>af", ":AvanteFocus<CR>", opts_map)
+			-- map("n", "<leader>ae", ":AvanteEdit<CR>", opts_map)
+			-- map("v", "<leader>ae", ":AvanteEdit<CR>", opts_map)
+			--
+			-- -- Atajos para comandos específicos
+			-- map("n", "<leader>aan", ":AvanteAnalyze<CR>", opts_map) -- Analyze
+			-- map("n", "<leader>aer", ":AvanteElixir<CR>", opts_map) -- Elixir
+			-- map("n", "<leader>aet", ":AvanteElixirTest<CR>", opts_map) -- Elixir Test
+			-- map("n", "<leader>arc", ":AvanteReact<CR>", opts_map) -- React
+			-- map("n", "<leader>aph", ":AvantePHP<CR>", opts_map) -- PHP
+			-- map("n", "<leader>arf", ":AvanteRefactor<CR>", opts_map) -- Refactor
+			-- map("n", "<leader>adb", ":AvanteDebug<CR>", opts_map) -- Debug
+			-- map("n", "<leader>adc", ":AvanteDoc<CR>", opts_map) -- Documentation
+			-- map("n", "<leader>aop", ":AvanteOptimize<CR>", opts_map) -- Optimize
+			-- map("n", "<leader>asc", ":AvanteSecurity<CR>", opts_map) -- Security
+
+			-- Notificación de configuración exitosa
+			-- vim.notify("✅ Avante.nvim configurado correctamente con Google Gemini", vim.log.levels.INFO)
 		end,
-	}, -- Explorador de directorios
+	},
+	-- Explorador de directorios
 	{
 		"nvim-tree/nvim-tree.lua",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
