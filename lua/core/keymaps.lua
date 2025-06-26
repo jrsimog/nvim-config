@@ -960,7 +960,8 @@ end, {
 -- K              → Hover
 -- <leader>rn     → Renombrar
 -- <leader>ca     → Code action
--- <leader>e      → Error en cursor
+-- <leader>xd     → Diagnóstico en cursor
+-- <leader>xE     → Diagnóstico en buffer
 -- <leader>xx     → Lista errores
 -- [d/]d          → Navegar diagnósticos
 --
@@ -986,8 +987,10 @@ end, {
 -- AVANTE (IA):
 -- <leader>aa     → Preguntar
 -- <leader>ac     → Chat
--- <leader>aer    → Refactorizar Elixir
--- <leader>aet    → Generar tests
+-- <leader>at     → Toggle Avante
+-- <leader>ar     → Refresh Avante
+-- <leader>af     → Focus Avante
+-- <leader>ae     → Edit Avante
 --
 -- FRONTEND:
 -- <leader>fee    → ESLint fix

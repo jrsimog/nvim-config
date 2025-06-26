@@ -482,33 +482,6 @@ require("lazy").setup({
 				})
 			end, { desc = "Avante: Análisis de seguridad" })
 
-			-- local map = vim.api.nvim_set_keymap
-			-- local opts_map = { noremap = true, silent = true }
-
-			-- Atajos principales de Avante
-			-- map("n", "<leader>aa", ":AvanteAsk ", { noremap = true, desc = "Avante: Ask AI" })
-			-- map("v", "<leader>aa", ":AvanteAsk ", { noremap = true, desc = "Avante: Ask AI with selection" })
-			-- map("n", "<leader>ac", ":AvanteChat<CR>", opts_map)
-			-- map("n", "<leader>at", ":AvanteToggle<CR>", opts_map)
-			-- map("n", "<leader>ar", ":AvanteRefresh<CR>", opts_map)
-			-- map("n", "<leader>af", ":AvanteFocus<CR>", opts_map)
-			-- map("n", "<leader>ae", ":AvanteEdit<CR>", opts_map)
-			-- map("v", "<leader>ae", ":AvanteEdit<CR>", opts_map)
-			--
-			-- -- Atajos para comandos específicos
-			-- map("n", "<leader>aan", ":AvanteAnalyze<CR>", opts_map) -- Analyze
-			-- map("n", "<leader>aer", ":AvanteElixir<CR>", opts_map) -- Elixir
-			-- map("n", "<leader>aet", ":AvanteElixirTest<CR>", opts_map) -- Elixir Test
-			-- map("n", "<leader>arc", ":AvanteReact<CR>", opts_map) -- React
-			-- map("n", "<leader>aph", ":AvantePHP<CR>", opts_map) -- PHP
-			-- map("n", "<leader>arf", ":AvanteRefactor<CR>", opts_map) -- Refactor
-			-- map("n", "<leader>adb", ":AvanteDebug<CR>", opts_map) -- Debug
-			-- map("n", "<leader>adc", ":AvanteDoc<CR>", opts_map) -- Documentation
-			-- map("n", "<leader>aop", ":AvanteOptimize<CR>", opts_map) -- Optimize
-			-- map("n", "<leader>asc", ":AvanteSecurity<CR>", opts_map) -- Security
-
-			-- Notificación de configuración exitosa
-			-- vim.notify("✅ Avante.nvim configurado correctamente con Google Gemini", vim.log.levels.INFO)
 		end,
 	},
 	-- Explorador de directorios
@@ -770,21 +743,6 @@ require("lazy").setup({
 			})
 		end,
 	},
-
-	-- REST client
-	{
-		"rest-nvim/rest.nvim",
-		dependencies = { "nvim-lua/plenary.nvim" },
-		config = function()
-			require("rest-nvim").setup({
-				result_split_horizontal = false,
-				skip_ssl_verification = false,
-				encode_url = true,
-				highlight = { enabled = true },
-			})
-		end,
-	},
-
 	-- Git
 	{ "tpope/vim-fugitive" },
 	{
@@ -906,6 +864,233 @@ require("lazy").setup({
 	},
 
 	{ "tpope/vim-projectionist", lazy = false },
+
+	-- REST client con Google Drive
+	{
+		"rest-nvim/rest.nvim",
+		dependencies = { "nvim-lua/plenary.nvim" },
+		config = function()
+			-- Configuración básica de rest.nvim
+			require("rest-nvim").setup({
+				result_split_horizontal = false,
+				result_split_in_place = false,
+				skip_ssl_verification = false,
+				encode_url = true,
+				highlight = {
+					enabled = true,
+					timeout = 150,
+				},
+				result = {
+					show_http_info = true,
+					show_curl_command = false,
+				},
+			})
+
+			-- Variables globales para rutas de Google Drive
+			local GDRIVE_API_PATH = vim.fn.expand("~/Google Drive/API-Collections")
+			local CURRENT_PROJECT = ""
+
+			-- Función para crear la estructura de directorios si no existe
+			local function ensure_gdrive_structure()
+				local dirs = {
+					GDRIVE_API_PATH,
+					GDRIVE_API_PATH .. "/templates",
+					GDRIVE_API_PATH .. "/shared",
+				}
+
+				for _, dir in ipairs(dirs) do
+					if vim.fn.isdirectory(dir) == 0 then
+						vim.fn.mkdir(dir, "p")
+					end
+				end
+			end
+
+			-- Función para listar proyectos disponibles
+			local function list_projects()
+				local projects = {}
+				local handle = io.popen(
+					'find "'
+						.. GDRIVE_API_PATH
+						.. '" -maxdepth 1 -type d -not -path "*/templates" -not -path "*/shared" -not -path "'
+						.. GDRIVE_API_PATH
+						.. '"'
+				)
+
+				if handle then
+					for line in handle:lines() do
+						local project_name = line:match("([^/]+)$")
+						if project_name then
+							table.insert(projects, project_name)
+						end
+					end
+					handle:close()
+				end
+
+				return projects
+			end
+
+			-- Función para crear nuevo proyecto
+			local function create_new_project()
+				vim.ui.input({
+					prompt = "Nombre del nuevo proyecto: ",
+				}, function(project_name)
+					if project_name and project_name ~= "" then
+						local project_path = GDRIVE_API_PATH .. "/" .. project_name
+						vim.fn.mkdir(project_path, "p")
+
+						-- Crear template inicial
+						local template_content = [[### Ejemplo de petición HTTP
+# @base_url = https://api.ejemplo.com
+# @token = Bearer tu_token_aqui
+
+GET {{base_url}}/users
+Authorization: {{token}}
+Content-Type: application/json
+
+###
+
+POST {{base_url}}/users
+Authorization: {{token}}
+Content-Type: application/json
+
+{
+  "name": "Usuario Ejemplo",
+  "email": "usuario@ejemplo.com"
+}
+]]
+
+						local file_path = project_path .. "/example.rest"
+						local file = io.open(file_path, "w")
+						if file then
+							file:write(template_content)
+							file:close()
+							vim.cmd("edit " .. file_path)
+							print("Proyecto '" .. project_name .. "' creado exitosamente")
+						end
+					end
+				end)
+			end
+
+			-- Función para abrir proyecto existente
+			local function open_project()
+				local projects = list_projects()
+
+				if #projects == 0 then
+					print("No hay proyectos disponibles. Crea uno nuevo primero.")
+					return
+				end
+
+				vim.ui.select(projects, {
+					prompt = "Selecciona un proyecto:",
+				}, function(choice)
+					if choice then
+						CURRENT_PROJECT = choice
+						local project_path = GDRIVE_API_PATH .. "/" .. choice
+						vim.cmd("cd " .. project_path)
+						vim.cmd("Explore " .. project_path)
+						print("Proyecto '" .. choice .. "' abierto")
+					end
+				end)
+			end
+
+			-- Función para crear nuevo archivo .rest en el proyecto actual
+			local function new_rest_file()
+				if CURRENT_PROJECT == "" then
+					print("Primero selecciona un proyecto")
+					return
+				end
+
+				vim.ui.input({
+					prompt = "Nombre del archivo .rest: ",
+				}, function(filename)
+					if filename and filename ~= "" then
+						if not filename:match("%.rest$") then
+							filename = filename .. ".rest"
+						end
+
+						local file_path = GDRIVE_API_PATH .. "/" .. CURRENT_PROJECT .. "/" .. filename
+						vim.cmd("edit " .. file_path)
+					end
+				end)
+			end
+
+			-- Función para listar archivos .rest del proyecto actual
+			local function list_rest_files()
+				if CURRENT_PROJECT == "" then
+					print("Primero selecciona un proyecto")
+					return
+				end
+
+				local project_path = GDRIVE_API_PATH .. "/" .. CURRENT_PROJECT
+				local files = {}
+
+				local handle = io.popen('find "' .. project_path .. '" -name "*.rest" -type f')
+				if handle then
+					for line in handle:lines() do
+						local filename = line:match("([^/]+)$")
+						if filename then
+							table.insert(files, {
+								name = filename,
+								path = line,
+							})
+						end
+					end
+					handle:close()
+				end
+
+				if #files == 0 then
+					print("No hay archivos .rest en el proyecto actual")
+					return
+				end
+
+				local file_names = {}
+				for _, file in ipairs(files) do
+					table.insert(file_names, file.name)
+				end
+
+				vim.ui.select(file_names, {
+					prompt = "Selecciona archivo .rest:",
+				}, function(choice)
+					if choice then
+						for _, file in ipairs(files) do
+							if file.name == choice then
+								vim.cmd("edit " .. file.path)
+								break
+							end
+						end
+					end
+				end)
+			end
+
+			-- Exponer funciones globalmente para usar en keymaps
+			_G.rest_gdrive = {
+				open_project = open_project,
+				create_new_project = create_new_project,
+				new_rest_file = new_rest_file,
+				list_rest_files = list_rest_files,
+				api_home = function()
+					vim.cmd("cd " .. GDRIVE_API_PATH)
+					vim.cmd("Explore " .. GDRIVE_API_PATH)
+				end,
+				api_info = function()
+					print("Directorio APIs: " .. GDRIVE_API_PATH)
+					print("Proyecto actual: " .. (CURRENT_PROJECT ~= "" and CURRENT_PROJECT or "Ninguno"))
+					print("Proyectos disponibles: " .. #list_projects())
+				end,
+			}
+
+			-- Inicializar estructura
+			ensure_gdrive_structure()
+
+			-- Comandos para acceso rápido
+			vim.api.nvim_create_user_command("ApiHome", _G.rest_gdrive.api_home, { desc = "Rest: Abrir directorio raíz de APIs en Google Drive" })
+			vim.api.nvim_create_user_command("ApiInfo", _G.rest_gdrive.api_info, { desc = "Rest: Mostrar información del proyecto de API actual" })
+			vim.api.nvim_create_user_command("RestNewProject", _G.rest_gdrive.create_new_project, { desc = "Rest: Crear nuevo proyecto de API en Google Drive" })
+			vim.api.nvim_create_user_command("RestOpenProject", _G.rest_gdrive.open_project, { desc = "Rest: Abrir un proyecto de API existente en Google Drive" })
+			vim.api.nvim_create_user_command("RestNewFile", _G.rest_gdrive.new_rest_file, { desc = "Rest: Crear nuevo archivo .rest en el proyecto actual" })
+			vim.api.nvim_create_user_command("RestListFiles", _G.rest_gdrive.list_rest_files, { desc = "Rest: Listar archivos .rest en el proyecto actual" })
+		end,
+	},
 }, {
 	rocks = { hererocks = true },
 })
