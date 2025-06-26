@@ -481,7 +481,6 @@ require("lazy").setup({
 					question = "Revisa este código desde una perspectiva de seguridad. Identifica vulnerabilidades potenciales, problemas de validación de entrada, gestión de errores insegura y sugiere mejoras de seguridad. Responde en español.",
 				})
 			end, { desc = "Avante: Análisis de seguridad" })
-
 		end,
 	},
 	-- Explorador de directorios
@@ -1083,12 +1082,36 @@ Content-Type: application/json
 			ensure_gdrive_structure()
 
 			-- Comandos para acceso rápido
-			vim.api.nvim_create_user_command("ApiHome", _G.rest_gdrive.api_home, { desc = "Rest: Abrir directorio raíz de APIs en Google Drive" })
-			vim.api.nvim_create_user_command("ApiInfo", _G.rest_gdrive.api_info, { desc = "Rest: Mostrar información del proyecto de API actual" })
-			vim.api.nvim_create_user_command("RestNewProject", _G.rest_gdrive.create_new_project, { desc = "Rest: Crear nuevo proyecto de API en Google Drive" })
-			vim.api.nvim_create_user_command("RestOpenProject", _G.rest_gdrive.open_project, { desc = "Rest: Abrir un proyecto de API existente en Google Drive" })
-			vim.api.nvim_create_user_command("RestNewFile", _G.rest_gdrive.new_rest_file, { desc = "Rest: Crear nuevo archivo .rest en el proyecto actual" })
-			vim.api.nvim_create_user_command("RestListFiles", _G.rest_gdrive.list_rest_files, { desc = "Rest: Listar archivos .rest en el proyecto actual" })
+			vim.api.nvim_create_user_command(
+				"ApiHome",
+				_G.rest_gdrive.api_home,
+				{ desc = "Rest: Abrir directorio raíz de APIs en Google Drive" }
+			)
+			vim.api.nvim_create_user_command(
+				"ApiInfo",
+				_G.rest_gdrive.api_info,
+				{ desc = "Rest: Mostrar información del proyecto de API actual" }
+			)
+			vim.api.nvim_create_user_command(
+				"RestNewProject",
+				_G.rest_gdrive.create_new_project,
+				{ desc = "Rest: Crear nuevo proyecto de API en Google Drive" }
+			)
+			vim.api.nvim_create_user_command(
+				"RestOpenProject",
+				_G.rest_gdrive.open_project,
+				{ desc = "Rest: Abrir un proyecto de API existente en Google Drive" }
+			)
+			vim.api.nvim_create_user_command(
+				"RestNewFile",
+				_G.rest_gdrive.new_rest_file,
+				{ desc = "Rest: Crear nuevo archivo .rest en el proyecto actual" }
+			)
+			vim.api.nvim_create_user_command(
+				"RestListFiles",
+				_G.rest_gdrive.list_rest_files,
+				{ desc = "Rest: Listar archivos .rest en el proyecto actual" }
+			)
 		end,
 	},
 }, {
