@@ -59,14 +59,6 @@ function! DeleteGitBranch()
   endif
 endfunction
 
-function! OpenDiffviewWithBranch()
-  let branch = input('Enter branch name: ')
-  if branch != ""
-    execute 'DiffviewOpen ' . branch
-  else
-    echo "No branch name provided."
-  endif
-endfunction
 
 function! GitStashWithMessage()
   let l:message = input('Mensaje del stash: ')
@@ -678,7 +670,7 @@ map("n", "<leader>gsc", ":Git stash clear<CR>", opts)
 map("n", "<leader>gss", ":call InteractiveGitStash()<CR>", opts)
 
 -- Diffview
-map("n", "<leader>dv", ":call OpenDiffviewWithBranch()<CR>", opts)
+map("n", "<leader>dv", ":DiffviewOpen ", opts)
 map("n", "<leader>dq", ":DiffviewClose<CR>", opts)
 map("n", "<leader>dn", ":DiffviewNextFile<CR>", opts)
 map("n", "<leader>dp", ":DiffviewPrevFile<CR>", opts)
