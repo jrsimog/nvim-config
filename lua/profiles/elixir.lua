@@ -24,7 +24,7 @@ local elixir_ls_cmd = find_elixir_ls()
 
 if elixir_ls_cmd then
 	local source = elixir_ls_cmd:match("mason") and "Mason" or "Manual"
-	print("✅ ElixirLS encontrado (" .. source .. "): " .. elixir_ls_cmd)
+	-- print("✅ ElixirLS encontrado (" .. source .. "): " .. elixir_ls_cmd)
 
 	lspconfig.elixirls.setup({
 		cmd = { elixir_ls_cmd },
@@ -71,7 +71,7 @@ if elixir_ls_cmd then
 	})
 else
 	print("❌ ElixirLS no encontrado")
-	print("💡 Instala con: :MasonInstall elixir-ls")
+	-- print("💡 Instala con: :MasonInstall elixir-ls")
 end
 
 vim.api.nvim_create_autocmd("FileType", {
@@ -85,9 +85,9 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 vim.api.nvim_create_user_command("ElixirStatus", function()
-	print("🔍 Estado de ElixirLS:")
-	print("- Comando: " .. (elixir_ls_cmd or "❌ No encontrado"))
-	print("- Tipo: " .. (elixir_ls_cmd and (elixir_ls_cmd:match("mason") and "Mason" or "Manual") or "N/A"))
+	-- print("🔍 Estado de ElixirLS:")
+	-- print("- Comando: " .. (elixir_ls_cmd or "❌ No encontrado"))
+	-- print("- Tipo: " .. (elixir_ls_cmd and (elixir_ls_cmd:match("mason") and "Mason" or "Manual") or "N/A"))
 
 	local clients = vim.lsp.get_active_clients({ name = "elixirls" })
 	if #clients > 0 then
@@ -99,11 +99,11 @@ vim.api.nvim_create_user_command("ElixirStatus", function()
 			)
 		end
 	else
-		print("- LSP: ❌ No hay clientes activos")
+		-- print("- LSP: ❌ No hay clientes activos")
 	end
 
 	local has_cmp = pcall(require, "cmp")
-	print("- nvim-cmp: " .. (has_cmp and "✅ Instalado" or "❌ No instalado"))
+	-- print("- nvim-cmp: " .. (has_cmp and "✅ Instalado" or "❌ No instalado"))
 end, {})
 
-print("✅ Perfil Elixir cargado con autocompletado")
+-- print("✅ Perfil Elixir cargado con autocompletado")
