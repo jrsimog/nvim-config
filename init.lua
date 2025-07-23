@@ -21,6 +21,7 @@ require("core.theme")
 require("core.dap")
 require("core.editor")
 require("core.projectionist")
+require("core.copilot")
 
 local function list_available_profiles()
 	local profiles_dir = vim.fn.stdpath("config") .. "/lua/profiles"

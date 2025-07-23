@@ -763,56 +763,6 @@ map("n", "<leader>ew", ":Telescope find_files cwd=lib/*_web<CR>", opts)
 map("n", "<leader>es", ":Telescope find_files cwd=priv/repo<CR>", opts)
 
 -- ========================================
--- AVANTE.NVIM (IA)
--- ========================================
-
--- Básicos
-map("n", "<leader>aa", ":AvanteAsk ", opts)
-map("v", "<leader>aa", ":AvanteAsk ", opts)
-map("n", "<leader>ac", ":AvanteChat<CR>", opts)
-map("n", "<leader>at", ":AvanteToggle<CR>", opts)
-
--- Elixir con Avante
-map(
-	"n",
-	"<leader>aer",
-	":AvanteAsk Refactoriza este código Elixir siguiendo principios de código limpio, usa pattern matching y pipe operators<CR>",
-	opts
-)
-map(
-	"v",
-	"<leader>aer",
-	":AvanteAsk Refactoriza este código Elixir siguiendo principios de código limpio, usa pattern matching y pipe operators<CR>",
-	opts
-)
-map(
-	"n",
-	"<leader>aet",
-	":AvanteAsk Genera tests ExUnit exhaustivos para este módulo, incluye casos edge y doctest<CR>",
-	opts
-)
-map("v", "<leader>aet", ":AvanteAsk Genera tests ExUnit exhaustivos para esta función<CR>", opts)
-map("n", "<leader>aeo", ":AvanteAsk Optimiza este código para el BEAM, considera procesos, ETS y memoria<CR>", opts)
-map("n", "<leader>aeg", ":AvanteAsk Implementa esto como un GenServer con supervisión OTP<CR>", opts)
-map("n", "<leader>aelv", ":AvanteAsk Convierte este controlador Phoenix a LiveView<CR>", opts)
-map(
-	"n",
-	"<leader>aec",
-	":AvanteAsk Genera un contexto Phoenix para este dominio con schemas, changesets y funciones<CR>",
-	opts
-)
-
--- Documentación
-map("n", "<leader>aed", ":AvanteAsk Busca en la documentación de Elixir sobre ", opts)
-map("n", "<leader>aep", ":AvanteAsk Busca en la documentación de Phoenix sobre ", opts)
-map("n", "<leader>aeh", ":AvanteAsk Busca en Hex.pm paquetes para ", opts)
-
--- Explicaciones
-map("n", "<leader>aee", ":AvanteAsk Explica este código Elixir paso a paso<CR>", opts)
-map("v", "<leader>aee", ":AvanteAsk Explica este código Elixir paso a paso<CR>", opts)
-map("n", "<leader>aeb", ":AvanteAsk ¿Cuáles son las mejores prácticas para esto en Elixir?<CR>", opts)
-
--- ========================================
 -- FRONTEND
 -- ========================================
 
@@ -905,6 +855,10 @@ map("n", "<leader>re", ":Rest run<CR>", opts)
 -- ========================================
 -- COMANDOS DE USUARIO
 -- ========================================
+
+-- Comandos para Copilot (Modo de depuración)
+vim.api.nvim_set_keymap("n", "<leader>ce", ":Copilot enable<CR>", { noremap = true, silent = true, desc = "Activar Copilot" })
+vim.api.nvim_set_keymap("n", "<leader>cd", ":Copilot disable<CR>", { noremap = true, silent = true, desc = "Desactivar Copilot" })
 
 -- React
 vim.cmd([[
