@@ -22,6 +22,7 @@ require("core.dap")
 require("core.editor")
 require("core.projectionist")
 require("core.copilot")
+require("core.autocmds")
 
 local function list_available_profiles()
 	local profiles_dir = vim.fn.stdpath("config") .. "/lua/profiles"
@@ -104,6 +105,98 @@ end, {
 		return list_available_profiles()
 	end,
 })
+
+-- Comandos de diagnóstico para el sistema automático
+vim.api.nvim_create_user_command("ProjectDebug", function()
+	local project = require('core.project')
+	project.debug_status()
+end, { desc = "Debug project detection system" })
+
+vim.api.nvim_create_user_command("ProjectReload", function()
+	local project = require('core.project')
+	project.reload_current_project()
+end, { desc = "Force reload current project profile" })
+
+-- Comando de test para verificar el sistema
+vim.api.nvim_create_user_command("TestPhpProfile", function()
+	print("🧪 Testing PHP profile loading...")
+	package.loaded["profiles.php"] = nil
+	local success, result = pcall(require, "profiles.php")
+	if success and type(result.setup) == 'function' then
+		result.setup()
+		print("✅ PHP profile loaded successfully!")
+	else
+		print("❌ Error loading PHP profile: " .. tostring(result))
+	end
+end, { desc = "Test PHP profile loading" })
+
+-- Comando para verificar LSP manualmente
+vim.api.nvim_create_user_command("TestLspCapabilities", function()
+	local clients = vim.lsp.get_clients()
+	print("🔍 Active LSP clients:")
+	for _, client in ipairs(clients) do
+		print("- " .. client.name .. " (id: " .. client.id .. ")")
+		if client.server_capabilities.definitionProvider then
+			print("  ✅ Supports go to definition")
+		else
+			print("  ❌ Does NOT support go to definition")
+		end
+	end
+	if #clients == 0 then
+		print("❌ No active LSP clients found")
+	end
+end, { desc = "Test LSP capabilities" })
+
+-- Comando para verificar que el autocomando existe
+vim.api.nvim_create_user_command("TestAutoCommands", function()
+	print("🔍 Checking autocmds:")
+	local autocmds = vim.api.nvim_get_autocmds({ group = "ProjectDetection" })
+	if #autocmds > 0 then
+		print("✅ ProjectDetection autocmds found: " .. #autocmds)
+		for _, cmd in ipairs(autocmds) do
+			print("  - Event: " .. cmd.event .. ", Pattern: " .. (cmd.pattern or "none"))
+		end
+	else
+		print("❌ No ProjectDetection autocmds found")
+	end
+end, { desc = "Test autocmds" })
+
+-- Comando para forzar activación en buffer actual
+vim.api.nvim_create_user_command("ForceProjectDetection", function()
+	print("🔧 Forcing project detection on current buffer...")
+	local project = require('core.project')
+	project.load_project_config()
+	print("✅ Project detection forced")
+end, { desc = "Force project detection" })
+
+-- Comando para probar Intelephense directamente
+vim.api.nvim_create_user_command("TestIntelephense", function()
+	print("🧪 Testing Intelephense directly...")
+	local lspconfig = require("lspconfig")
+	
+	-- Verificar que intelephense esté en PATH
+	local cmd = vim.fn.exepath("intelephense")
+	if cmd == "" then
+		print("❌ Intelephense not found in PATH")
+		return
+	end
+	print("✅ Intelephense found at: " .. cmd)
+	
+	-- Configurar Intelephense directamente
+	lspconfig.intelephense.setup({
+		cmd = { "intelephense", "--stdio" },
+		capabilities = vim.lsp.protocol.make_client_capabilities(),
+		on_attach = function(client, bufnr)
+			print("🐘 Intelephense attached successfully to buffer " .. bufnr)
+		end,
+		filetypes = { "php" },
+		root_dir = function(fname)
+			return lspconfig.util.find_git_ancestor(fname) or lspconfig.util.path.dirname(fname)
+		end,
+	})
+	
+	print("✅ Intelephense configuration sent")
+end, { desc = "Test Intelephense directly" })
 
 do
 	local profile = os.getenv("NVIM_PROFILE") or "elixir" -- Ahora Elixir es el perfil por defecto
