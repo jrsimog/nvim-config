@@ -601,6 +601,10 @@ map("n", "]e", "<cmd>lua vim.diagnostic.goto_next({ severity = vim.diagnostic.se
 map("n", "[w", "<cmd>lua vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.WARN })<CR>", opts)
 map("n", "]w", "<cmd>lua vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.WARN })<CR>", opts)
 
+-- Navegación de cambios (hunks) en modo diff
+map("n", "<leader>dj", "]c", opts)
+map("n", "<leader>dk", "[c", opts)
+
 -- Listas de diagnósticos
 map("n", "<leader>xx", "<cmd>Telescope diagnostics bufnr=0 severity_limit=1<CR>", opts)
 map("n", "<leader>xX", "<cmd>Telescope diagnostics<CR>", opts)
@@ -672,10 +676,6 @@ map("n", "<leader>gss", ":call InteractiveGitStash()<CR>", opts)
 -- Diffview
 map("n", "<leader>dv", ":DiffviewOpen ", opts)
 map("n", "<leader>dq", ":DiffviewClose<CR>", opts)
-map("n", "<leader>dn", ":DiffviewNextFile<CR>", opts)
-map("n", "<leader>dp", ":DiffviewPrevFile<CR>", opts)
-map("n", "<leader>dj", ":DiffviewNextHunk<CR>", opts)
-map("n", "<leader>dk", ":DiffviewPrevHunk<CR>", opts)
 
 -- ========================================
 -- BUFFERS

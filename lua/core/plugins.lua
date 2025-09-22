@@ -492,20 +492,14 @@ require("lazy").setup({
 				enhanced_diff_hl = true,
 				key_bindings = {
 					view = {
-						["<tab>"] = function(bufnr)
-							require("diffview.actions").select_next_entry()
-						end,
-						["<s-tab>"] = function(bufnr)
-							require("diffview.actions").select_prev_entry()
-						end,
+						["<tab>"] = require("diffview.actions").select_next_entry,
+						["<s-tab>"] = require("diffview.actions").select_prev_entry,
 					},
 					file_panel = {
-						["j"] = function()
-							require("diffview.actions").next_entry()
-						end,
-						["k"] = function()
-							require("diffview.actions").prev_entry()
-						end,
+						["j"] = require("diffview.actions").next_entry,
+						["k"] = require("diffview.actions").prev_entry,
+						["<leader>dn"] = require("diffview.actions").next_entry,
+						["<leader>dp"] = require("diffview.actions").prev_entry,
 					},
 				},
 			})
