@@ -8,8 +8,11 @@ require("core.plugins")
 require("core.lsp") -- Carga LSP base (sin Python)
 
 -- Configurar Pyright específicamente para este perfil
-local lspconfig = require("lspconfig")
-lspconfig.pyright.setup({
+vim.lsp.config("pyright", {
+	filetypes = { "python" },
+	root_dir = function(fname)
+		return vim.fs.root(fname, { "pyproject.toml", "requirements.txt", ".git" })
+	end,
 	settings = {
 		python = {
 			analysis = {
@@ -20,6 +23,14 @@ lspconfig.pyright.setup({
 			},
 		},
 	},
+})
+
+-- Activar el LSP para archivos Python
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = "python",
+	callback = function()
+		vim.lsp.enable("pyright")
+	end,
 })
 
 -- Configuraciones específicas de Python

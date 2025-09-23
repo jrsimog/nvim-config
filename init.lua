@@ -172,8 +172,7 @@ end, { desc = "Force project detection" })
 -- Comando para probar Intelephense directamente
 vim.api.nvim_create_user_command("TestIntelephense", function()
 	print("🧪 Testing Intelephense directly...")
-	local lspconfig = require("lspconfig")
-	
+
 	-- Verificar que intelephense esté en PATH
 	local cmd = vim.fn.exepath("intelephense")
 	if cmd == "" then
@@ -181,9 +180,9 @@ vim.api.nvim_create_user_command("TestIntelephense", function()
 		return
 	end
 	print("✅ Intelephense found at: " .. cmd)
-	
+
 	-- Configurar Intelephense directamente
-	lspconfig.intelephense.setup({
+	vim.lsp.config("intelephense", {
 		cmd = { "intelephense", "--stdio" },
 		capabilities = vim.lsp.protocol.make_client_capabilities(),
 		on_attach = function(client, bufnr)

@@ -6,7 +6,6 @@ function M.setup()
     print("⚗️ Cargando perfil Elixir...")
     
     local lsp_config = require("core.lsp")
-    local lspconfig = require("lspconfig")
 
     -- Función para encontrar ElixirLS
     local function find_elixir_ls()
@@ -29,8 +28,9 @@ function M.setup()
         local source = elixir_ls_cmd:match("mason") and "Mason" or "Manual"
         -- print("✅ ElixirLS encontrado (" .. source .. "): " .. elixir_ls_cmd)
 
-        lspconfig.elixirls.setup({
+        vim.lsp.config("elixirls", {
             cmd = { elixir_ls_cmd },
+            filetypes = { "elixir", "eelixir", "heex" },
             capabilities = lsp_config.capabilities,
             on_attach = function(client, bufnr)
                 lsp_config.on_attach(client, bufnr)
@@ -66,11 +66,19 @@ function M.setup()
                     enableTestLenses = false,
                 },
             },
-            root_dir = lspconfig.util.root_pattern("mix.exs", ".git"),
+            root_dir = vim.fs.root(0, { "mix.exs", ".git" }),
             flags = {
                 debounce_text_changes = 150,
                 allow_incremental_sync = true,
             },
+        })
+
+        -- Activar el LSP para archivos Elixir
+        vim.api.nvim_create_autocmd("FileType", {
+            pattern = { "elixir", "eelixir", "heex" },
+            callback = function()
+                vim.lsp.enable("elixirls")
+            end,
         })
     else
         print("❌ ElixirLS no encontrado")

@@ -9,9 +9,12 @@ require("core.plugins")
 require("core.lsp") -- Carga LSP base (sin Java)
 
 -- Configurar jdtls específicamente para este perfil
-local lspconfig = require("lspconfig")
-lspconfig.jdtls.setup({
+vim.lsp.config("jdtls", {
 	cmd = { "jdtls" },
+	filetypes = { "java" },
+	root_dir = function(fname)
+		return vim.fs.root(fname, { "pom.xml", "build.gradle", ".git" })
+	end,
 	settings = {
 		java = {
 			signatureHelp = { enabled = true },
@@ -49,6 +52,14 @@ vim.api.nvim_create_autocmd("FileType", {
 		-- Configurar longitud de línea para Java
 		vim.opt_local.textwidth = 120
 		vim.opt_local.colorcolumn = "120"
+	end,
+})
+
+-- Activar el LSP para archivos Java
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = "java",
+	callback = function()
+		vim.lsp.enable("jdtls")
 	end,
 })
 

@@ -1,5 +1,4 @@
 -- lua/core/lsp.lua - Configuración de LSP mejorada con diagnósticos y autocompletado
-local lspconfig = require("lspconfig")
 
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 local has_cmp, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
@@ -36,22 +35,17 @@ vim.diagnostic.config({
 	signs = {
 		enabled = true,
 		priority = 8,
+		text = {
+			[vim.diagnostic.severity.ERROR] = "󰅚 ",
+			[vim.diagnostic.severity.WARN] = "󰀪 ",
+			[vim.diagnostic.severity.HINT] = "󰌶 ",
+			[vim.diagnostic.severity.INFO] = " ",
+		},
 	},
 	underline = true,
 	update_in_insert = false,
 	severity_sort = true,
 })
-
-local signs = {
-	Error = "󰅚 ",
-	Warn = "󰀪 ",
-	Hint = "󰌶 ",
-	Info = " ",
-}
-for type, icon in pairs(signs) do
-	local hl = "DiagnosticSign" .. type
-	vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
-end
 
 local on_attach = function(client, bufnr)
 	vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
@@ -112,6 +106,10 @@ end
 local server_configs = {
 	lua_ls = {
 		cmd = { "/home/jose/.asdf/shims/lua-language-server" }, -- ← AGREGAR ESTA LÍNEA
+		filetypes = { "lua" },
+		root_dir = function(fname)
+			return vim.fs.root(fname, { ".luarc.json", ".luarc.jsonc", ".git" })
+		end,
 		capabilities = capabilities,
 		on_attach = on_attach,
 		settings = {
@@ -138,14 +136,46 @@ local server_configs = {
 local standard_servers = { "html", "cssls", "jsonls" }
 
 for server_name, config in pairs(server_configs) do
-	lspconfig[server_name].setup(config)
+	vim.lsp.config(server_name, config)
+
+	-- Activar el LSP automáticamente para los tipos de archivo correspondientes
+	vim.api.nvim_create_autocmd("FileType", {
+		pattern = config.filetypes,
+		callback = function()
+			vim.lsp.enable(server_name)
+		end,
+	})
 end
 
+local server_filetypes = {
+	html = { "html" },
+	cssls = { "css", "scss", "less" },
+	jsonls = { "json", "jsonc" },
+}
+
+local server_root_patterns = {
+	html = { "package.json", ".git" },
+	cssls = { "package.json", ".git" },
+	jsonls = { "package.json", ".git" },
+}
+
 for _, server in ipairs(standard_servers) do
-	lspconfig[server].setup({
+	vim.lsp.config(server, {
+		filetypes = server_filetypes[server],
+		root_dir = function(fname)
+			return vim.fs.root(fname, server_root_patterns[server])
+		end,
 		capabilities = capabilities,
 		on_attach = on_attach,
 		flags = { debounce_text_changes = 150 },
+	})
+
+	-- Activar el LSP automáticamente para los tipos de archivo correspondientes
+	vim.api.nvim_create_autocmd("FileType", {
+		pattern = server_filetypes[server],
+		callback = function()
+			vim.lsp.enable(server)
+		end,
 	})
 end
 
