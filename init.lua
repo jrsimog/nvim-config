@@ -1,4 +1,8 @@
 -- init.lua - Configuración modular para Neovim con Lazy.nvim
+
+-- Configurar PATH para que Mason encuentre herramientas de ASDF
+vim.env.PATH = vim.env.HOME .. "/.asdf/shims:" .. vim.env.PATH
+
 local lazypath = vim.fn.stdpath("config") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
 	vim.fn.system({
@@ -14,8 +18,8 @@ vim.opt.rtp:prepend(lazypath)
 
 require("core.settings")
 require("core.keymaps")
-require("core.plugins")
-require("core.lsp")
+require("core.plugins")  -- This will load LSP via lazy.nvim
+-- require("core.lsp")  -- NO LONGER NEEDED - loaded by lazy.nvim in plugins.lua
 require("core.autocomplete")
 require("core.theme")
 require("core.dap")

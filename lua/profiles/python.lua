@@ -8,8 +8,7 @@ require("core.plugins")
 require("core.lsp") -- Carga LSP base (sin Python)
 
 -- Configurar Pyright específicamente para este perfil
-local lspconfig = require("lspconfig")
-lspconfig.pyright.setup({
+local pyright_config = {
 	settings = {
 		python = {
 			analysis = {
@@ -20,7 +19,22 @@ lspconfig.pyright.setup({
 			},
 		},
 	},
-})
+}
+
+-- Usar la nueva API de Neovim 0.11+
+if vim.lsp.config then
+	vim.lsp.config("pyright", pyright_config)
+	vim.api.nvim_create_autocmd("FileType", {
+		pattern = "python",
+		callback = function()
+			vim.lsp.enable("pyright")
+		end,
+	})
+else
+	-- Fallback para versiones anteriores
+	local lspconfig = require("lspconfig")
+	lspconfig.pyright.setup(pyright_config)
+end
 
 -- Configuraciones específicas de Python
 vim.api.nvim_create_autocmd("FileType", {

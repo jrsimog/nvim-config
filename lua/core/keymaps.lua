@@ -574,9 +574,9 @@ map("n", "<leader>pp", ":Telescope projects<CR>", opts)
 
 -- vim-projectionist
 map("n", "<leader>pa", ":A<CR>", opts)
-map("n", "<leader>ps", ":AS<CR>", opts)
-map("n", "<leader>pv", ":AV<CR>", opts)
-map("n", "<leader>pr", ":R<CR>", opts)
+map("n", "<leader>pas", ":AS<CR>", opts)
+map("n", "<leader>pav", ":AV<CR>", opts)
+map("n", "<leader>par", ":R<CR>", opts)
 
 -- ========================================
 -- LSP Y DIAGNÓSTICOS
@@ -589,9 +589,9 @@ map("n", "K", ":lua vim.lsp.buf.hover()<CR>", opts)
 map("n", "<leader>rn", ":lua vim.lsp.buf.rename()<CR>", opts)
 map("n", "<leader>ca", ":lua vim.lsp.buf.code_action()<CR>", opts)
 
--- Diagnósticos principales
--- map("n", "<leader>e", "<cmd>lua vim.diagnostic.open_float({ scope = 'cursor', border = 'rounded' })<CR>", opts)
--- map("n", "<leader>E", "<cmd>lua vim.diagnostic.open_float({ scope = 'buffer', border = 'rounded' })<CR>", opts)
+-- Diagnósticos principales (mantenemos <leader>e para NvimTree que es más usado)
+map("n", "<leader>df", "<cmd>lua vim.diagnostic.open_float({ scope = 'cursor', border = 'rounded' })<CR>", opts)
+map("n", "<leader>dF", "<cmd>lua vim.diagnostic.open_float({ scope = 'buffer', border = 'rounded' })<CR>", opts)
 
 -- Navegación de diagnósticos
 map("n", "[d", "<cmd>lua vim.diagnostic.goto_prev()<CR>", opts)
@@ -646,8 +646,8 @@ map("n", "<leader>gco", ":Git checkout ", opts)
 map("n", "<leader>gcb", ":call CreateGitBranch()<CR>", opts)
 map("n", "<leader>gdb", ":call DeleteGitBranch()<CR>", opts)
 
--- Git reset
-map("n", "<leader>gr", ":Git reset <CR>", opts)
+-- Git reset (cambiado para evitar conflicto con LSP references)
+map("n", "<leader>grr", ":Git reset <CR>", opts)
 map("n", "<leader>grs", ":Git reset --soft HEAD~1<CR>", opts)
 
 -- Git merge
@@ -727,7 +727,7 @@ map("n", "<leader>mr", ":!iex -S mix<CR>", opts)
 
 -- Mix compile avanzado
 map("n", "<leader>mcc", ":!mix compile --warnings-as-errors<CR>", opts)
-map("n", "<leader>mcd", ":!mix deps.compile --force<CR>", opts)
+map("n", "<leader>mcdf", ":!mix deps.compile --force<CR>", opts)
 map("n", "<leader>mcf", ":!mix format --check-formatted<CR>", opts)
 map("n", "<leader>mxx", ":call ElixirCompileAndCheck()<CR>", opts)
 
@@ -739,17 +739,17 @@ map("n", "<leader>mtw", ":!mix test.watch --stale<CR>", opts)
 -- Análisis de código
 map("n", "<leader>mce", ":!mix credo --strict --all<CR>", opts)
 map("n", "<leader>mcs", ":!mix credo suggest --help<CR>", opts)
-map("n", "<leader>mcd", ":!mix dialyzer --format dialyzer<CR>", opts)
+map("n", "<leader>mdi", ":!mix dialyzer --format dialyzer<CR>", opts)
 
 -- Logs y limpieza
 map("n", "<leader>mll", ":!tail -f _build/dev/lib/*/ebin/*.log<CR>", opts)
 map("n", "<leader>mlc", ":!mix clean && mix compile<CR>", opts)
 
--- Phoenix
-map("n", "<leader>ps", ":!mix phx.server<CR>", opts)
-map("n", "<leader>pr", ":!mix phx.routes<CR>", opts)
-map("n", "<leader>pm", ":!mix ecto.migrate<CR>", opts)
-map("n", "<leader>pR", ":!mix ecto.rollback<CR>", opts)
+-- Phoenix (cambiado a <leader>px para evitar conflictos)
+map("n", "<leader>pxs", ":!mix phx.server<CR>", opts)
+map("n", "<leader>pxr", ":!mix phx.routes<CR>", opts)
+map("n", "<leader>pxm", ":!mix ecto.migrate<CR>", opts)
+map("n", "<leader>pxR", ":!mix ecto.rollback<CR>", opts)
 
 -- Crear estructuras
 map("n", "<leader>em", ":call ElixirCreateModule()<CR>", opts)
@@ -843,9 +843,9 @@ map("n", "<leader>rsc", "iruc<Tab>", { noremap = false })
 -- Laravel
 map("n", "<leader>pl", ":Laravel<CR>", opts)
 
--- Symfony
-map("n", "<leader>ps", ":!symfony server:start<CR>", opts)
-map("n", "<leader>pc", ":!symfony console<CR>", opts)
+-- Symfony (cambiado a <leader>sy para evitar conflictos)
+map("n", "<leader>sys", ":!symfony server:start<CR>", opts)
+map("n", "<leader>syc", ":!symfony console<CR>", opts)
 
 -- REST.nvim
 map("n", "<leader>rr", ":Rest run<CR>", opts)

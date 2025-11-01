@@ -1,6 +1,9 @@
 -- dap.lua - Configuración de Debug Adapter Protocol (DAP) para Neovim
 
-local dap = require("dap")
+local dap_ok, dap = pcall(require, "dap")
+if not dap_ok then
+	return
+end
 
 -- Configuración para Node.js
 

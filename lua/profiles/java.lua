@@ -9,8 +9,7 @@ require("core.plugins")
 require("core.lsp") -- Carga LSP base (sin Java)
 
 -- Configurar jdtls específicamente para este perfil
-local lspconfig = require("lspconfig")
-lspconfig.jdtls.setup({
+local jdtls_config = {
 	cmd = { "jdtls" },
 	settings = {
 		java = {
@@ -34,7 +33,22 @@ lspconfig.jdtls.setup({
 			},
 		},
 	},
-})
+}
+
+-- Usar la nueva API de Neovim 0.11+
+if vim.lsp.config then
+	vim.lsp.config("jdtls", jdtls_config)
+	vim.api.nvim_create_autocmd("FileType", {
+		pattern = "java",
+		callback = function()
+			vim.lsp.enable("jdtls")
+		end,
+	})
+else
+	-- Fallback para versiones anteriores
+	local lspconfig = require("lspconfig")
+	lspconfig.jdtls.setup(jdtls_config)
+end
 
 -- Configuraciones específicas de Java
 vim.api.nvim_create_autocmd("FileType", {

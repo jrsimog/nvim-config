@@ -1,6 +1,50 @@
--- lua/core/lsp.lua - Configuración de LSP mejorada con diagnósticos y autocompletado
-local lspconfig = require("lspconfig")
+-- lua/core/lsp.lua - Configuración de LSP con Mason para gestión automática
 
+-- Verificar que lspconfig esté disponible (cargado por lazy.nvim)
+local lspconfig_ok, lspconfig = pcall(require, "lspconfig")
+if not lspconfig_ok then
+	-- Si lspconfig no está disponible, retornar funciones dummy
+	-- Esto evita errores durante el bootstrap inicial
+	_G.get_lsp_config = function()
+		return {
+			capabilities = vim.lsp.protocol.make_client_capabilities(),
+			on_attach = function() end,
+			flags = {},
+		}
+	end
+	_G.register_profile_lsp = function() end
+	_G.is_lsp_configured_by_profile = function() return false end
+	_G.show_profile_lsps = function() print("❌ LSP not loaded yet") end
+	_G.get_diagnostics_count = function() return { errors = 0, warnings = 0, info = 0, hints = 0 } end
+	return
+end
+
+-- Suprimir advertencia de deprecación de lspconfig temporalmente
+local notify_ok, notify_module = pcall(require, "notify")
+if notify_ok then
+	local original_notify = vim.notify
+	vim.notify = function(msg, level, opts)
+		if type(msg) == "string" and msg:match("lspconfig.*deprecated") then
+			return -- Ignorar advertencias de deprecación de lspconfig
+		end
+		return notify_module(msg, level, opts)
+	end
+end
+
+-- Verificar si Mason está disponible (puede no estar instalado aún)
+local mason_ok, mason = pcall(require, "mason")
+local mason_lspconfig_ok, mason_lspconfig = pcall(require, "mason-lspconfig")
+
+-- Verificaciones silenciosas - solo mostrar cuando hay problemas
+if not mason_ok then
+	print("⚠️ Mason no disponible - será instalado por Lazy")
+end
+
+if not mason_lspconfig_ok then
+	print("⚠️ Mason-lspconfig no disponible - será instalado por Lazy")
+end
+
+-- Configurar capabilities para autocompletado
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 local has_cmp, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
 if has_cmp then
@@ -109,11 +153,42 @@ local on_attach = function(client, bufnr)
 	end)
 end
 
+-- ========================================
+-- CONFIGURACIÓN AUTOMÁTICA CON MASON
+-- ========================================
+
+if mason_ok and mason_lspconfig_ok then
+	-- Lista de servidores LSP que queremos que Mason instale automáticamente
+	local servers = {
+		"lua_ls",      -- Lua
+		"elixirls",    -- Elixir
+		"intelephense", -- PHP
+		"ts_ls",       -- TypeScript/JavaScript (antes tsserver)
+		"pyright",     -- Python
+		"jdtls",       -- Java
+		"html",        -- HTML
+		"cssls",       -- CSS
+		"jsonls",      -- JSON
+		"yamlls",      -- YAML
+	}
+
+	-- Verificar que mason_lspconfig tiene el método setup
+	if mason_lspconfig.setup then
+		mason_lspconfig.setup({
+			ensure_installed = servers,
+			automatic_installation = true,
+		})
+		-- Mason-lspconfig configurado silenciosamente
+	else
+		print("❌ Mason-lspconfig.setup no disponible")
+	end
+else
+	print("⚠️ Mason no disponible - usando configuración LSP básica")
+end
+
+-- Configuraciones específicas para algunos servidores
 local server_configs = {
 	lua_ls = {
-		cmd = { "/home/jose/.asdf/shims/lua-language-server" }, -- ← AGREGAR ESTA LÍNEA
-		capabilities = capabilities,
-		on_attach = on_attach,
 		settings = {
 			Lua = {
 				runtime = { version = "LuaJIT" },
@@ -131,22 +206,83 @@ local server_configs = {
 				telemetry = { enable = false },
 			},
 		},
-		flags = { debounce_text_changes = 150 },
+	},
+	intelephense = {
+		settings = {
+			intelephense = {
+				files = {
+					maxSize = 1000000,
+				},
+			},
+		},
+	},
+	ts_ls = {
+		settings = {
+			typescript = {
+				inlayHints = {
+					includeInlayParameterNameHints = "literal",
+					includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+					includeInlayFunctionParameterTypeHints = true,
+					includeInlayVariableTypeHints = false,
+					includeInlayPropertyDeclarationTypeHints = true,
+					includeInlayFunctionLikeReturnTypeHints = true,
+					includeInlayEnumMemberValueHints = true,
+				},
+			},
+		},
 	},
 }
 
-local standard_servers = { "html", "cssls", "jsonls" }
+-- ========================================
+-- CONFIGURACIÓN CON MASON-LSPCONFIG v2.x
+-- ========================================
+-- En mason-lspconfig v2.x, los LSPs se habilitan automáticamente con vim.lsp.enable()
+-- Solo necesitamos configurar on_attach y capabilities usando vim.lsp.config()
 
-for server_name, config in pairs(server_configs) do
-	lspconfig[server_name].setup(config)
-end
+-- LSPs que TIENEN perfil específico y NO deben configurarse aquí automáticamente
+local profile_managed_servers = {
+	"elixirls",    -- Gestionado por profiles/elixir.lua
+	"intelephense", -- Gestionado por profiles/php.lua
+	"jdtls",       -- Gestionado por profiles/java.lua (si existe)
+	"pyright",     -- Gestionado por profiles/python.lua (si existe)
+}
 
-for _, server in ipairs(standard_servers) do
-	lspconfig[server].setup({
-		capabilities = capabilities,
-		on_attach = on_attach,
-		flags = { debounce_text_changes = 150 },
-	})
+-- Configurar LSPs que NO son gestionados por perfiles usando la nueva API vim.lsp.config()
+-- Esto se aplica automáticamente cuando mason-lspconfig los habilita
+if mason_lspconfig_ok then
+	for server_name, config in pairs(server_configs) do
+		-- Solo configurar si NO es gestionado por un perfil
+		local is_profile_managed = false
+		for _, managed in ipairs(profile_managed_servers) do
+			if server_name == managed then
+				is_profile_managed = true
+				break
+			end
+		end
+
+		if not is_profile_managed then
+			-- Usar la nueva API vim.lsp.config() si está disponible (Neovim 0.11+)
+			if vim.lsp.config then
+				vim.lsp.config(server_name, {
+					capabilities = capabilities,
+					on_attach = on_attach,
+					flags = { debounce_text_changes = 150 },
+					settings = config.settings or {},
+				})
+			else
+				-- Fallback para Neovim < 0.11: usar lspconfig directamente
+				local full_config = vim.tbl_deep_extend("force", {
+					capabilities = capabilities,
+					on_attach = on_attach,
+					flags = { debounce_text_changes = 150 },
+				}, config)
+				lspconfig[server_name].setup(full_config)
+			end
+		end
+	end
+else
+	print("❌ Mason-lspconfig no disponible - LSPs no se configurarán automáticamente")
+	print("💡 Ejecuta :Lazy sync para instalar los plugins")
 end
 
 vim.o.completeopt = "menuone,noselect"
@@ -207,6 +343,87 @@ vim.api.nvim_create_autocmd("LspAttach", {
 		end
 	end,
 })
+
+-- ========================================
+-- COMANDOS ÚTILES PARA MASON
+-- ========================================
+
+-- Comando para verificar el estado de Mason
+vim.api.nvim_create_user_command("MasonStatus", function()
+	if not mason_ok then
+		print("❌ Mason no está disponible")
+		print("💡 Reinicia Neovim para que Lazy instale los plugins")
+		return
+	end
+
+	local registry_ok, registry = pcall(require, "mason-registry")
+	if not registry_ok then
+		print("❌ Mason registry no disponible")
+		return
+	end
+
+	local installed = registry.get_installed_packages()
+
+	print("📦 Estado de Mason:")
+	print("Paquetes instalados: " .. #installed)
+
+	for _, pkg in ipairs(installed) do
+		print("  ✅ " .. pkg.name)
+	end
+
+	print("\n🔧 Para gestionar paquetes usa:")
+	print("  :Mason - Abrir interfaz gráfica")
+	print("  :MasonUpdate - Actualizar todos")
+	print("  :MasonLog - Ver logs")
+end, { desc = "Mostrar estado de Mason y paquetes instalados" })
+
+-- Comando para verificar qué perfiles han configurado LSPs
+vim.api.nvim_create_user_command("ProfileLSPs", function()
+	_G.show_profile_lsps()
+	print("\n🔍 Estado actual:")
+	local clients = vim.lsp.get_clients()
+	if #clients > 0 then
+		print("LSPs activos:")
+		for _, client in ipairs(clients) do
+			print("  ✅ " .. client.name .. " (id: " .. client.id .. ")")
+		end
+	else
+		print("❌ No hay LSPs activos")
+	end
+end, { desc = "Mostrar LSPs configurados por perfiles" })
+
+-- ========================================
+-- FUNCIONES PARA PERFILES
+-- ========================================
+
+-- Función para que los perfiles obtengan configuración base
+function _G.get_lsp_config()
+	return {
+		capabilities = capabilities,
+		on_attach = on_attach,
+		flags = { debounce_text_changes = 150 },
+	}
+end
+
+-- Función para que los perfiles registren que han configurado un LSP
+local profile_configured_lsps = {}
+function _G.register_profile_lsp(server_name, profile_name)
+	profile_configured_lsps[server_name] = profile_name
+	-- print("📝 LSP " .. server_name .. " registrado por perfil " .. profile_name)
+end
+
+-- Función para verificar si un LSP ya fue configurado por un perfil
+function _G.is_lsp_configured_by_profile(server_name)
+	return profile_configured_lsps[server_name] ~= nil
+end
+
+-- Función para debug
+function _G.show_profile_lsps()
+	print("📋 LSPs configurados por perfiles:")
+	for server, profile in pairs(profile_configured_lsps) do
+		print("  - " .. server .. " → " .. profile)
+	end
+end
 
 return {
 	capabilities = capabilities,

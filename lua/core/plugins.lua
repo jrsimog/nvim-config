@@ -14,8 +14,76 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
-	-- LSP y Autocompletado
-	{ "neovim/nvim-lspconfig" },
+	-- Mason: Must be loaded BEFORE lspconfig
+	{
+		"williamboman/mason.nvim",
+		priority = 100,
+		build = ":MasonUpdate",
+		config = function()
+			require("mason").setup({
+				ui = {
+					border = "rounded",
+					icons = {
+						package_installed = "✓",
+						package_pending = "➜",
+						package_uninstalled = "✗"
+					}
+				}
+			})
+		end,
+	},
+
+	-- Mason-LSPConfig bridge: Automatically installs and enables LSPs
+	{
+		"williamboman/mason-lspconfig.nvim",
+		priority = 90,
+		dependencies = { "williamboman/mason.nvim" },
+		opts = {
+			-- Lista de LSPs que Mason debe instalar automáticamente
+			ensure_installed = {
+				"lua_ls",
+				"elixirls",
+				"intelephense",
+				"ts_ls",
+				"pyright",
+				"jdtls",
+				"html",
+				"cssls",
+				"jsonls",
+				"yamlls",
+			},
+			-- En v2.x, automatic_enable reemplaza a automatic_installation
+			-- Por defecto es true, así que mason-lspconfig llama automáticamente a vim.lsp.enable()
+			automatic_enable = {
+				-- Excluir LSPs que son gestionados por perfiles específicos
+				-- Estos se configuran manualmente en profiles/elixir.lua, profiles/php.lua, etc.
+				exclude = {
+					"elixirls",    -- Configurado en profiles/elixir.lua
+					"intelephense", -- Configurado en profiles/php.lua
+					"jdtls",       -- Configurado en profiles/java.lua
+					"pyright",     -- Configurado en profiles/python.lua
+				}
+			},
+		},
+	},
+
+	-- LSPConfig: Loaded AFTER Mason
+	{
+		"neovim/nvim-lspconfig",
+		priority = 80,
+		event = { "BufReadPre", "BufNewFile" },
+		dependencies = {
+			"williamboman/mason.nvim",
+			"williamboman/mason-lspconfig.nvim",
+			"hrsh7th/cmp-nvim-lsp",
+		},
+		config = function()
+			-- Now it's safe to require lspconfig because Mason loaded it
+			-- The actual LSP configuration is in core/lsp.lua
+			-- This just ensures lspconfig is available when core/lsp.lua loads
+			require("core.lsp")
+		end,
+	},
 
 	-- Motor de autocompletado (INDEPENDIENTE, no en dependencias)
 	{
@@ -214,12 +282,9 @@ require("lazy").setup({
 		end,
 	},
 
-	-- Tema Monokai
+	-- Tema Monokai (configuración movida a theme.lua)
 	{
 		"tanvirtin/monokai.nvim",
-		config = function()
-			vim.cmd("colorscheme monokai")
-		end,
 	},
 
 	-- Explorador de directorios
@@ -446,7 +511,7 @@ require("lazy").setup({
 			require("lualine").setup({
 				options = {
 					icons_enabled = true,
-					theme = "gruvbox_dark",
+					theme = "auto", -- Hereda el tema activo automáticamente
 					component_separators = "|",
 					section_separators = "",
 				},

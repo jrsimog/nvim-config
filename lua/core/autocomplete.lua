@@ -1,7 +1,20 @@
 -- lua/core/autocomplete.lua - Configuración mejorada de autocompletado
-local cmp = require("cmp")
-local luasnip = require("luasnip")
-local lspkind = require("lspkind")
+
+-- Proteger contra carga sin plugins
+local cmp_ok, cmp = pcall(require, "cmp")
+if not cmp_ok then
+	return
+end
+
+local luasnip_ok, luasnip = pcall(require, "luasnip")
+if not luasnip_ok then
+	return
+end
+
+local lspkind_ok, lspkind = pcall(require, "lspkind")
+if not lspkind_ok then
+	return
+end
 
 -- Cargar snippets
 require("luasnip.loaders.from_vscode").lazy_load()
@@ -64,7 +77,6 @@ cmp.setup({
 	sources = cmp.config.sources({
 		{ name = "nvim_lsp", priority = 1000 },
 		{ name = "luasnip", priority = 750 },
-		{ name = "copilot", priority = 700 },
 		{ name = "nvim_lua", priority = 600 },
 		{ name = "path", priority = 250 },
 	}, {
@@ -83,7 +95,6 @@ cmp.setup({
 					luasnip = "[Snippet]",
 					buffer = "[Buffer]",
 					path = "[Path]",
-					copilot = "[Copilot]",
 					nvim_lua = "[Lua]",
 				})[entry.source.name]
 				return vim_item
@@ -123,7 +134,6 @@ cmp.setup.filetype({ "elixir", "eelixir", "heex" }, {
 	sources = cmp.config.sources({
 		{ name = "nvim_lsp", priority = 1000 },
 		{ name = "luasnip", priority = 750 },
-		{ name = "copilot", priority = 700 },
 		{ name = "path", priority = 250 },
 	}, {
 		{

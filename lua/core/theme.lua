@@ -1,9 +1,23 @@
--- theme.lua - Configuración de apariencia en Neovim
+-- theme.lua - Configuración centralizada de apariencia en Neovim
 
-vim.o.termguicolors = true -- Habilitar colores en terminal
-vim.cmd("colorscheme monokai") -- Aplicar el esquema de colores
+-- Habilitar colores en terminal
+vim.o.termguicolors = true
 
--- Configuración personalizada de colores para diffs
+-- ========================================
+-- TEMA PRINCIPAL
+-- ========================================
+-- Cambiar aquí para modificar el tema en toda la aplicación
+local status_ok, _ = pcall(vim.cmd, "colorscheme monokai")
+if not status_ok then
+	-- Fallback to default if monokai is not available
+	vim.cmd("colorscheme default")
+end
+
+-- ========================================
+-- CONFIGURACIÓN PERSONALIZADA DE COLORES
+-- ========================================
+
+-- Colores personalizados para diffs (Git)
 vim.cmd [[
   highlight DiffAdd    guibg=#294436 gui=none
   highlight DiffDelete guibg=#402b2b gui=none
@@ -11,13 +25,32 @@ vim.cmd [[
   highlight DiffText   guibg=#265478 gui=none
 ]]
 
--- Configuración de la apariencia de la línea de estado
-vim.o.laststatus = 2
-vim.o.showmode = false
+-- Mejorar visibilidad de diagnósticos
+vim.cmd [[
+  highlight DiagnosticError guifg=#ff6b6b gui=bold
+  highlight DiagnosticWarn  guifg=#feca57 gui=bold
+  highlight DiagnosticInfo  guifg=#48cae4 gui=bold
+  highlight DiagnosticHint  guifg=#06d6a0 gui=bold
+]]
 
--- Configuración de la apariencia de los números de línea
-vim.wo.number = true
-vim.wo.relativenumber = true
+-- ========================================
+-- CONFIGURACIÓN DE INTERFAZ
+-- ========================================
 
--- Resaltar la línea actual
-vim.wo.cursorline = true
+-- Línea de estado
+vim.o.laststatus = 2  -- Siempre mostrar statusline
+vim.o.showmode = false -- No mostrar modo (lo maneja lualine)
+
+-- Números de línea
+vim.wo.number = true         -- Números absolutos
+vim.wo.relativenumber = true -- Números relativos
+
+-- Resaltado visual
+vim.wo.cursorline = true     -- Resaltar línea actual
+vim.o.colorcolumn = "80,120" -- Guías de columna
+
+-- Transparencia y bordes (opcional)
+-- vim.cmd([[highlight Normal guibg=NONE ctermbg=NONE]])
+-- vim.cmd([[highlight NormalFloat guibg=NONE]])
+
+-- Tema monokai aplicado exitosamente
