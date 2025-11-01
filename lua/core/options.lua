@@ -38,3 +38,10 @@ opt.incsearch = true
 opt.updatetime = 300
 opt.timeoutlen = 500
 opt.lazyredraw = true
+
+-- Evitar mensaje "Press ENTER to continue"
+opt.cmdheight = 1           -- Altura de la línea de comandos
+opt.shortmess:append("c")   -- No mostrar mensajes de autocompletado
+opt.shortmess:append("I")   -- No mostrar intro message
+opt.shortmess:append("W")   -- No mostrar "written" al guardar
+opt.shortmess:append("a")   -- Usar abreviaciones en mensajes

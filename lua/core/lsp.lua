@@ -166,6 +166,7 @@ if mason_ok and mason_lspconfig_ok then
 		"ts_ls",       -- TypeScript/JavaScript (antes tsserver)
 		"pyright",     -- Python
 		"jdtls",       -- Java
+		"bashls",      -- Bash/Zsh
 		"html",        -- HTML
 		"cssls",       -- CSS
 		"jsonls",      -- JSON
@@ -245,6 +246,7 @@ local profile_managed_servers = {
 	"intelephense", -- Gestionado por profiles/php.lua
 	"jdtls",       -- Gestionado por profiles/java.lua (si existe)
 	"pyright",     -- Gestionado por profiles/python.lua (si existe)
+	"bashls",      -- Gestionado por profiles/sh.lua
 }
 
 -- Configurar LSPs que NO son gestionados por perfiles usando la nueva API vim.lsp.config()

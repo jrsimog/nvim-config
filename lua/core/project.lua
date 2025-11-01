@@ -1,6 +1,11 @@
 local M = {}
 
-local plenary_path = require('plenary.path')
+-- Try to load plenary.path, but handle gracefully if not available
+local plenary_path_ok, plenary_path = pcall(require, 'plenary.path')
+if not plenary_path_ok then
+  -- If plenary is not available, provide fallback functionality
+  plenary_path = nil
+end
 
 -- Project type definitions
 local project_markers = {
@@ -14,6 +19,24 @@ local project_markers = {
   go = { 'go.mod' },
   c = { 'Makefile', 'CMakeLists.txt' },
   cpp = { 'Makefile', 'CMakeLists.txt', 'meson.build' },
+  sh = { '.zshrc', '.bashrc', '.bash_profile', '.zprofile', '.bash_aliases' },
+}
+
+-- Filetype to profile mapping (for single files without project markers)
+local filetype_to_profile = {
+  sh = 'sh',
+  bash = 'sh',
+  zsh = 'sh',
+  python = 'python',
+  php = 'php',
+  elixir = 'elixir',
+  java = 'java',
+  javascript = 'javascript',
+  typescript = 'typescript',
+  rust = 'rust',
+  go = 'go',
+  c = 'c',
+  cpp = 'cpp',
 }
 
 -- Cache for project types to avoid repeated file system checks
@@ -28,13 +51,59 @@ function M.detect_project_type(path)
     path = vim.fn.getcwd()
   end
 
-  -- Check cache first
+  -- PRIORITY 1: Check current buffer's filetype first for specific file types
+  -- This ensures that opening .zshrc or .bashrc loads the shell profile,
+  -- even if we're in a PHP/Python/etc project directory
+  local current_buffer = vim.api.nvim_get_current_buf()
+  local current_file = vim.api.nvim_buf_get_name(current_buffer)
+  local filename = vim.fn.fnamemodify(current_file, ':t')
+
+  -- Check if it's a shell config file by name
+  local shell_config_files = { '.zshrc', '.bashrc', '.bash_profile', '.zprofile', '.bash_aliases', '.zshenv' }
+  for _, shell_file in ipairs(shell_config_files) do
+    if filename == shell_file or current_file:match(shell_file .. '$') then
+      return 'sh'
+    end
+  end
+
+  -- Check by file extension
+  if filename:match('%.sh$') or filename:match('%.bash$') or filename:match('%.zsh$') then
+    return 'sh'
+  end
+
+  -- Check cache
   if project_cache[path] then
     return project_cache[path]
   end
 
+  -- If plenary is not available, use fallback method
+  if not plenary_path then
+    -- Simple fallback: just check current directory
+    local current_dir = path
+    for project_type, markers in pairs(project_markers) do
+      for _, marker in ipairs(markers) do
+        local marker_path = current_dir .. '/' .. marker
+        if vim.fn.filereadable(marker_path) == 1 or vim.fn.isdirectory(marker_path) == 1 then
+          project_cache[path] = project_type
+          return project_type
+        end
+      end
+    end
+
+    -- No project type detected with fallback, try filetype-based detection
+    local filetype = vim.bo.filetype
+    if filetype and filetype_to_profile[filetype] then
+      project_cache[path] = filetype_to_profile[filetype]
+      return filetype_to_profile[filetype]
+    end
+
+    -- Still no match, use default
+    project_cache[path] = 'default'
+    return 'default'
+  end
+
   local project_path = plenary_path:new(path)
-  
+
   -- Walk up the directory tree looking for project markers
   local current_path = project_path
   while current_path do
@@ -47,7 +116,7 @@ function M.detect_project_type(path)
         end
       end
     end
-    
+
     -- Move up one directory
     local parent = current_path:parent()
     if parent == current_path then
@@ -56,7 +125,14 @@ function M.detect_project_type(path)
     current_path = parent
   end
 
-  -- No project type detected, use default
+  -- No project type detected, try filetype-based detection
+  local filetype = vim.bo.filetype
+  if filetype and filetype_to_profile[filetype] then
+    project_cache[path] = filetype_to_profile[filetype]
+    return filetype_to_profile[filetype]
+  end
+
+  -- Still no match, use default
   project_cache[path] = 'default'
   return 'default'
 end
