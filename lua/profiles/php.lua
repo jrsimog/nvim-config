@@ -1,54 +1,46 @@
--- lua/profiles/php.lua - Perfil PHP modernizado con Mason
+-- lua/profiles/php.lua - Perfil PHP simplificado
+-- El LSP se gestiona automáticamente por Mason (ver lua/core/lsp.lua)
 
 local M = {}
 
 function M.setup()
-    -- print("🐘 Cargando perfil PHP con Symfony y Laravel...")
+    -- El LSP intelephense se configura automáticamente en lua/core/lsp.lua
+    -- Aquí solo agregamos configuraciones específicas de PHP
 
-    local lspconfig = require("lspconfig")
+    -- Configuraciones de editor específicas para archivos PHP
+    vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "php" },
+        callback = function()
+            -- Indentación de 4 espacios (estándar PHP/PSR)
+            vim.opt_local.shiftwidth = 4
+            vim.opt_local.tabstop = 4
+            vim.opt_local.softtabstop = 4
+            vim.opt_local.expandtab = true
+        end,
+    })
 
-    -- Verificar si Intelephense ya fue configurado por otro perfil
-    if _G.is_lsp_configured_by_profile("intelephense") then
-        -- print("⏭️ Intelephense ya configurado por otro perfil")
-        return
-    end
+    -- Configuración específica de PHP
+    vim.g.laravel_cache = 1
 
-    -- Obtener configuración base del sistema LSP
-    local base_config = _G.get_lsp_config()
+    -- Comandos útiles para PHP
+    vim.api.nvim_create_user_command("PhpIndexRefresh", function()
+        vim.cmd("LspRestart intelephense")
+        print("🔄 Reiniciando indexación de PHP...")
+    end, { desc = "Refresh PHP index by restarting Intelephense" })
 
-    -- Configuración específica de Intelephense
-    local php_config = vim.tbl_deep_extend("force", base_config, {
-        -- Mason maneja la instalación automáticamente
-        settings = {
-            intelephense = {
-                files = {
-                    maxSize = 5000000,
-                    associations = { "*.php", "*.html", "*.css", "*.php", "*.php.html", "*.php.css" },
-                },
-                diagnostics = {
-                    enable = true,
-                    run = "onType",
-                },
-                completion = {
-                    fullyQualifyGlobalConstantsAndFunctions = true,
-                    insertUseDeclaration = true,
-                    maxItems = 100,
-                },
-                format = {
-                    enable = true,
-                },
-                trace = { server = "messages" },
-                environment = {
-                    includePaths = { "vendor/" },
-                },
+    vim.api.nvim_create_user_command("PhpImport", function()
+        vim.lsp.buf.code_action({
+            context = {
+                only = { "source.addMissingImports" },
             },
-        },
-        on_attach = function(client, bufnr)
-            -- Llamar al on_attach base
-            base_config.on_attach(client, bufnr)
+        })
+    end, { desc = "Import missing PHP classes" })
 
-            -- Configuraciones específicas de PHP
-            vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
+    -- Atajos de teclado específicos para PHP
+    vim.api.nvim_create_autocmd("FileType", {
+        pattern = "php",
+        callback = function(args)
+            local bufnr = args.buf
 
             -- Comando para importar clases automáticamente
             vim.api.nvim_buf_create_user_command(bufnr, "PhpImportClass", function()
@@ -60,12 +52,15 @@ function M.setup()
             end, { desc = "Import missing PHP class" })
 
             -- Atajos para importación automática
-            vim.api.nvim_buf_set_keymap(bufnr, "n", "<C-CR>", ":PhpImportClass<CR>", {
+            vim.keymap.set("n", "<C-CR>", ":PhpImportClass<CR>", {
+                buffer = bufnr,
                 noremap = true,
                 silent = true,
                 desc = "Import PHP class"
             })
-            vim.api.nvim_buf_set_keymap(bufnr, "i", "<C-CR>", "<Esc>:PhpImportClass<CR>a", {
+
+            vim.keymap.set("i", "<C-CR>", "<Esc>:PhpImportClass<CR>a", {
+                buffer = bufnr,
                 noremap = true,
                 silent = true,
                 desc = "Import PHP class (insert mode)"
@@ -85,74 +80,39 @@ function M.setup()
                     end
                 end,
             })
-
-            -- print("🐘 Intelephense configurado para buffer " .. bufnr)
         end,
     })
 
-    -- Configurar Intelephense usando la nueva API de Neovim 0.11+
-    if vim.lsp.config then
-        -- Usar vim.lsp.config() para Neovim 0.11+
-        vim.lsp.config("intelephense", php_config)
-        -- Habilitar manualmente el LSP para archivos PHP
-        vim.api.nvim_create_autocmd("FileType", {
-            pattern = "php",
-            callback = function()
-                vim.lsp.enable("intelephense")
-            end,
-        })
-    else
-        -- Fallback para versiones anteriores
-        lspconfig.intelephense.setup(php_config)
-    end
+    -- Comandos para Laravel
+    vim.api.nvim_create_user_command("LaravelArtisan", function(opts)
+        vim.cmd("!php artisan " .. opts.args)
+    end, { nargs = "*", desc = "Run Laravel Artisan command" })
 
-    -- Registrar que este perfil configuró Intelephense
-    _G.register_profile_lsp("intelephense", "php")
+    vim.api.nvim_create_user_command("LaravelServe", function()
+        vim.cmd("terminal php artisan serve")
+    end, { desc = "Start Laravel development server" })
 
-    -- Configuración específica de PHP
-    vim.g.laravel_cache = 1
+    -- Comandos para Symfony
+    vim.api.nvim_create_user_command("SymfonyConsole", function(opts)
+        vim.cmd("!php bin/console " .. opts.args)
+    end, { nargs = "*", desc = "Run Symfony console command" })
 
-    -- Nota: Los keymaps de Laravel/Symfony están en core/keymaps.lua
-    -- <leader>pl → Laravel
-    -- <leader>sys → Symfony server
-    -- <leader>syc → Symfony console
+    vim.api.nvim_create_user_command("SymfonyServe", function()
+        vim.cmd("terminal symfony serve")
+    end, { desc = "Start Symfony development server" })
 
-    -- Formateo automático con php-cs-fixer antes de guardar
-    vim.cmd([[
-      augroup PhpFormat
-        autocmd!
-        autocmd BufWritePre *.php silent! execute '!php-cs-fixer fix % --quiet'
-        autocmd BufWritePost *.php edit!
-      augroup END
-    ]])
+    -- Comandos para Composer
+    vim.api.nvim_create_user_command("ComposerInstall", function()
+        vim.cmd("!composer install")
+    end, { desc = "Run composer install" })
 
-    -- Comandos útiles para PHP
-    vim.api.nvim_create_user_command("PhpIndexRefresh", function()
-        vim.cmd("LspRestart intelephense")
-        print("🔄 Reiniciando indexación de PHP...")
-    end, {})
+    vim.api.nvim_create_user_command("ComposerUpdate", function()
+        vim.cmd("!composer update")
+    end, { desc = "Run composer update" })
 
-    vim.api.nvim_create_user_command("PhpImport", function()
-        vim.lsp.buf.code_action({
-            context = {
-                only = { "source.addMissingImports" },
-            },
-        })
-    end, {})
-
-    -- Configuraciones adicionales específicas para PHP
-    vim.api.nvim_create_autocmd("FileType", {
-        pattern = { "php" },
-        callback = function()
-            -- Configurar indentación para archivos PHP
-            vim.opt_local.shiftwidth = 4
-            vim.opt_local.tabstop = 4
-            vim.opt_local.softtabstop = 4
-            vim.opt_local.expandtab = true
-        end,
-    })
-
-    -- print("✅ Perfil PHP cargado con soporte de importación automática")
+    vim.api.nvim_create_user_command("ComposerRequire", function(opts)
+        vim.cmd("!composer require " .. opts.args)
+    end, { nargs = 1, desc = "Run composer require" })
 end
 
 return M

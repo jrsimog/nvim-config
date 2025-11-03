@@ -1,107 +1,17 @@
--- lua/profiles/elixir.lua - Perfil Elixir modernizado con Mason
+-- lua/profiles/elixir.lua - Perfil Elixir simplificado
+-- El LSP se gestiona automáticamente por Mason (ver lua/core/lsp.lua)
 
 local M = {}
 
 function M.setup()
-    -- print("⚗️ Cargando perfil Elixir...")
+    -- El LSP elixirls se configura automáticamente en lua/core/lsp.lua
+    -- Aquí solo agregamos configuraciones específicas de Elixir
 
-    local lspconfig = require("lspconfig")
-
-    -- Verificar si ElixirLS ya fue configurado por otro perfil
-    if _G.is_lsp_configured_by_profile("elixirls") then
-        -- print("⏭️ ElixirLS ya configurado por otro perfil")
-        return
-    end
-
-    -- Obtener configuración base del sistema LSP
-    local base_config = _G.get_lsp_config()
-
-    -- Configuración específica de ElixirLS
-    local elixir_config = vim.tbl_deep_extend("force", base_config, {
-        -- Configurar ElixirLS para evitar conflictos con ASDF
-        cmd = {
-            "env", "-u", "ASDF_DIR", "-u", "ASDF_DATA_DIR",
-            vim.fn.stdpath("data") .. "/mason/packages/elixir-ls/language_server.sh"
-        },
-        cmd_env = {
-            PATH = vim.env.HOME .. "/.asdf/shims:/usr/bin:/bin",
-        },
-        settings = {
-            elixirLS = {
-                dialyzerEnabled = false,
-                fetchDeps = false,
-                suggestSpecs = true,
-                signatureAfterComplete = true,
-                mixEnv = "dev",
-                enableTestLenses = false,
-                autoInsertRequiredAlias = true,
-                signatureHelp = { enabled = true },
-            },
-        },
-        on_attach = function(client, bufnr)
-            -- Llamar al on_attach base
-            base_config.on_attach(client, bufnr)
-
-            -- Configuraciones específicas de Elixir
-            vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
-            client.server_capabilities.documentFormattingProvider = true
-
-            -- Autocompletado inteligente para funciones
-            vim.api.nvim_create_autocmd("TextChangedI", {
-                buffer = bufnr,
-                callback = function()
-                    local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-                    local line = vim.api.nvim_get_current_line()
-                    local before_cursor = line:sub(1, col)
-
-                    if before_cursor:match("def[a-z]*$") then
-                        vim.schedule(function()
-                            local cmp_ok, cmp = pcall(require, "cmp")
-                            if cmp_ok then
-                                cmp.complete()
-                            end
-                        end)
-                    end
-                end,
-            })
-
-            -- print("⚗️ ElixirLS configurado para buffer " .. bufnr)
-        end,
-        root_dir = function(fname)
-            -- Buscar mix.exs y crear .tool-versions si no existe
-            local root = lspconfig.util.root_pattern("mix.exs", ".git")(fname)
-            if root then
-                local tool_versions = root .. "/.tool-versions"
-                if vim.fn.filereadable(tool_versions) == 0 then
-                    vim.fn.writefile({"erlang 27.3.4.3", "elixir 1.18.4-otp-27"}, tool_versions)
-                end
-            end
-            return root
-        end,
-    })
-
-    -- Configurar ElixirLS usando la nueva API de Neovim 0.11+
-    if vim.lsp.config then
-        -- Usar vim.lsp.config() para Neovim 0.11+
-        vim.lsp.config("elixirls", elixir_config)
-        -- Habilitar manualmente el LSP para archivos Elixir
-        vim.api.nvim_create_autocmd("FileType", {
-            pattern = { "elixir", "eelixir", "heex" },
-            callback = function()
-                vim.lsp.enable("elixirls")
-            end,
-        })
-    else
-        -- Fallback para versiones anteriores
-        lspconfig.elixirls.setup(elixir_config)
-    end
-
-    -- Registrar que este perfil configuró ElixirLS
-    _G.register_profile_lsp("elixirls", "elixir")
-
+    -- Configuraciones de editor específicas para archivos Elixir
     vim.api.nvim_create_autocmd("FileType", {
         pattern = { "elixir", "eelixir", "heex" },
         callback = function()
+            -- Indentación de 2 espacios (estándar Elixir)
             vim.opt_local.shiftwidth = 2
             vim.opt_local.tabstop = 2
             vim.opt_local.expandtab = true
@@ -109,29 +19,104 @@ function M.setup()
         end,
     })
 
+    -- Comando para verificar el estado de ElixirLS
     vim.api.nvim_create_user_command("ElixirStatus", function()
-        -- print("🔍 Estado de ElixirLS:")
-        -- print("- Comando: " .. (elixir_ls_cmd or "❌ No encontrado"))
-        -- print("- Tipo: " .. (elixir_ls_cmd and (elixir_ls_cmd:match("mason") and "Mason" or "Manual") or "N/A"))
+        print("🔍 Estado de ElixirLS:")
+        print("")
 
+        -- Verificar clientes LSP activos
         local clients = vim.lsp.get_active_clients({ name = "elixirls" })
         if #clients > 0 then
             for _, client in ipairs(clients) do
-                print("- Cliente " .. client.id .. ": " .. (client.is_stopped() and "❌ Detenido" or "✅ Activo"))
-                print(
-                    "- Capacidades de autocompletado: "
-                        .. (client.server_capabilities.completionProvider and "✅ Sí" or "❌ No")
-                )
+                print("  ✅ Cliente " .. client.id .. ": " .. (client.is_stopped() and "❌ Detenido" or "✅ Activo"))
+                print("  • Root dir: " .. (client.config.root_dir or "❌ No detectado"))
+                print("  • Capacidades:")
+                print("    - Autocompletado: " .. (client.server_capabilities.completionProvider and "✅" or "❌"))
+                print("    - Go to definition: " .. (client.server_capabilities.definitionProvider and "✅" or "❌"))
+                print("    - Hover: " .. (client.server_capabilities.hoverProvider and "✅" or "❌"))
             end
         else
-            -- print("- LSP: ❌ No hay clientes activos")
+            print("  ❌ No hay clientes ElixirLS activos")
+            print("  💡 Asegúrate de que Mason instaló elixir-ls: :Mason")
         end
 
-        local has_cmp = pcall(require, "cmp")
-        -- print("- nvim-cmp: " .. (has_cmp and "✅ Instalado" or "❌ No instalado"))
-    end, {})
+        print("")
 
-    -- print("✅ Perfil Elixir cargado con autocompletado")
+        -- Verificar proyecto Mix
+        local cwd = vim.fn.getcwd()
+        local mix_exs = cwd .. "/mix.exs"
+        if vim.fn.filereadable(mix_exs) == 1 then
+            print("  ✅ Proyecto Mix encontrado: " .. mix_exs)
+
+            -- Verificar si está compilado
+            local build_dir = cwd .. "/_build"
+            if vim.fn.isdirectory(build_dir) == 1 then
+                print("  ✅ Proyecto compilado (_build existe)")
+            else
+                print("  ⚠️  Proyecto no compilado")
+                print("  💡 Ejecuta: :MixCompile o :!mix compile")
+            end
+        else
+            print("  ⚠️  No se encontró mix.exs en: " .. cwd)
+            print("  💡 Asegúrate de abrir Neovim desde la raíz del proyecto")
+        end
+
+        print("")
+        local has_cmp = pcall(require, "cmp")
+        print("  • nvim-cmp: " .. (has_cmp and "✅ Instalado" or "❌ No instalado"))
+    end, { desc = "Show ElixirLS status" })
+
+    -- Comandos útiles para proyectos Elixir/Phoenix
+    vim.api.nvim_create_user_command("MixCompile", function()
+        vim.cmd("!mix compile")
+        -- Reiniciar LSP después de compilar
+        vim.defer_fn(function()
+            vim.cmd("LspRestart")
+            print("✅ Proyecto compilado. LSP reiniciado.")
+        end, 1000)
+    end, { desc = "Compile project and restart LSP" })
+
+    vim.api.nvim_create_user_command("MixTest", function()
+        vim.cmd("!mix test")
+    end, { desc = "Run mix test" })
+
+    vim.api.nvim_create_user_command("MixFormat", function()
+        vim.cmd("!mix format")
+    end, { desc = "Run mix format on project" })
+
+    vim.api.nvim_create_user_command("MixDeps", function()
+        vim.cmd("!mix deps.get")
+    end, { desc = "Get mix dependencies" })
+
+    vim.api.nvim_create_user_command("MixClean", function()
+        vim.cmd("!mix clean")
+        print("🧹 Build artifacts cleaned")
+    end, { desc = "Clean build artifacts" })
+
+    vim.api.nvim_create_user_command("PhoenixServer", function()
+        vim.cmd("terminal mix phx.server")
+    end, { desc = "Start Phoenix server" })
+
+    vim.api.nvim_create_user_command("IexStart", function()
+        vim.cmd("terminal iex -S mix")
+    end, { desc = "Start IEx session" })
+
+    -- Atajos de teclado específicos para Elixir
+    vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "elixir", "eelixir", "heex" },
+        callback = function(args)
+            local bufnr = args.buf
+
+            -- Mix commands
+            vim.keymap.set("n", "<leader>mt", ":MixTest<CR>", { buffer = bufnr, desc = "Run mix test" })
+            vim.keymap.set("n", "<leader>mf", ":MixFormat<CR>", { buffer = bufnr, desc = "Run mix format" })
+            vim.keymap.set("n", "<leader>md", ":MixDeps<CR>", { buffer = bufnr, desc = "Get mix deps" })
+
+            -- Phoenix commands
+            vim.keymap.set("n", "<leader>ps", ":PhoenixServer<CR>", { buffer = bufnr, desc = "Start Phoenix server" })
+            vim.keymap.set("n", "<leader>pi", ":IexStart<CR>", { buffer = bufnr, desc = "Start IEx" })
+        end,
+    })
 end
 
 return M

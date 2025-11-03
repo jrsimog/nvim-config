@@ -1,77 +1,50 @@
--- lua/profiles/python.lua
-print("🐍 Cargando perfil Python")
+-- lua/profiles/python.lua - Perfil Python simplificado
+-- El LSP se gestiona automáticamente por Mason (ver lua/core/lsp.lua)
 
-vim.g.mapleader = " "
+local M = {}
 
--- Cargar configuraciones base
-require("core.plugins")
-require("core.lsp") -- Carga LSP base (sin Python)
+function M.setup()
+    -- El LSP pyright se configura automáticamente en lua/core/lsp.lua
+    -- Aquí solo agregamos configuraciones específicas de Python
 
--- Configurar Pyright específicamente para este perfil
-local pyright_config = {
-	settings = {
-		python = {
-			analysis = {
-				autoSearchPaths = true,
-				diagnosticMode = "workspace",
-				useLibraryCodeForTypes = true,
-				typeCheckingMode = "basic",
-			},
-		},
-	},
-}
+    -- Configuraciones de editor específicas para archivos Python
+    vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "python" },
+        callback = function()
+            -- Indentación de 4 espacios (PEP 8)
+            vim.opt_local.shiftwidth = 4
+            vim.opt_local.tabstop = 4
+            vim.opt_local.softtabstop = 4
+            vim.opt_local.expandtab = true
 
--- Usar la nueva API de Neovim 0.11+
-if vim.lsp.config then
-	vim.lsp.config("pyright", pyright_config)
-	vim.api.nvim_create_autocmd("FileType", {
-		pattern = "python",
-		callback = function()
-			vim.lsp.enable("pyright")
-		end,
-	})
-else
-	-- Fallback para versiones anteriores
-	local lspconfig = require("lspconfig")
-	lspconfig.pyright.setup(pyright_config)
+            -- Longitud de línea para Python (PEP 8: 79, Black: 88)
+            vim.opt_local.textwidth = 88
+            vim.opt_local.colorcolumn = "88"
+        end,
+    })
+
+    -- Atajos de teclado específicos para Python
+    vim.keymap.set("n", "<leader>pf", ":Black<CR>", { noremap = true, silent = true, desc = "Format with Black" })
+    vim.keymap.set("n", "<leader>pr", ":!pytest %<CR>", { noremap = true, silent = true, desc = "Run pytest on current file" })
+    vim.keymap.set("n", "<leader>pt", ":!python -m pytest<CR>", { noremap = true, silent = true, desc = "Run all pytest tests" })
+    vim.keymap.set("n", "<leader>pi", ":!python %<CR>", { noremap = true, silent = true, desc = "Run current Python file" })
+
+    -- Comandos útiles para Python
+    vim.api.nvim_create_user_command("PythonRepl", function()
+        vim.cmd("terminal python3")
+    end, { desc = "Start Python REPL" })
+
+    vim.api.nvim_create_user_command("PipInstall", function(opts)
+        vim.cmd("!pip install " .. opts.args)
+    end, { nargs = 1, desc = "Install Python package with pip" })
+
+    vim.api.nvim_create_user_command("PythonVenv", function()
+        vim.cmd("!python -m venv venv && source venv/bin/activate")
+    end, { desc = "Create and activate Python virtual environment" })
+
+    vim.api.nvim_create_user_command("PythonRequirements", function()
+        vim.cmd("!pip install -r requirements.txt")
+    end, { desc = "Install requirements from requirements.txt" })
 end
 
--- Configuraciones específicas de Python
-vim.api.nvim_create_autocmd("FileType", {
-	pattern = { "python" },
-	callback = function()
-		-- Configurar indentación para archivos Python
-		vim.opt_local.shiftwidth = 4
-		vim.opt_local.tabstop = 4
-		vim.opt_local.softtabstop = 4
-		vim.opt_local.expandtab = true
-
-		-- Configurar longitud de línea para Python
-		vim.opt_local.textwidth = 88
-		vim.opt_local.colorcolumn = "88"
-	end,
-})
-
--- Atajos de teclado específicos para Python
-vim.api.nvim_set_keymap("n", "<leader>pf", ":Black<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "<leader>pr", ":!pytest %<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "<leader>pt", ":!python -m pytest<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "<leader>pi", ":!python %<CR>", { noremap = true, silent = true })
-
--- Formato automático con Black
-vim.cmd([[autocmd BufWritePre *.py lua vim.lsp.buf.format()]])
-
--- Comandos útiles para Python
-vim.api.nvim_create_user_command("PythonRepl", function()
-	vim.cmd("!python3")
-end, {})
-
-vim.api.nvim_create_user_command("PipInstall", function(opts)
-	vim.cmd("!pip install " .. opts.args)
-end, { nargs = 1 })
-
-vim.api.nvim_create_user_command("PythonVenv", function()
-	vim.cmd("!python -m venv venv && source venv/bin/activate")
-end, {})
-
-print("✅ Perfil Python cargado correctamente")
+return M

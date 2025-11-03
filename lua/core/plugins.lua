@@ -39,7 +39,7 @@ require("lazy").setup({
 		priority = 90,
 		dependencies = { "williamboman/mason.nvim" },
 		opts = {
-			-- Lista de LSPs que Mason debe instalar automáticamente
+			-- Lista de SOLO servidores LSP (NO formateadores)
 			ensure_installed = {
 				"lua_ls",
 				"elixirls",
@@ -51,19 +51,24 @@ require("lazy").setup({
 				"cssls",
 				"jsonls",
 				"yamlls",
+				"bashls",
 			},
-			-- En v2.x, automatic_enable reemplaza a automatic_installation
-			-- Por defecto es true, así que mason-lspconfig llama automáticamente a vim.lsp.enable()
-			automatic_enable = {
-				-- Excluir LSPs que son gestionados por perfiles específicos
-				-- Estos se configuran manualmente en profiles/elixir.lua, profiles/php.lua, etc.
-				exclude = {
-					"elixirls",    -- Configurado en profiles/elixir.lua
-					"intelephense", -- Configurado en profiles/php.lua
-					"jdtls",       -- Configurado en profiles/java.lua
-					"pyright",     -- Configurado en profiles/python.lua
-				}
+		},
+	},
+
+	-- Mason Tool Installer: Para formateadores y linters
+	{
+		"WhoIsSethDaniel/mason-tool-installer.nvim",
+		dependencies = { "williamboman/mason.nvim" },
+		opts = {
+			ensure_installed = {
+				-- Formatters
+				"stylua",      -- Lua formatter
+				"prettier",    -- JS/TS/HTML/CSS formatter
+				-- Note: php-cs-fixer needs to be installed separately via Composer
 			},
+			auto_update = false,
+			run_on_start = true,
 		},
 	},
 
