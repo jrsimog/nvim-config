@@ -141,6 +141,44 @@ function M.setup()
         vim.cmd("terminal iex -S mix")
     end, { desc = "Start IEx session" })
 
+    -- Función para navegar a módulo desde alias
+    local function goto_elixir_module()
+        local line = vim.api.nvim_get_current_line()
+        local module_pattern = "([A-Z][%w%.]*)"
+
+        -- Buscar módulo en la línea actual
+        local module_name = line:match("alias%s+" .. module_pattern) or
+                           line:match("import%s+" .. module_pattern) or
+                           line:match("use%s+" .. module_pattern)
+
+        if not module_name then
+            -- Si no está en un alias, intentar obtener el módulo bajo el cursor
+            local word = vim.fn.expand("<cword>")
+            if word:match("^[A-Z]") then
+                module_name = word
+            end
+        end
+
+        if module_name then
+            -- Convertir nombre de módulo a path de archivo
+            -- Ej: Rec.ESigns -> lib/rec/e_signs.ex
+            local file_path = module_name:gsub("%.", "/"):gsub("([A-Z])", function(c)
+                return "_" .. c:lower()
+            end):gsub("^_", "")
+
+            -- Intentar abrir el archivo
+            local full_path = "lib/" .. file_path .. ".ex"
+            if vim.fn.filereadable(full_path) == 1 then
+                vim.cmd("edit " .. full_path)
+                vim.notify("✅ Navegado a: " .. full_path, vim.log.levels.INFO)
+            else
+                vim.notify("⚠️ No se encontró: " .. full_path, vim.log.levels.WARN)
+            end
+        else
+            vim.notify("❌ No se encontró un módulo válido", vim.log.levels.ERROR)
+        end
+    end
+
     -- Atajos de teclado específicos para Elixir
     vim.api.nvim_create_autocmd("FileType", {
         pattern = { "elixir", "eelixir", "heex" },
@@ -155,6 +193,9 @@ function M.setup()
             -- Phoenix commands
             vim.keymap.set("n", "<leader>ps", ":PhoenixServer<CR>", { buffer = bufnr, desc = "Start Phoenix server" })
             vim.keymap.set("n", "<leader>pi", ":IexStart<CR>", { buffer = bufnr, desc = "Start IEx" })
+
+            -- Navegación de módulos (alternativa a gd para alias)
+            vim.keymap.set("n", "<leader>ga", goto_elixir_module, { buffer = bufnr, desc = "Go to Alias module" })
 
             -- Atajos LSP adicionales para diagnóstico
             vim.keymap.set("n", "<leader>gd", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to Definition (alternative)" })

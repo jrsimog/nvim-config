@@ -652,7 +652,7 @@ map("n", "<leader>gc", ":call GitCommitWithMessagePrompt()<CR>", opts)
 map("n", "<leader>gp", ":Git push<CR>", opts)
 map("n", "<leader>gl", ":Git pull<CR>", opts)
 map("n", "<leader>gb", ":Telescope git_branches<CR>", opts)
-map("n", "<leader>ga", ":call CustomGitAdd()<CR>", opts)
+-- map("n", "<leader>ga", ":call CustomGitAdd()<CR>", opts) -- Comentado: se usa <leader>gs con Telescope
 map("n", "<leader>gbl", ":Git blame<CR>", opts)
 
 -- Git branches
@@ -953,6 +953,7 @@ end, {
 -- <leader>mc     → mix compile
 -- <leader>em     → Crear módulo
 -- <leader>eg     → Crear GenServer
+-- <leader>ga     → Go to Alias (navegar a módulo desde alias)
 --
 -- AVANTE (IA):
 -- <leader>aa     → Preguntar
