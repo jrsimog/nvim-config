@@ -582,10 +582,19 @@ map("n", "<leader>par", ":R<CR>", opts)
 -- LSP Y DIAGNÓSTICOS
 -- ========================================
 
--- LSP básico
--- NOTA: Los keymaps de LSP (gd, gr, K, etc.) se configuran automáticamente
--- en lua/core/lsp.lua cuando el LSP se adjunta a un buffer.
--- No los definimos aquí para evitar conflictos con la configuración específica del LSP.
+-- LSP básico (navegación y comandos principales)
+map("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
+map("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opts)
+map("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opts)
+map("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
+map("n", "gy", "<cmd>lua vim.lsp.buf.type_definition()<CR>", opts)
+map("n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
+map("n", "<leader>kh", "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
+
+-- LSP Workspace
+map("n", "<leader>wa", "<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>", opts)
+map("n", "<leader>wr", "<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>", opts)
+map("n", "<leader>wl", "<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>", opts)
 
 -- Mapeos LSP adicionales (no definidos en lsp.lua)
 map("n", "<leader>rn", ":lua vim.lsp.buf.rename()<CR>", opts)
@@ -595,9 +604,11 @@ map("n", "<leader>ca", ":lua vim.lsp.buf.code_action()<CR>", opts)
 map("n", "<leader>df", "<cmd>lua vim.diagnostic.open_float({ scope = 'cursor', border = 'rounded' })<CR>", opts)
 map("n", "<leader>dF", "<cmd>lua vim.diagnostic.open_float({ scope = 'buffer', border = 'rounded' })<CR>", opts)
 
--- Navegación de diagnósticos
+-- Navegación de diagnósticos (todos los tipos)
 map("n", "[d", "<cmd>lua vim.diagnostic.goto_prev()<CR>", opts)
 map("n", "]d", "<cmd>lua vim.diagnostic.goto_next()<CR>", opts)
+
+-- Navegación por tipo (errores y warnings específicamente)
 map("n", "[e", "<cmd>lua vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR })<CR>", opts)
 map("n", "]e", "<cmd>lua vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR })<CR>", opts)
 map("n", "[w", "<cmd>lua vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.WARN })<CR>", opts)
@@ -610,6 +621,7 @@ map("n", "<leader>xe", "<cmd>lua vim.diagnostic.setqflist({ severity = vim.diagn
 map("n", "<leader>xw", "<cmd>lua vim.diagnostic.setqflist({ severity = vim.diagnostic.severity.WARN })<CR>", opts)
 map("n", "<leader>xi", ":DiagnosticsInfo<CR>", opts)
 map("n", "<leader>xf", "<cmd>lua vim.diagnostic.open_float({ scope = 'line', border = 'rounded' })<CR>", opts)
+map("n", "<leader>dq", "<cmd>lua vim.diagnostic.setloclist()<CR>", opts)
 
 -- Funciones de diagnóstico
 map("n", "<leader>ds", ":call ShowDiagnosticsSummary()<CR>", opts)
@@ -673,7 +685,7 @@ map("n", "<leader>gss", ":call InteractiveGitStash()<CR>", opts)
 
 -- Diffview
 map("n", "<leader>dv", ":DiffviewOpen ", opts)
-map("n", "<leader>dq", ":DiffviewClose<CR>", opts)
+map("n", "<leader>dc", ":DiffviewClose<CR>", opts)
 map("n", "<leader>dn", ":DiffviewNextFile<CR>", opts)
 map("n", "<leader>dp", ":DiffviewPrevFile<CR>", opts)
 map("n", "<leader>dj", ":DiffviewNextHunk<CR>", opts)
@@ -904,14 +916,24 @@ end, {
 --
 -- LSP/DIAGNÓSTICOS:
 -- gd             → Ir a definición
--- gr             → Referencias
--- K              → Hover
--- <leader>rn     → Renombrar
+-- gD             → Ir a declaración
+-- gr             → Ver referencias
+-- gi             → Ir a implementación
+-- gy             → Ir a definición de tipo
+-- K              → Hover/documentación
+-- <leader>kh     → Ayuda de firma
+-- <leader>rn     → Renombrar símbolo
 -- <leader>ca     → Code action
--- <leader>xd     → Diagnóstico en cursor
--- <leader>xE     → Diagnóstico en buffer
--- <leader>xx     → Lista errores
--- [d/]d          → Navegar diagnósticos
+-- <leader>wa/wr  → Workspace add/remove folder
+-- <leader>wl     → Listar workspace folders
+-- <leader>df     → Diagnóstico flotante (cursor)
+-- <leader>dF     → Diagnóstico flotante (buffer)
+-- <leader>dq     → Enviar diagnósticos a location list
+-- [d/]d          → Navegar todos los diagnósticos
+-- [e/]e          → Navegar solo errores
+-- [w/]w          → Navegar solo warnings
+-- <leader>xx     → Lista diagnósticos (buffer)
+-- <leader>xX     → Lista diagnósticos (workspace)
 --
 -- GIT:
 -- <leader>gs     → Status

@@ -26,33 +26,10 @@ local on_attach = function(client, bufnr)
 
   -- Atajos de teclado para funciones LSP
   -- Usar vim.keymap.del primero para asegurarnos de sobrescribir cualquier mapeo previo
-  pcall(vim.keymap.del, "n", "gd", { buffer = bufnr })
-  pcall(vim.keymap.del, "n", "gD", { buffer = bufnr })
-  pcall(vim.keymap.del, "n", "gr", { buffer = bufnr })
-  pcall(vim.keymap.del, "n", "K", { buffer = bufnr })
 
-  vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { noremap = true, silent = true, buffer = bufnr, desc = "Go to Declaration" })
-  vim.keymap.set("n", "gd", vim.lsp.buf.definition, { noremap = true, silent = true, buffer = bufnr, desc = "Go to Definition" })
-  vim.keymap.set("n", "gr", vim.lsp.buf.references, { noremap = true, silent = true, buffer = bufnr, desc = "Go to References" })
 
-  -- Debug: confirmar que el keymap se estableció
-  print("✅ Keymap 'gd' configurado para buffer " .. bufnr)
-  vim.keymap.set("n", "K", vim.lsp.buf.hover, { noremap = true, silent = true, buffer = bufnr, desc = "Hover Documentation" })
-  vim.keymap.set("n", "gi", vim.lsp.buf.implementation, { noremap = true, silent = true, buffer = bufnr, desc = "Go to Implementation" })
-  vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, { noremap = true, silent = true, buffer = bufnr, desc = "Signature Help" })
-  vim.keymap.set("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, { noremap = true, silent = true, buffer = bufnr, desc = "Add Workspace Folder" })
-  vim.keymap.set("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, { noremap = true, silent = true, buffer = bufnr, desc = "Remove Workspace Folder" })
-  vim.keymap.set("n", "<leader>wl", function()
-    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  end, { noremap = true, silent = true, buffer = bufnr, desc = "List Workspace Folders" })
-  vim.keymap.set("n", "<leader>D", vim.lsp.buf.type_definition, { noremap = true, silent = true, buffer = bufnr, desc = "Type Definition" })
-  vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { noremap = true, silent = true, buffer = bufnr, desc = "Rename" })
-  vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { noremap = true, silent = true, buffer = bufnr, desc = "Code Action" })
-  vim.keymap.set("n", "gr", vim.lsp.buf.references, { noremap = true, silent = true, buffer = bufnr, desc = "Go to References" })
-  vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { noremap = true, silent = true, buffer = bufnr, desc = "Show Line Diagnostics" })
-  vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { noremap = true, silent = true, buffer = bufnr, desc = "Go to Previous Diagnostic" })
-  vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { noremap = true, silent = true, buffer = bufnr, desc = "Go to Next Diagnostic" })
-  vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { noremap = true, silent = true, buffer = bufnr, desc = "Diagnostics to Loclist" })
+
+
 
   -- Habilitar el formateo si el LSP lo soporta
   if client.supports_method("textDocument/formatting") then
@@ -113,66 +90,7 @@ vim.lsp.handlers["textDocument/definition"] = function(err, result, ctx, config)
   end
 end
 
--- ========== Additional LspAttach Autocommand ==========
--- Este autocomando se ejecuta después de on_attach para asegurar que gd funcione
-vim.api.nvim_create_autocmd("LspAttach", {
-  callback = function(args)
-    local bufnr = args.buf
 
-    -- Pequeño delay para asegurar que se ejecute después de otros plugins
-    vim.defer_fn(function()
-      -- Eliminar cualquier mapeo previo de gd
-      pcall(vim.keymap.del, "n", "gd", { buffer = bufnr })
-      pcall(vim.keymap.del, "n", "gD", { buffer = bufnr })
-      pcall(vim.keymap.del, "n", "gr", { buffer = bufnr })
-      pcall(vim.keymap.del, "n", "K", { buffer = bufnr })
-
-      -- Custom go to definition que usa directamente el request
-      local function custom_goto_definition()
-        print("🔍 Custom goto definition ejecutándose...")
-
-        local params = vim.lsp.util.make_position_params()
-        print("📍 Posición: línea " .. params.position.line .. ", col " .. params.position.character)
-
-        vim.lsp.buf_request(0, "textDocument/definition", params, function(err, result, ctx, config)
-          print("📥 Respuesta recibida del LSP")
-
-          if err then
-            print("❌ Error: " .. vim.inspect(err))
-            vim.notify("Error al buscar definición", vim.log.levels.ERROR)
-            return
-          end
-
-          if not result or vim.tbl_isempty(result) then
-            print("⚠️  No hay resultado del LSP")
-            vim.notify("No se encontró definición", vim.log.levels.WARN)
-            return
-          end
-
-          print("✅ Definición encontrada!")
-          print("   Resultado: " .. vim.inspect(result))
-
-          -- Navegar a la ubicación
-          local location = result[1] or result
-          if location.uri or location.targetUri then
-            vim.lsp.util.jump_to_location(location, "utf-8")
-            vim.notify("✅ Navegado a definición", vim.log.levels.INFO)
-          else
-            print("⚠️  Formato de ubicación inesperado")
-          end
-        end)
-      end
-
-      -- Re-establecer los keymaps LSP con máxima prioridad
-      vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { noremap = true, silent = false, buffer = bufnr, desc = "Go to Declaration" })
-      vim.keymap.set("n", "gd", custom_goto_definition, { noremap = true, silent = false, buffer = bufnr, desc = "Go to Definition" })
-      vim.keymap.set("n", "gr", vim.lsp.buf.references, { noremap = true, silent = false, buffer = bufnr, desc = "Go to References" })
-      vim.keymap.set("n", "K", vim.lsp.buf.hover, { noremap = true, silent = false, buffer = bufnr, desc = "Hover Documentation" })
-
-      print("🔄 Keymaps LSP re-aplicados en buffer " .. bufnr)
-    end, 150)
-  end,
-})
 
 -- ========== Diagnostic Icons Configuration ==========
 local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }

@@ -112,7 +112,7 @@ function M.setup()
         -- Reiniciar LSP después de compilar
         vim.defer_fn(function()
             vim.cmd("LspRestart")
-            print("✅ Proyecto compilado. LSP reiniciado.")
+            vim.notify("✅ Proyecto compilado. LSP reiniciado.", vim.log.levels.INFO)
         end, 1000)
     end, { desc = "Compile project and restart LSP" })
 
