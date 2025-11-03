@@ -31,17 +31,9 @@ local on_attach = function(client, bufnr)
 
 
 
-  -- Habilitar el formateo si el LSP lo soporta
-  if client.supports_method("textDocument/formatting") then
-    vim.api.nvim_create_autocmd("BufWritePre", {
-      group = vim.api.nvim_create_augroup("LspFormat." .. bufnr, { clear = true }),
-      buffer = bufnr,
-      callback = function()
-        vim.lsp.buf.format({ bufnr = bufnr })
-      end,
-      desc = "Format file before saving",
-    })
-  end
+  -- NOTA: El formateo automático al guardar se maneja por conform.nvim
+  -- No configuramos formateo automático aquí para evitar conflictos
+  -- El LSP se usa como fallback en conform con lsp_fallback = true
 end
 
 -- Get the base LSP configuration (on_attach and capabilities)
@@ -93,11 +85,26 @@ end
 
 
 -- ========== Diagnostic Icons Configuration ==========
-local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
-for type, icon in pairs(signs) do
-  local hl = "DiagnosticSign" .. type
-  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
-end
+vim.diagnostic.config({
+  signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = " ",
+      [vim.diagnostic.severity.WARN] = " ",
+      [vim.diagnostic.severity.HINT] = " ",
+      [vim.diagnostic.severity.INFO] = " ",
+    },
+  },
+  virtual_text = true,
+  update_in_insert = false,
+  underline = true,
+  severity_sort = true,
+  float = {
+    border = "rounded",
+    source = "always",
+    header = "",
+    prefix = "",
+  },
+})
 
 -- ========== Mason LSP Setup ==========
 -- Verificar que los módulos necesarios estén disponibles

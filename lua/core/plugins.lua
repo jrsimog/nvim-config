@@ -223,31 +223,47 @@ require("lazy").setup({
 				yaml = { "prettier" },
 				markdown = { "prettier" },
 				php = { "php-cs-fixer" },
-				elixir = { "mix_format" },
-				sql = { "sql_formatter" },
-				heex = { "mix_format" },
-				exs = { "mix_format" },
-				ex = { "mix_format" },
+				elixir = { "mix" },
+				heex = { "mix" },
+				eex = { "mix" },
+				exs = { "mix" },
 			},
-			format_on_save = {
-				timeout_ms = 500,
-				lsp_fallback = true,
+			formatters = {
+				mix = {
+					command = "mix",
+					args = { "format", "-" },
+					stdin = true,
+				},
 			},
+			format_on_save = function(bufnr)
+				-- Desactivar formateo automático si el LSP ya lo está haciendo
+				-- para evitar conflictos (aunque ya lo desactivamos en lsp.lua)
+				return {
+					timeout_ms = 1000,
+					lsp_fallback = true,
+				}
+			end,
 		},
 		config = function(_, opts)
 			require("conform").setup(opts)
-			vim.api.nvim_set_keymap(
-				"n",
-				"<leader>f",
-				"<cmd>Format<CR>",
-				{ noremap = true, silent = true, desc = "Format code" }
-			)
-			vim.api.nvim_set_keymap(
-				"v",
-				"<leader>f",
-				"<cmd>Format<CR>",
-				{ noremap = true, silent = true, desc = "Format selection" }
-			)
+
+			-- Crear comando :Format para compatibilidad
+			vim.api.nvim_create_user_command("Format", function(args)
+				local range = nil
+				if args.count ~= -1 then
+					local end_line = vim.api.nvim_buf_get_lines(0, args.line2 - 1, args.line2, true)[1]
+					range = {
+						start = { args.line1, 0 },
+						["end"] = { args.line2, end_line:len() },
+					}
+				end
+				require("conform").format({ async = true, lsp_fallback = true, range = range })
+			end, { range = true })
+
+			-- Keymaps para formatear
+			vim.keymap.set({ "n", "v" }, "<leader>f", function()
+				require("conform").format({ async = true, lsp_fallback = true })
+			end, { desc = "Format buffer" })
 		end,
 	},
 
