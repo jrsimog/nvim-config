@@ -19,6 +19,46 @@ function M.setup()
         end,
     })
 
+    -- Comando para diagnosticar go-to-definition
+    vim.api.nvim_create_user_command("ElixirTestGotoDefinition", function()
+        local bufnr = vim.api.nvim_get_current_buf()
+        local win = vim.api.nvim_get_current_win()
+        local pos = vim.api.nvim_win_get_cursor(win)
+
+        local params = {
+            textDocument = vim.lsp.util.make_text_document_params(bufnr),
+            position = { line = pos[1] - 1, character = pos[2] }
+        }
+
+        print("🔍 Probando textDocument/definition...")
+        print("Posición: línea " .. params.position.line .. ", columna " .. params.position.character)
+
+        vim.lsp.buf_request(bufnr, "textDocument/definition", params, function(err, result, ctx, config)
+            if err then
+                print("❌ Error: " .. vim.inspect(err))
+                return
+            end
+
+            if not result or vim.tbl_isempty(result) then
+                print("❌ No se encontró definición")
+                print("💡 Verifica que:")
+                print("  1. El cursor está sobre un símbolo válido")
+                print("  2. El proyecto está compilado (ejecuta :MixCompile)")
+                print("  3. ElixirLS ha terminado de indexar")
+                return
+            end
+
+            print("✅ Definición encontrada:")
+            print(vim.inspect(result))
+        end)
+    end, { desc = "Test LSP go-to-definition" })
+
+    -- Comando para probar manualmente go to definition
+    vim.api.nvim_create_user_command("ElixirGotoDefinitionManual", function()
+        print("🔧 Ejecutando vim.lsp.buf.definition() manualmente...")
+        vim.lsp.buf.definition()
+    end, { desc = "Manually call vim.lsp.buf.definition()" })
+
     -- Comando para verificar el estado de ElixirLS
     vim.api.nvim_create_user_command("ElixirStatus", function()
         print("🔍 Estado de ElixirLS:")
@@ -115,6 +155,10 @@ function M.setup()
             -- Phoenix commands
             vim.keymap.set("n", "<leader>ps", ":PhoenixServer<CR>", { buffer = bufnr, desc = "Start Phoenix server" })
             vim.keymap.set("n", "<leader>pi", ":IexStart<CR>", { buffer = bufnr, desc = "Start IEx" })
+
+            -- Atajos LSP adicionales para diagnóstico
+            vim.keymap.set("n", "<leader>gd", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to Definition (alternative)" })
+            vim.keymap.set("n", "<leader>gt", ":ElixirTestGotoDefinition<CR>", { buffer = bufnr, desc = "Test Go to Definition" })
         end,
     })
 end

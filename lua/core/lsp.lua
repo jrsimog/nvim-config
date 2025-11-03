@@ -18,12 +18,25 @@ end
 -- ========== LSP on_attach Configuration ==========
 -- Esta función se ejecuta cuando un LSP se adjunta a un buffer
 local on_attach = function(client, bufnr)
+  -- Debug: confirmar que on_attach se ejecuta
+  print("🔧 LSP on_attach: " .. client.name .. " en buffer " .. bufnr)
+
   -- Habilitar autocompletado con <C-x><C-o>
   vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
 
   -- Atajos de teclado para funciones LSP
+  -- Usar vim.keymap.del primero para asegurarnos de sobrescribir cualquier mapeo previo
+  pcall(vim.keymap.del, "n", "gd", { buffer = bufnr })
+  pcall(vim.keymap.del, "n", "gD", { buffer = bufnr })
+  pcall(vim.keymap.del, "n", "gr", { buffer = bufnr })
+  pcall(vim.keymap.del, "n", "K", { buffer = bufnr })
+
   vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { noremap = true, silent = true, buffer = bufnr, desc = "Go to Declaration" })
   vim.keymap.set("n", "gd", vim.lsp.buf.definition, { noremap = true, silent = true, buffer = bufnr, desc = "Go to Definition" })
+  vim.keymap.set("n", "gr", vim.lsp.buf.references, { noremap = true, silent = true, buffer = bufnr, desc = "Go to References" })
+
+  -- Debug: confirmar que el keymap se estableció
+  print("✅ Keymap 'gd' configurado para buffer " .. bufnr)
   vim.keymap.set("n", "K", vim.lsp.buf.hover, { noremap = true, silent = true, buffer = bufnr, desc = "Hover Documentation" })
   vim.keymap.set("n", "gi", vim.lsp.buf.implementation, { noremap = true, silent = true, buffer = bufnr, desc = "Go to Implementation" })
   vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, { noremap = true, silent = true, buffer = bufnr, desc = "Signature Help" })
@@ -63,6 +76,103 @@ _G.get_lsp_config = function()
     capabilities = capabilities,
   }
 end
+
+-- ========== Custom LSP Handler for Definition ==========
+-- Override the default handler to add logging and custom behavior
+vim.lsp.handlers["textDocument/definition"] = function(err, result, ctx, config)
+  print("🎯 Handler textDocument/definition ejecutado")
+
+  if err then
+    print("❌ Error en textDocument/definition: " .. vim.inspect(err))
+    vim.notify("Error en go to definition: " .. tostring(err), vim.log.levels.ERROR)
+    return
+  end
+
+  if not result or vim.tbl_isempty(result) then
+    print("⚠️  textDocument/definition: Result es nil o vacío")
+    vim.notify("No se encontró definición en ElixirLS", vim.log.levels.WARN)
+    return
+  end
+
+  print("✅ textDocument/definition: Definición encontrada!")
+  print("   Tipo de resultado: " .. type(result))
+  print("   Contenido: " .. vim.inspect(result))
+
+  -- Si result es una tabla con un solo elemento, extraerlo
+  local location = result
+  if type(result) == "table" and #result == 1 then
+    location = result[1]
+  end
+
+  -- Usar vim.lsp.util.jump_to_location para navegar
+  if location.uri or location.targetUri then
+    vim.lsp.util.jump_to_location(location, "utf-8")
+    vim.notify("✅ Navegado a la definición", vim.log.levels.INFO)
+  else
+    vim.notify("⚠️  Definición encontrada pero formato inesperado", vim.log.levels.WARN)
+  end
+end
+
+-- ========== Additional LspAttach Autocommand ==========
+-- Este autocomando se ejecuta después de on_attach para asegurar que gd funcione
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(args)
+    local bufnr = args.buf
+
+    -- Pequeño delay para asegurar que se ejecute después de otros plugins
+    vim.defer_fn(function()
+      -- Eliminar cualquier mapeo previo de gd
+      pcall(vim.keymap.del, "n", "gd", { buffer = bufnr })
+      pcall(vim.keymap.del, "n", "gD", { buffer = bufnr })
+      pcall(vim.keymap.del, "n", "gr", { buffer = bufnr })
+      pcall(vim.keymap.del, "n", "K", { buffer = bufnr })
+
+      -- Custom go to definition que usa directamente el request
+      local function custom_goto_definition()
+        print("🔍 Custom goto definition ejecutándose...")
+
+        local params = vim.lsp.util.make_position_params()
+        print("📍 Posición: línea " .. params.position.line .. ", col " .. params.position.character)
+
+        vim.lsp.buf_request(0, "textDocument/definition", params, function(err, result, ctx, config)
+          print("📥 Respuesta recibida del LSP")
+
+          if err then
+            print("❌ Error: " .. vim.inspect(err))
+            vim.notify("Error al buscar definición", vim.log.levels.ERROR)
+            return
+          end
+
+          if not result or vim.tbl_isempty(result) then
+            print("⚠️  No hay resultado del LSP")
+            vim.notify("No se encontró definición", vim.log.levels.WARN)
+            return
+          end
+
+          print("✅ Definición encontrada!")
+          print("   Resultado: " .. vim.inspect(result))
+
+          -- Navegar a la ubicación
+          local location = result[1] or result
+          if location.uri or location.targetUri then
+            vim.lsp.util.jump_to_location(location, "utf-8")
+            vim.notify("✅ Navegado a definición", vim.log.levels.INFO)
+          else
+            print("⚠️  Formato de ubicación inesperado")
+          end
+        end)
+      end
+
+      -- Re-establecer los keymaps LSP con máxima prioridad
+      vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { noremap = true, silent = false, buffer = bufnr, desc = "Go to Declaration" })
+      vim.keymap.set("n", "gd", custom_goto_definition, { noremap = true, silent = false, buffer = bufnr, desc = "Go to Definition" })
+      vim.keymap.set("n", "gr", vim.lsp.buf.references, { noremap = true, silent = false, buffer = bufnr, desc = "Go to References" })
+      vim.keymap.set("n", "K", vim.lsp.buf.hover, { noremap = true, silent = false, buffer = bufnr, desc = "Hover Documentation" })
+
+      print("🔄 Keymaps LSP re-aplicados en buffer " .. bufnr)
+    end, 150)
+  end,
+})
 
 -- ========== Diagnostic Icons Configuration ==========
 local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
@@ -191,9 +301,24 @@ local server_configs = {
 
   -- Elixir (ElixirLS)
   elixirls = {
-    cmd = {
-      vim.fn.stdpath("data") .. "/mason/packages/elixir-ls/language_server.sh"
-    },
+    cmd = (function()
+      local home = vim.fn.expand("~")
+      local els_path = vim.fn.stdpath("data") .. "/mason/packages/elixir-ls/language_server.sh"
+
+      -- Construir el PATH con asdf shims para que ElixirLS encuentre Elixir y Erlang
+      local asdf_shims = home .. "/.asdf/shims"
+      local asdf_bin = home .. "/.asdf/bin"
+
+      return {
+        "bash", "-c",
+        string.format(
+          "export PATH=%s:%s:$PATH && %s",
+          asdf_shims,
+          asdf_bin,
+          els_path
+        )
+      }
+    end)(),
     root_dir = function(fname)
       local util = require("lspconfig.util")
       -- Buscar mix.exs en el directorio actual o superior
@@ -202,7 +327,7 @@ local server_configs = {
     settings = {
       elixirLS = {
         dialyzerEnabled = false,
-        fetchDeps = false,
+        fetchDeps = true, -- Permite navegar a definiciones en dependencias
         suggestSpecs = true,
         signatureAfterComplete = true,
         mixEnv = "dev",

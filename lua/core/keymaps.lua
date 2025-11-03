@@ -583,9 +583,11 @@ map("n", "<leader>par", ":R<CR>", opts)
 -- ========================================
 
 -- LSP básico
-map("n", "gd", ":lua vim.lsp.buf.definition()<CR>", opts)
-map("n", "gr", ":lua vim.lsp.buf.references()<CR>", opts)
-map("n", "K", ":lua vim.lsp.buf.hover()<CR>", opts)
+-- NOTA: Los keymaps de LSP (gd, gr, K, etc.) se configuran automáticamente
+-- en lua/core/lsp.lua cuando el LSP se adjunta a un buffer.
+-- No los definimos aquí para evitar conflictos con la configuración específica del LSP.
+
+-- Mapeos LSP adicionales (no definidos en lsp.lua)
 map("n", "<leader>rn", ":lua vim.lsp.buf.rename()<CR>", opts)
 map("n", "<leader>ca", ":lua vim.lsp.buf.code_action()<CR>", opts)
 
