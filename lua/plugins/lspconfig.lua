@@ -27,8 +27,11 @@ return {
         opts.desc = "Go to declaration"
         vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
 
-        opts.desc = "Show LSP definitions"
+        opts.desc = "Go to definition"
         vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+
+        opts.desc = "Go to definition (leader)"
+        vim.keymap.set("n", "<leader>gd", vim.lsp.buf.definition, opts)
 
         opts.desc = "Show LSP implementations"
         vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)

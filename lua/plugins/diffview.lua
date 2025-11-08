@@ -3,10 +3,10 @@ return {
   dependencies = { "nvim-lua/plenary.nvim" },
   cmd = { "DiffviewOpen", "DiffviewClose", "DiffviewToggleFiles", "DiffviewFocusFiles", "DiffviewFileHistory" },
   keys = {
-    { "<leader>gd", "<cmd>DiffviewOpen<cr>", desc = "Open git diff" },
-    { "<leader>gc", "<cmd>DiffviewClose<cr>", desc = "Close git diff" },
-    { "<leader>gh", "<cmd>DiffviewFileHistory %<cr>", desc = "File history" },
-    { "<leader>gH", "<cmd>DiffviewFileHistory<cr>", desc = "Branch history" },
+    { "<leader>dv", "<cmd>DiffviewOpen<cr>", desc = "Open git diff" },
+    { "<leader>dc", "<cmd>DiffviewClose<cr>", desc = "Close git diff" },
+    { "<leader>dh", "<cmd>DiffviewFileHistory %<cr>", desc = "File history" },
+    { "<leader>dH", "<cmd>DiffviewFileHistory<cr>", desc = "Branch history" },
   },
   config = function()
     require("diffview").setup({

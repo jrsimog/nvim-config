@@ -139,11 +139,13 @@ Los siguientes formateadores se instalan automáticamente vía Mason:
 
 ### Navegación LSP
 - `gd` - Go to definition
+- `<leader>gd` - Go to definition (alternative)
 - `gr` - Show references
 - `K` - Hover documentation
 - `<leader>ca` - Code actions
 - `<leader>rn` - Rename symbol
-- `<leader>e` - Show diagnostics
+- `<leader>d` - Show line diagnostics
+- `<leader>D` - Show buffer diagnostics
 - `[d` - Previous diagnostic
 - `]d` - Next diagnostic
 
@@ -182,10 +184,10 @@ Los siguientes formateadores se instalan automáticamente vía Mason:
 
 ### Git
 - `<leader>gg` - Abrir LazyGit
-- `<leader>gd` - Abrir git diff
-- `<leader>gc` - Cerrar git diff
-- `<leader>gh` - Ver historial del archivo actual
-- `<leader>gH` - Ver historial de la rama
+- `<leader>dv` - Abrir git diff (DiffView)
+- `<leader>dc` - Cerrar git diff (DiffView)
+- `<leader>dh` - Ver historial del archivo actual
+- `<leader>dH` - Ver historial de la rama
 - `]c` - Siguiente cambio (hunk)
 - `[c` - Cambio anterior (hunk)
 - `<leader>hp` - Preview hunk
