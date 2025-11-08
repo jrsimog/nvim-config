@@ -30,51 +30,46 @@ keymap.set("n", "<leader>gp", "<cmd>Git push<CR>", { desc = "Git push" })
 
 keymap.set("n", "<leader>gc", function()
   if vim.fn.isdirectory(".git") == 1 then
-    local buf = vim.api.nvim_create_buf(false, true)
-    local width = math.floor(vim.o.columns * 0.6)
-    local height = math.floor(vim.o.lines * 0.4)
-    local win = vim.api.nvim_open_win(buf, true, {
-      relative = "editor",
-      width = width,
-      height = height,
-      col = math.floor((vim.o.columns - width) / 2),
-      row = math.floor((vim.o.lines - height) / 2),
-      style = "minimal",
-      border = "rounded",
-      title = " Git Commit Message ",
-      title_pos = "center",
-    })
+    local temp_file = vim.fn.tempname()
 
-    vim.api.nvim_buf_set_lines(buf, 0, -1, false, {
-      "",
-      "",
-      "",
-    })
+    vim.cmd("edit COMMIT_EDITMSG")
+    vim.bo.buftype = "acwrite"
+    vim.bo.filetype = "gitcommit"
 
-    vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", "", {
+    local committed = false
+
+    vim.api.nvim_create_autocmd("BufWriteCmd", {
+      buffer = 0,
       callback = function()
-        local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+        local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
         local message = table.concat(lines, "\n"):gsub("^%s*(.-)%s*$", "%1")
 
-        vim.api.nvim_win_close(win, true)
-
         if message ~= "" then
-          vim.fn.system(string.format("git commit -m %s", vim.fn.shellescape(message)))
+          vim.fn.writefile(lines, temp_file)
+          local result = vim.fn.system("git commit -F " .. vim.fn.shellescape(temp_file))
+
           if vim.v.shell_error == 0 then
             vim.notify("Commit created successfully", vim.log.levels.INFO)
+            committed = true
+            vim.bo.modified = false
           else
-            vim.notify("Commit failed", vim.log.levels.ERROR)
+            vim.notify("Commit failed: " .. result, vim.log.levels.ERROR)
           end
         else
           vim.notify("Commit cancelled: empty message", vim.log.levels.WARN)
         end
+
+        vim.fn.delete(temp_file)
       end,
     })
 
-    vim.api.nvim_buf_set_keymap(buf, "n", "<Esc>", "", {
+    vim.api.nvim_create_autocmd("BufDelete", {
+      buffer = 0,
       callback = function()
-        vim.api.nvim_win_close(win, true)
-        vim.notify("Commit cancelled", vim.log.levels.WARN)
+        if not committed then
+          vim.notify("Commit cancelled", vim.log.levels.WARN)
+        end
+        vim.fn.delete(temp_file)
       end,
     })
 
