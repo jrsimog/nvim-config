@@ -14,6 +14,9 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
+	-- Import plugins from lua/plugins/ directory
+	{ import = "plugins" },
+
 	-- Mason: Must be loaded BEFORE lspconfig
 	{
 		"williamboman/mason.nvim",
@@ -428,6 +431,7 @@ require("lazy").setup({
 	-- Alpha (Dashboard)
 	{
 		"goolord/alpha-nvim",
+		enabled = false,
 		event = "VimEnter",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
 		config = function()

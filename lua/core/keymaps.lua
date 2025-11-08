@@ -867,6 +867,35 @@ map("n", "<leader>rp", ":Rest run last<CR>", opts)
 map("n", "<leader>re", ":Rest run<CR>", opts)
 
 -- ========================================
+-- DATABASE (vim-dadbod)
+-- ========================================
+
+-- Database UI
+map("n", "<leader>db", ":DBUIToggle<CR>", { noremap = true, silent = true, desc = "Toggle Database UI" })
+map("n", "<leader>dba", ":DBUIAddConnection<CR>", { noremap = true, silent = true, desc = "Add Database Connection" })
+map("n", "<leader>dbf", ":DBUIFindBuffer<CR>", { noremap = true, silent = true, desc = "Find Database Buffer" })
+
+-- SQL Project Management (Google Drive - Multi-environment)
+map("n", "<leader>sqh", ":SqlHome<CR>", { noremap = true, silent = true, desc = "SQL: Open home directory" })
+map("n", "<leader>sqi", ":SqlInfo<CR>", { noremap = true, silent = true, desc = "SQL: Show project info" })
+map("n", "<leader>sqn", ":SqlNewProject<CR>", { noremap = true, silent = true, desc = "SQL: Create new project" })
+map("n", "<leader>sqo", ":SqlOpenProject<CR>", { noremap = true, silent = true, desc = "SQL: Open project" })
+map("n", "<leader>sqf", ":SqlNewFile<CR>", { noremap = true, silent = true, desc = "SQL: New SQL file" })
+map("n", "<leader>sql", ":SqlListFiles<CR>", { noremap = true, silent = true, desc = "SQL: List SQL files" })
+map("n", "<leader>sqc", ":SqlConnections<CR>", { noremap = true, silent = true, desc = "SQL: Edit connections" })
+map("n", "<leader>sqe", ":SqlSwitchEnv<CR>", { noremap = true, silent = true, desc = "SQL: Switch environment (local/qa/prod)" })
+
+-- Execute SQL query (when in SQL buffer)
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = { "sql", "mysql", "plsql" },
+	callback = function()
+		vim.keymap.set("v", "<leader>dbe", "<Plug>(DBUI_ExecuteQuery)", { buffer = true, desc = "Execute SQL selection" })
+		vim.keymap.set("n", "<leader>dbe", "<Plug>(DBUI_ExecuteQuery)", { buffer = true, desc = "Execute SQL query" })
+		vim.keymap.set("n", "<leader>dbS", "<Plug>(DBUI_SaveQuery)", { buffer = true, desc = "Save SQL query" })
+	end,
+})
+
+-- ========================================
 -- COMANDOS DE USUARIO
 -- ========================================
 
@@ -967,6 +996,20 @@ end, {
 -- <leader>fee    → ESLint fix
 -- <leader>rcc    → Crear componente React
 -- <leader>npd    → npm run dev
+--
+-- DATABASE (Multi-ambiente: local/qa/prod):
+-- <leader>db     → Toggle Database UI
+-- <leader>dba    → Agregar conexión
+-- <leader>dbf    → Buscar buffer de DB
+-- <leader>dbe    → Ejecutar query SQL (en buffer SQL)
+-- <leader>dbS    → Guardar query SQL (en buffer SQL)
+-- <leader>sqh    → Abrir directorio SQL (Google Drive)
+-- <leader>sqn    → Crear nuevo proyecto SQL
+-- <leader>sqo    → Abrir proyecto SQL existente
+-- <leader>sqf    → Crear nuevo archivo .sql
+-- <leader>sql    → Listar archivos .sql del proyecto
+-- <leader>sqc    → Editar conexiones de BD
+-- <leader>sqe    → Cambiar ambiente (local/qa/prod)
 --
 -- ========================================
 

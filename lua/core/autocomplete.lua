@@ -156,6 +156,15 @@ cmp.setup.filetype({ "elixir", "eelixir", "heex" }, {
 	}),
 })
 
+-- Configuración específica para SQL (vim-dadbod)
+cmp.setup.filetype({ "sql", "mysql", "plsql" }, {
+	sources = cmp.config.sources({
+		{ name = "vim-dadbod-completion", priority = 1000 },
+		{ name = "buffer", priority = 500 },
+		{ name = "path", priority = 250 },
+	}),
+})
+
 -- Configuración específica para archivos git
 cmp.setup.filetype("gitcommit", {
 	sources = cmp.config.sources({

@@ -141,6 +141,10 @@ function M.setup()
         vim.cmd("terminal iex -S mix")
     end, { desc = "Start IEx session" })
 
+    vim.api.nvim_create_user_command("IexStartServ", function()
+        vim.cmd("terminal iex -S mix phx.server")
+    end, { desc = "Start IEx with Phoenix server" })
+
     -- Función para navegar a módulo desde alias
     local function goto_elixir_module()
         local line = vim.api.nvim_get_current_line()
