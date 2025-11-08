@@ -1,150 +1,440 @@
-# ai-git.nvim
+# Configuración Minimalista de Neovim
 
-**Locally-Powered Git Commit Messages, Right in Neovim.**
+## Resumen de la Migración
 
-[![Neovim](https://img.shields.io/badge/Neovim-0.8+-blue?logo=neovim)](https://neovim.io/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+**Respaldo completo creado:**
+- Archivo: `~/.config/nvim-backup-20251108-041050.tar.gz` (91MB)
 
----
-
-### ✨ Introduction
-
-**`ai-git.nvim`** is a Neovim plugin designed to enhance your Git workflow. It provides a dedicated UI to generate concise, relevant, and Conventional Commit style messages for your **commits**, directly within your editor. Review staged changes, see their diffs, and edit the generated message before committing.
-
-### 🚀 Key Features
-
-- **Locally Generated Commit Messages:** Analyzes staged changes (from `git diff --staged`) to propose Conventional Commit messages (e.g., `feat:`, `fix:`).
-- **Interactive Commit UI:** Provides a dedicated UI to view staged files, their diffs, and edit the generated commit message before committing.
-- **Seamless Neovim Integration:** Works directly within your Neovim session.
-- **Vim-Fugitive Integration:** Uses `vim-fugitive` for the commit action.
-- **Contextual Merge Messages:** (Merge message generation is currently disabled as it relied on the previous AI backend).
-- **Improved Consistency:** Fosters a clearer and more readable Git history, ideal for teams and long-term projects.
-
-### 💡 How It Works (Plugin Usage)
-
-The primary way to use `ai-git.nvim` for commit messages is via its interactive UI:
-
-1.  **Stage your changes in Git:**
-    ```bash
-    git add .
-    ```
-2.  **Open the Commit UI:** Run the command `:GeminiCommitMsg` (or press `<leader>gc`).
-    _(Note: The command name `GeminiCommitMsg` is a remnant of previous versions; it now triggers the local commit message UI)._
-3.  **The plugin interface will open, showing three main panels:**
-    - **Top-Right (DBB-1): Staged Files List:** Lists all files you've staged for the commit.
-      - Navigate this list and press `<CR>` (Enter) on a file to view its diff in the left panel.
-    - **Left (DBA): Diff View:** Shows the diff for the file selected from the Staged Files List.
-    - **Bottom-Right (DBB-2): Commit Message Area:**
-      - An initial commit message is automatically generated based on your staged changes.
-      - You can edit this message as needed.
-      - To commit, press `<leader>c` while your cursor is in this panel. This will use `vim-fugitive` to perform the commit with the message content.
-
-### ⚙️ Installation
-
-#### Requirements:
-
-- **Neovim:** Version 0.8 or higher (tested with 0.8, UI features might benefit from 0.9+ but not strictly required by current implementation).
-- **Git:** Essential for version control.
-- **`tpope/vim-fugitive`:** Required for the commit action.
-- **`lewis6991/gitsigns.nvim`:** Recommended for a better Git experience within Neovim (provides sign column, blame, etc.).
-- **`sindrets/diffview.nvim`:** Recommended for an enhanced diff viewing experience (the plugin uses a basic diff view in one of its panels).
-
-##### Installation with `lazy.nvim`:
-
-Add the plugin to your `lazy.nvim` configuration:
-
-```lua
--- In your lazy.nvim plugin configuration:
-{
-    "jrsimog/ai-git.nvim", -- Ensure this is the correct GitHub path
-    dependencies = {
-        "tpope/vim-fugitive",
-        "lewis6991/gitsigns.nvim", -- Recommended
-        "sindrets/diffview.nvim", -- Recommended for enhanced diff viewing
-    },
-    config = function()
-        require("ai-git").setup() -- Initializes the plugin
-    end,
-    -- Optional: Specify a version tag if available
-    -- version = "*"
-}
+**Nueva estructura creada desde cero:**
+```
+~/.config/nvim/
+├── init.lua                     # Configuración principal con lazy.nvim
+├── lua/core/
+│   ├── options.lua              # Opciones de Neovim
+│   ├── keymaps.lua              # Atajos de teclado
+│   └── autocmds.lua             # Autocomandos
+├── lua/plugins/
+│   ├── mason.lua                # Gestor de LSP servers y formatters
+│   ├── mason-lspconfig.lua      # Auto-instalación de LSP servers
+│   ├── lspconfig.lua            # Configuración de LSP
+│   ├── nvim-cmp.lua             # nvim-cmp para autocompletado
+│   ├── autopairs.lua            # Auto-cierre de paréntesis y comillas
+│   ├── conform.lua              # Formateo automático de código
+│   ├── monokai.lua              # Tema Monokai Pro
+│   ├── lualine.lua              # Barra de estado
+│   ├── bufferline.lua           # Pestañas de buffers
+│   ├── telescope.lua            # Búsqueda fuzzy
+│   ├── treesitter.lua           # Syntax highlighting
+│   ├── gitsigns.lua             # Indicadores de Git y blame
+│   ├── lazygit.lua              # Interfaz de Git
+│   ├── diffview.lua             # Visor de diffs de Git
+│   ├── project.lua              # Gestión de proyectos
+│   ├── other.lua                # Alternancia entre archivos y tests
+│   └── colorizer.lua            # Visualización de colores hex/rgb
+├── CLAUDE.md                    # Instrucciones para el asistente
+└── README.md                    # Esta documentación
 ```
 
-Then, open Neovim and run `:Lazy sync` (or your lazy.nvim update command) to install the plugin.
+## Filosofía de la Configuración
 
-##### Installation with `packer.nvim`:
+Esta configuración fue construida desde cero con un enfoque minimalista:
+- Plugins agregados bajo demanda
+- Configuración modular y mantenible
+- Compatible con Neovim 0.11+
+- Prioriza el rendimiento y la simplicidad
 
-Add the plugin to your Packer configuration:
+## Plugins Instalados
 
-```lua
--- ~/.config/nvim/lua/plugins.lua (or where you configure packer)
+### Core
+- **lazy.nvim**: Gestor de plugins con lazy-loading automático
 
-return require('packer').startup(function(use)
-    -- ... your other plugins
+### LSP y Desarrollo
+- **mason.nvim**: Gestor de LSP servers, linters y formatters
+- **mason-tool-installer.nvim**: Auto-instalación de herramientas
+- **mason-lspconfig.nvim**: Integración entre Mason y nvim-lspconfig
+- **nvim-lspconfig**: Configuración de Language Server Protocol
+- **nvim-cmp**: Motor de autocompletado
+- **cmp-nvim-lsp**: Fuente de autocompletado desde LSP
+- **cmp-buffer**: Autocompletado desde buffers abiertos
+- **cmp-path**: Autocompletado de rutas de archivos
+- **LuaSnip**: Motor de snippets
+- **cmp_luasnip**: Integración de snippets con nvim-cmp
+- **friendly-snippets**: Colección de snippets predefinidos
+- **lspkind.nvim**: Iconos para tipos de autocompletado
 
-    use {
-        "jrsimog/ai-git.nvim",
-        requires = {
-            {"tpope/vim-fugitive"},
-            {"lewis6991/gitsigns.nvim"}, -- Optional but recommended
-            {"sindrets/diffview.nvim"}, -- Optional but recommended
-        },
-        config = function()
-            require("ai-git").setup() -- Initialize the plugin
-        end,
-    }
+### Formateo y Edición
+- **conform.nvim**: Formateo automático al guardar
+- **nvim-autopairs**: Auto-cierre de paréntesis, llaves y comillas
 
-    -- ... your other plugins
-end)
+### Syntax Highlighting
+- **nvim-treesitter**: Parsing y highlighting avanzado
+- **nvim-treesitter-textobjects**: Text objects basados en Treesitter
+
+### Git
+- **gitsigns.nvim**: Indicadores de cambios Git y blame en línea
+- **lazygit.nvim**: Interfaz TUI para Git
+- **diffview.nvim**: Visualizador de diffs y historial de Git
+
+### Productividad
+- **neovim-project**: Gestión y cambio rápido entre proyectos
+- **neovim-session-manager**: Gestión de sesiones (dependencia)
+- **other.nvim**: Alternancia entre archivos fuente y tests
+
+### UI/UX
+- **nvim-colorizer.lua**: Visualización de colores hex, rgb, hsl en código
+- **monokai.nvim**: Tema Monokai Pro con colores personalizados
+- **lualine.nvim**: Barra de estado elegante
+- **bufferline.nvim**: Pestañas de buffers en la parte superior
+- **telescope.nvim**: Búsqueda fuzzy de archivos y contenido
+- **plenary.nvim**: Librería de utilidades (dependencia)
+- **nvim-web-devicons**: Iconos para archivos
+
+## LSP Servers Configurados
+
+Los siguientes Language Servers se instalan automáticamente:
+
+| Lenguaje | Server | Funcionalidad |
+|----------|--------|---------------|
+| Lua | lua_ls | Autocompletado, diagnósticos, definiciones |
+| TypeScript/JavaScript | ts_ls | Análisis de código, refactoring |
+| HTML | html | Validación, autocompletado de etiquetas |
+| CSS | cssls | Propiedades CSS, validación |
+| JSON | jsonls | Schemas, validación |
+| Python | pyright | Type checking, análisis estático |
+| Go | gopls | Herramientas completas de Go |
+| Rust | rust_analyzer | Análisis avanzado de Rust |
+| C/C++ | clangd | Compilación, navegación de código |
+| Elixir | elixirls | Mix tasks, dialyzer |
+| Java | jdtls | Eclipse JDT, Maven, Gradle |
+| Emmet | emmet_ls | Expansión de abreviaturas HTML/CSS |
+| SQL | sqlls | Consultas SQL, validación |
+| PHP | intelephense | Autocompletado PHP, navegación |
+
+## Treesitter Parsers
+
+Auto-instalación de parsers para:
+- elixir, lua, javascript, typescript, php
+- python, html, css, json
+- markdown, markdown_inline, http
+- sql, bash, vim, vimdoc
+
+## Formateadores
+
+Los siguientes formateadores se instalan automáticamente vía Mason:
+
+| Formateador | Lenguajes |
+|-------------|-----------|
+| prettier | JavaScript, TypeScript, HTML, CSS, JSON, YAML, Markdown |
+| stylua | Lua |
+| black | Python |
+| isort | Python (imports) |
+| sql-formatter | SQL |
+
+**Nota sobre PHP:** El formateo de PHP usa el LSP (Intelephense) como fallback ya que php-cs-fixer requiere PHP en el PATH global.
+
+## Keymaps Principales
+
+### Tecla Líder
+**Espacio** (`<Space>`)
+
+### Navegación LSP
+- `gd` - Go to definition
+- `gr` - Show references
+- `K` - Hover documentation
+- `<leader>ca` - Code actions
+- `<leader>rn` - Rename symbol
+- `<leader>e` - Show diagnostics
+- `[d` - Previous diagnostic
+- `]d` - Next diagnostic
+
+### Telescope
+- `<leader>ff` - Find files
+- `<leader>fs` - Live grep (buscar texto)
+- `<leader>fb` - Find buffers
+- `<leader>fh` - Help tags
+
+### Bufferline
+- `<Tab>` - Next buffer
+- `<Shift-Tab>` - Previous buffer
+- `<leader>x` - Close current buffer
+- `<leader>bo` - Close other buffers
+- `<leader>br` - Close buffers to the right
+- `<leader>bl` - Close buffers to the left
+- `<leader>bp` - Pick buffer
+
+### Navegación de Ventanas
+- `<C-h>` - Ventana izquierda
+- `<C-j>` - Ventana inferior
+- `<C-k>` - Ventana superior
+- `<C-l>` - Ventana derecha
+
+### Edición
+- `<leader>w` - Save file
+- `<leader>q` - Quit
+- `J` (visual) - Move line down
+- `K` (visual) - Move line up
+- `<leader>y` - Copy to system clipboard
+- `<leader>p` - Paste from system clipboard
+
+### Formateo
+- `<leader>fm` - Format buffer manualmente
+- Formateo automático al guardar (`:w`)
+
+### Git
+- `<leader>gg` - Abrir LazyGit
+- `<leader>gd` - Abrir git diff
+- `<leader>gc` - Cerrar git diff
+- `<leader>gh` - Ver historial del archivo actual
+- `<leader>gH` - Ver historial de la rama
+- `]c` - Siguiente cambio (hunk)
+- `[c` - Cambio anterior (hunk)
+- `<leader>hp` - Preview hunk
+- `<leader>hb` - Blame completo de la línea
+- `<leader>tb` - Toggle blame en línea
+- `<leader>hs` - Stage hunk
+- `<leader>hr` - Reset hunk
+- `<leader>hS` - Stage buffer completo
+- `<leader>hR` - Reset buffer completo
+- `<leader>hd` - Diff this
+
+### Autocompletado
+- `Ctrl+j` - Siguiente sugerencia
+- `Ctrl+k` - Anterior sugerencia
+- `Ctrl+Space` - Activar autocompletado
+- `Enter` - Confirmar selección
+- `Ctrl+e` - Cerrar menú de autocompletado
+- `Ctrl+b` - Scroll docs arriba
+- `Ctrl+f` - Scroll docs abajo
+
+### Proyectos
+- `<leader>p` - Descubrir y abrir proyectos
+- `<leader>ph` - Ver historial de proyectos
+
+### Alternancia Archivo/Test
+- `<leader>pa` - Alternar entre archivo y test
+- `<leader>pas` - Abrir alternativo en split horizontal
+- `<leader>pav` - Abrir alternativo en split vertical
+- `<leader>pac` - Limpiar cache de alternos
+
+## Opciones de Neovim
+
+### Editor
+- **Numeración**: Absoluta y relativa
+- **Mouse**: Habilitado
+- **Clipboard**: Integrado con sistema
+- **Indentación**: 4 espacios (tabstop, shiftwidth, softtabstop)
+- **Auto-indent**: Habilitado (smartindent, autoindent, smarttab)
+- **Scroll**: Offset de 8 líneas
+- **Fuente**: JetBrainsMono Nerd Font h12
+
+### Archivos
+- **Undo file**: Persistente
+- **Swap**: Deshabilitado
+- **Backup**: Deshabilitado
+
+### UI
+- **Splits**: Derecha y abajo por defecto
+- **Cursorline**: Visible
+- **Sign column**: Siempre visible
+- **Color column**: 80 y 120 caracteres
+
+## Tema Monokai
+
+Colores personalizados:
+- **Git Diff**: Verde para add, rojo para delete, azul para change
+- **Diagnósticos LSP**: Colores vibrantes con negrita
+  - Error: Rojo (#ff6b6b)
+  - Warn: Amarillo (#feca57)
+  - Info: Azul (#48cae4)
+  - Hint: Verde (#06d6a0)
+- **Git Blame**: Gris tenue (#5a5a6e) en itálica
+
+## Características de Git
+
+### Gitsigns
+- **Blame en línea**: Muestra autor, hash, fecha y mensaje al final de cada línea (delay: 300ms)
+- **Indicadores laterales**: Símbolos visuales en la columna de signos
+  - `+` para líneas nuevas (verde)
+  - `~` para líneas modificadas (azul)
+  - `-` para líneas eliminadas (rojo)
+  - `≃` para líneas modificadas y eliminadas
+  - `┆` para archivos sin trackear
+
+### DiffView
+- **Vista lado a lado**: Comparación horizontal de cambios
+- **Navegación por conflictos**: Saltar entre cambios con `[c` y `]c`
+- **Stage/Unstage**: Gestionar cambios desde la interfaz
+- **Historial**: Ver commits y cambios históricos
+
+### LazyGit
+- **Interfaz TUI completa**: Gestión visual de Git
+- **Gestión de commits**: Crear, editar, revertir commits
+- **Branches**: Crear, cambiar, mergear ramas
+- **Requiere**: Instalar `lazygit` en el sistema (`sudo apt install lazygit`)
+
+## Primer Uso
+
+Al abrir Neovim por primera vez:
+
+1. `lazy.nvim` se instala automáticamente
+2. Todos los plugins se descargan
+3. Los LSP servers se instalan vía Mason
+4. Los parsers de Treesitter se compilan
+5. El tema Monokai se activa
+
+Simplemente ejecuta:
+```bash
+nvim
 ```
 
-Then, open Neovim and run `:PackerSync` (or `:PackerInstall`).
+Espera a que termine la instalación y reinicia Neovim.
 
-##### Installation with `vim-plug`:
+## Comandos Útiles
 
-Add the plugin to your `init.vim` (or `~/.vimrc`) file:
+### lazy.nvim
+- `:Lazy` - Abrir interfaz de lazy.nvim
+- `:Lazy sync` - Instalar/actualizar/limpiar plugins
+- `:Lazy clean` - Eliminar plugins no utilizados
+- `:Lazy update` - Actualizar todos los plugins
 
-```vim
-" ~/.vimrc or ~/.config/nvim/init.vim
+### Mason
+- `:Mason` - Abrir interfaz de Mason
+- `:MasonInstall <server>` - Instalar un LSP server
+- `:MasonUninstall <server>` - Desinstalar un LSP server
+- `:MasonUpdate` - Actualizar todos los servers
 
-call plug#begin()
+### LSP
+- `:LspInfo` - Información de LSP activos
+- `:LspRestart` - Reiniciar LSP del buffer actual
 
-" ... your other plugins
+### Treesitter
+- `:TSUpdate` - Actualizar parsers
+- `:TSInstall <lang>` - Instalar parser de un lenguaje
 
-Plug 'tpope/vim-fugitive' " Dependency
-Plug 'lewis6991/gitsigns.nvim' " Recommended
-Plug 'sindrets/diffview.nvim' " Recommended
-Plug 'jrsimog/ai-git.nvim'
+### Git
+- `:DiffviewOpen` - Ver cambios no commiteados
+- `:DiffviewOpen HEAD~1` - Comparar con commit anterior
+- `:DiffviewFileHistory` - Ver historial completo de la rama
+- `:DiffviewFileHistory %` - Ver historial del archivo actual
+- `:DiffviewClose` - Cerrar DiffView
+- `:LazyGit` - Abrir interfaz de LazyGit
 
-" ... your other plugins
+### Formateo
+- `:ConformInfo` - Ver información de formateadores disponibles
 
-call plug#end()
+## Fuente de Terminal
 
-" Configuration for ai-git.nvim (needs to be in Lua)
-lua << EOF
-require("ai-git").setup() -- Initialize the plugin
-EOF
+La configuración especifica `JetBrainsMono Nerd Font:h12` en Neovim.
+
+Para Gnome Terminal:
+```bash
+gsettings set org.gnome.desktop.interface monospace-font-name 'JetBrainsMono Nerd Font 12'
 ```
 
-Then, open Neovim and run `:PlugInstall`.
+## Respaldo
 
-#### Keymaps
+Tu configuración anterior está respaldada en:
+- Archivo: `~/.config/nvim-backup-20251108-041050.tar.gz`
 
-The plugin automatically sets up the following keymap:
+Para restaurar la configuración anterior:
+```bash
+rm -rf ~/.config/nvim
+tar -xzf ~/.config/nvim-backup-20251108-041050.tar.gz -C ~/.config/
+```
 
-- `<leader>gc`: Triggers the `:GeminiCommitMsg` command, opening the AI Commit Message UI.
-- `<leader>gm`: Triggers `:GeminiMergeMsg`. (Note: Merge message generation is currently non-functional as it relied on a previous AI backend and is pending rework).
+## Solución de Problemas
 
-The command `:GeminiMergeMsg` is also available but its core functionality is currently disabled.
+### LSP no se adjunta a un archivo
+1. Verificar que el LSP server esté instalado: `:Mason`
+2. Verificar que esté activo: `:LspInfo`
+3. Reiniciar el LSP: `:LspRestart`
 
-### 🤝 Contributing
+### Autocompletado no funciona
+1. Verificar que el LSP esté activo: `:LspInfo`
+2. Verificar capabilities de nvim-cmp
+3. Reiniciar Neovim
 
-Contributions are welcome! If you find a bug, have a feature request, or want to improve the codebase, please feel free to open an issue or submit a pull request.
+### Treesitter no resalta sintaxis
+1. Instalar parser manualmente: `:TSInstall <lang>`
+2. Actualizar parsers: `:TSUpdate`
+3. Verificar: `:checkhealth nvim-treesitter`
 
-### 📄 License
+### Fuente no se ve correcta
+1. Verificar que JetBrainsMono Nerd Font esté instalada
+2. Configurar en la terminal (no en Neovim)
+3. Reiniciar terminal
 
-This plugin is licensed under the MIT License.
+### Formateo no funciona
+1. Verificar formateadores instalados: `:ConformInfo`
+2. Verificar que Mason haya instalado las herramientas: `:Mason`
+3. Para PHP: Usa el LSP (Intelephense) automáticamente como fallback
+4. Formatear manualmente: `<leader>fm`
 
-### Hashtags for Search
+### Git plugins no funcionan
+1. Verificar que Git esté instalado: `git --version`
+2. Para LazyGit: Instalar con `sudo apt install lazygit`
+3. Verificar repositorio Git: Debe estar en un directorio con `.git`
 
-#Neovim #Nvim #Git #CommitMessage #ConventionalCommits #GitUI #Productivity #DevTools #Lua #VimPlugin #DeveloperTools #GitWorkflow #LazyNvim #PackerNvim #VimPlug #Fugitive
+## Características Adicionales
+
+### Auto-cierre de Pares (nvim-autopairs)
+- Cierra automáticamente: `()`, `{}`, `[]`, `""`, `''`
+- Integrado con nvim-cmp para autocompletado
+- Detección inteligente de contexto (no cierra en strings o comentarios)
+- Fast wrap con `Alt+e`
+
+### Formateo Automático (conform.nvim)
+- Formatea al guardar automáticamente
+- Usa formateador específico según tipo de archivo
+- Fallback a LSP si no hay formateador disponible
+- Timeout de 500ms por seguridad
+
+### Gestión de Proyectos (neovim-project)
+- Detección automática de proyectos por patrones de archivos
+- Historial persistente de proyectos visitados
+- Cambio rápido de directorio al seleccionar proyecto
+- Integración con Telescope para búsqueda fuzzy
+- Configurado para buscar en: `/var/www/html/*`
+- Detecta marcadores: `.git`, `package.json`, `mix.exs`, `composer.json`, `pom.xml`, `Cargo.toml`, `go.mod`, `pyproject.toml`, etc.
+
+### Alternancia Archivo/Test (other.nvim)
+- Alterna entre archivo fuente y su test correspondiente
+- Crea archivos de test si no existen
+- Soporta múltiples lenguajes y convenciones:
+  - **Elixir**: `lib/module.ex` ↔ `test/module_test.exs`
+  - **PHP**: `app/Class.php` ↔ `tests/ClassTest.php`
+  - **Python**: `src/module.py` ↔ `tests/test_module.py`
+  - **JavaScript**: `lib/module.js` ↔ `test/module.test.js`
+  - **TypeScript**: `src/module.ts` ↔ `tests/module.test.ts`
+  - **React**: `src/Component.tsx` ↔ `tests/Component.test.tsx`
+  - **Java**: `src/Class.java` ↔ `src/test/java/ClassTest.java`
+  - **Rust**: `lib/module.rs` ↔ `tests/module_test.rs`
+
+### Visualización de Colores (nvim-colorizer.lua)
+- Muestra colores inline en el código
+- Formatos soportados:
+  - **Hex**: `#RGB`, `#RRGGBB`, `#RRGGBBAA`, `#AARRGGBB`
+  - **RGB**: `rgb(255, 0, 0)`, `rgba(255, 0, 0, 0.5)`
+  - **HSL**: `hsl(120, 100%, 50%)`, `hsla(120, 100%, 50%, 0.5)`
+  - **Nombres CSS**: `red`, `blue`, `green`, etc.
+  - **Tailwind CSS**: Clases de color de Tailwind
+  - **Sass/SCSS**: Variables de color
+- Modo de visualización: Color de fondo
+- Activado en todos los tipos de archivo
+- Comandos:
+  - `:ColorizerToggle` - Activar/desactivar
+  - `:ColorizerAttachToBuffer` - Activar en buffer actual
+  - `:ColorizerDetachFromBuffer` - Desactivar en buffer actual
+
+## Recursos
+
+- [Documentación de lazy.nvim](https://github.com/folke/lazy.nvim)
+- [Documentación de Mason](https://github.com/williamboman/mason.nvim)
+- [Documentación de nvim-lspconfig](https://github.com/neovim/nvim-lspconfig)
+- [Documentación de Treesitter](https://github.com/nvim-treesitter/nvim-treesitter)
+- [Documentación de Gitsigns](https://github.com/lewis6991/gitsigns.nvim)
+- [Documentación de DiffView](https://github.com/sindrets/diffview.nvim)
+- [Documentación de Conform](https://github.com/stevearc/conform.nvim)
+- [Documentación de Neovim-Project](https://github.com/coffebar/neovim-project)
+- [Documentación de Other.nvim](https://github.com/rgroli/other.nvim)
+- [Documentación de Colorizer](https://github.com/NvChad/nvim-colorizer.lua)
