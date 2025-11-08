@@ -183,7 +183,12 @@ Los siguientes formateadores se instalan automáticamente vía Mason:
 - Formateo automático al guardar (`:w`)
 
 ### Git
-- `<leader>gg` - Abrir LazyGit
+- `<leader>gg` - Ver commits (Telescope)
+- `<leader>gs` - Ver estado de Git (Telescope)
+- `<leader>gc` - Crear commit
+- `<leader>gp` - Git push
+- `<leader>gl` - Git pull
+- `<leader>gu` - Deshacer último commit (si no se ha pusheado)
 - `<leader>dv` - Abrir git diff (DiffView)
 - `<leader>dc` - Cerrar git diff (DiffView)
 - `<leader>dh` - Ver historial del archivo actual
@@ -273,6 +278,7 @@ Colores personalizados:
 - **Gestión de commits**: Crear, editar, revertir commits
 - **Branches**: Crear, cambiar, mergear ramas
 - **Requiere**: Instalar `lazygit` en el sistema (`sudo apt install lazygit`)
+- **Uso**: Abrir con el comando `:LazyGit`
 
 ## Primer Uso
 
@@ -319,7 +325,7 @@ Espera a que termine la instalación y reinicia Neovim.
 - `:DiffviewFileHistory` - Ver historial completo de la rama
 - `:DiffviewFileHistory %` - Ver historial del archivo actual
 - `:DiffviewClose` - Cerrar DiffView
-- `:LazyGit` - Abrir interfaz de LazyGit
+- `:LazyGit` - Abrir interfaz TUI de LazyGit
 
 ### Formateo
 - `:ConformInfo` - Ver información de formateadores disponibles
