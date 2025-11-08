@@ -25,3 +25,140 @@ keymap.set({"n", "v"}, "<leader>d", [["_d]], { desc = "Delete to void register" 
 
 keymap.set("n", "<leader>w", "<cmd>w<CR>", { desc = "Save file" })
 keymap.set("n", "<leader>q", "<cmd>q<CR>", { desc = "Quit" })
+keymap.set("n", "<leader>gl", "<cmd>Git pull<CR>", { desc = "Git pull" })
+keymap.set("n", "<leader>gp", "<cmd>Git push<CR>", { desc = "Git push" })
+
+keymap.set("n", "<leader>gc", function()
+  if vim.fn.isdirectory(".git") == 1 then
+    local buf = vim.api.nvim_create_buf(false, true)
+    local width = math.floor(vim.o.columns * 0.6)
+    local height = math.floor(vim.o.lines * 0.4)
+    local win = vim.api.nvim_open_win(buf, true, {
+      relative = "editor",
+      width = width,
+      height = height,
+      col = math.floor((vim.o.columns - width) / 2),
+      row = math.floor((vim.o.lines - height) / 2),
+      style = "minimal",
+      border = "rounded",
+      title = " Git Commit Message ",
+      title_pos = "center",
+    })
+
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, {
+      "",
+      "",
+      "",
+    })
+
+    vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", "", {
+      callback = function()
+        local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+        local message = table.concat(lines, "\n"):gsub("^%s*(.-)%s*$", "%1")
+
+        vim.api.nvim_win_close(win, true)
+
+        if message ~= "" then
+          vim.fn.system(string.format("git commit -m %s", vim.fn.shellescape(message)))
+          if vim.v.shell_error == 0 then
+            vim.notify("Commit created successfully", vim.log.levels.INFO)
+          else
+            vim.notify("Commit failed", vim.log.levels.ERROR)
+          end
+        else
+          vim.notify("Commit cancelled: empty message", vim.log.levels.WARN)
+        end
+      end,
+    })
+
+    vim.api.nvim_buf_set_keymap(buf, "n", "<Esc>", "", {
+      callback = function()
+        vim.api.nvim_win_close(win, true)
+        vim.notify("Commit cancelled", vim.log.levels.WARN)
+      end,
+    })
+
+    vim.cmd("startinsert")
+  else
+    vim.notify("Not a git repository", vim.log.levels.WARN)
+  end
+end, { desc = "Git commit" })
+
+keymap.set("n", "<leader>gu", function()
+  if vim.fn.isdirectory(".git") == 1 then
+    local pickers = require("telescope.pickers")
+    local finders = require("telescope.finders")
+    local conf = require("telescope.config").values
+    local actions = require("telescope.actions")
+    local action_state = require("telescope.actions.state")
+    local previewers = require("telescope.previewers")
+
+    local unpushed_commits = vim.fn.systemlist("git log @{u}.. --oneline 2>/dev/null")
+    local has_upstream = vim.v.shell_error == 0
+
+    if (has_upstream and #unpushed_commits > 0) or not has_upstream then
+      local commits = has_upstream and unpushed_commits or vim.fn.systemlist("git log --oneline -n 10")
+
+      pickers.new({}, {
+        prompt_title = has_upstream and "Unpushed Commits (Select to Undo)" or "Recent Commits (No upstream - Select to Undo)",
+        finder = finders.new_table({
+          results = commits,
+        }),
+        sorter = conf.generic_sorter({}),
+        previewer = previewers.new_termopen_previewer({
+          get_command = function(entry)
+            local hash = entry.value:match("^(%w+)")
+            return { "git", "show", "--stat", "--pretty=format:%H%n%an <%ae>%n%ad%n%n%s%n%n%b", hash }
+          end,
+        }),
+        attach_mappings = function(prompt_bufnr, map)
+          actions.select_default:replace(function()
+            local selection = action_state.get_selected_entry()
+            actions.close(prompt_bufnr)
+
+            local hash = selection.value:match("^(%w+)")
+
+            vim.ui.input({ prompt = "Undo this commit? (y/N): " }, function(input)
+              if input and input:lower() == "y" then
+                local current_hash = vim.fn.system("git rev-parse HEAD"):gsub("\n", "")
+                if hash == current_hash:sub(1, #hash) then
+                  vim.fn.system("git reset --soft HEAD~1")
+                  if vim.v.shell_error == 0 then
+                    vim.notify("Commit undone, changes kept in staging", vim.log.levels.INFO)
+                  else
+                    vim.notify("Failed to undo commit", vim.log.levels.ERROR)
+                  end
+                else
+                  vim.notify("Can only undo the most recent commit (HEAD)", vim.log.levels.WARN)
+                end
+              else
+                vim.notify("Undo cancelled", vim.log.levels.WARN)
+              end
+            end)
+          end)
+          return true
+        end,
+      }):find()
+    else
+      vim.notify("No unpushed commits to undo", vim.log.levels.WARN)
+    end
+  else
+    vim.notify("Not a git repository", vim.log.levels.WARN)
+  end
+end, { desc = "Undo last commit (if not pushed)" })
+
+keymap.set("n", "<leader>gs", function()
+  if vim.fn.isdirectory(".git") == 1 then
+    vim.cmd("Telescope git_status")
+  else
+    vim.notify("Not a git repository", vim.log.levels.WARN)
+  end
+end, { desc = "Git status (Telescope)" })
+
+keymap.set("n", "<leader>gg", function()
+  if vim.fn.isdirectory(".git") == 1 then
+    vim.cmd("Telescope git_commits")
+  else
+    vim.notify("Not a git repository", vim.log.levels.WARN)
+  end
+end, { desc = "Git commits (Telescope)" })
