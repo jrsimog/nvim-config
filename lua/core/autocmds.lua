@@ -33,3 +33,37 @@ autocmd("FileType", {
   end,
   desc = "Close certain filetypes with q",
 })
+
+autocmd({ "BufEnter", "BufWinEnter" }, {
+  group = general,
+  pattern = "*",
+  callback = function()
+    local bufpath = vim.api.nvim_buf_get_name(0)
+    if bufpath == "" or vim.bo.buftype ~= "" then
+      return
+    end
+
+    local root_patterns = { ".git", "package.json", "Cargo.toml", "go.mod", "pyproject.toml", "mix.exs" }
+    local current_dir = vim.fn.fnamemodify(bufpath, ":p:h")
+
+    local function find_root(path)
+      for _, pattern in ipairs(root_patterns) do
+        local found = vim.fn.finddir(pattern, path .. ";")
+        if found ~= "" then
+          return vim.fn.fnamemodify(found, ":p:h:h")
+        end
+        found = vim.fn.findfile(pattern, path .. ";")
+        if found ~= "" then
+          return vim.fn.fnamemodify(found, ":p:h")
+        end
+      end
+      return nil
+    end
+
+    local root = find_root(current_dir)
+    if root and root ~= vim.fn.getcwd() then
+      vim.cmd("lcd " .. root)
+    end
+  end,
+  desc = "Auto change to project root",
+})

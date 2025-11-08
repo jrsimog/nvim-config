@@ -149,7 +149,7 @@ Los siguientes formateadores se instalan automáticamente vía Mason:
 
 ### Telescope
 - `<leader>ff` - Find files
-- `<leader>fs` - Live grep (buscar texto)
+- `<leader>fg` - Grep text in project (buscar texto case-insensitive)
 - `<leader>fb` - Find buffers
 - `<leader>fh` - Help tags
 
@@ -396,6 +396,7 @@ tar -xzf ~/.config/nvim-backup-20251108-041050.tar.gz -C ~/.config/
 - Integración con Telescope para búsqueda fuzzy
 - Configurado para buscar en: `/var/www/html/*`
 - Detecta marcadores: `.git`, `package.json`, `mix.exs`, `composer.json`, `pom.xml`, `Cargo.toml`, `go.mod`, `pyproject.toml`, etc.
+- **Auto-cambio de directorio**: Al abrir un archivo que pertenece a un proyecto, nvim cambia automáticamente el directorio de trabajo al directorio raíz del proyecto. Esto asegura que comandos como Telescope busquen en el contexto correcto del proyecto.
 
 ### Alternancia Archivo/Test (other.nvim)
 - Alterna entre archivo fuente y su test correspondiente
