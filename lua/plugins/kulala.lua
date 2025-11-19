@@ -28,8 +28,9 @@ return {
       winbar = false,
     })
 
+    local http_dir = "/home/jose/GoogleDrive/GDRIVE_NVIM_RESOURCES"
+
     vim.api.nvim_create_user_command("HttpNew", function(opts)
-      local http_dir = "/home/jose/GoogleDrive/GDRIVE_NVIM_RESOURCES"
       local filename = opts.args ~= "" and opts.args or "request.http"
       if not filename:match("%.http$") then
         filename = filename .. ".http"
@@ -37,6 +38,15 @@ return {
       local filepath = http_dir .. "/" .. filename
       vim.cmd("edit " .. filepath)
     end, { nargs = "?" })
+
+    vim.api.nvim_create_user_command("HttpList", function()
+      require("telescope.builtin").find_files({
+        prompt_title = "HTTP Requests",
+        cwd = http_dir,
+        search_dirs = { http_dir },
+        find_command = { "rg", "--files", "--glob", "*.http" },
+      })
+    end, {})
   end,
   keys = {
     { "<leader>rs", "<cmd>lua require('kulala').run()<cr>", desc = "Send request" },
@@ -48,5 +58,6 @@ return {
     { "<leader>ri", "<cmd>lua require('kulala').inspect()<cr>", desc = "Inspect request" },
     { "<leader>rq", "<cmd>lua require('kulala').close()<cr>", desc = "Close result window" },
     { "<leader>rh", "<cmd>HttpNew<cr>", desc = "Create new HTTP file" },
+    { "<leader>rl", "<cmd>HttpList<cr>", desc = "List HTTP files" },
   },
 }
