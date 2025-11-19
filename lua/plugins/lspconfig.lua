@@ -21,23 +21,44 @@ return {
       callback = function(ev)
         local opts = { buffer = ev.buf, silent = true }
 
+        opts.desc = "Go to definition"
+        vim.keymap.set("n", "gd", function()
+          local word = vim.fn.expand("<cword>")
+          local ok, _ = pcall(require("telescope.builtin").lsp_definitions, { reuse_win = true })
+          if not ok then
+            print("LSP definition not available for: " .. word .. ", searching with grep...")
+            vim.cmd("Telescope grep_string search=" .. word)
+          end
+        end, opts)
+
+        opts.desc = "Go to definition (alternative)"
+        vim.keymap.set("n", "<C-]>", function()
+          local word = vim.fn.expand("<cword>")
+          local ok, _ = pcall(require("telescope.builtin").lsp_definitions, { reuse_win = true })
+          if not ok then
+            print("LSP definition not available for: " .. word .. ", searching with grep...")
+            vim.cmd("Telescope grep_string search=" .. word)
+          end
+        end, opts)
+
         opts.desc = "Show LSP references"
-        vim.keymap.set("n", "gR", vim.lsp.buf.references, opts)
+        vim.keymap.set("n", "gr", function()
+          local word = vim.fn.expand("<cword>")
+          local ok, _ = pcall(require("telescope.builtin").lsp_references)
+          if not ok then
+            print("LSP references not available for: " .. word .. ", searching with grep...")
+            vim.cmd("Telescope grep_string search=" .. word)
+          end
+        end, opts)
 
         opts.desc = "Go to declaration"
         vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
 
-        opts.desc = "Go to definition"
-        vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-
-        opts.desc = "Go to definition (leader)"
-        vim.keymap.set("n", "<leader>gd", vim.lsp.buf.definition, opts)
-
         opts.desc = "Show LSP implementations"
-        vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
+        vim.keymap.set("n", "gi", "<cmd>Telescope lsp_implementations<cr>", opts)
 
         opts.desc = "Show LSP type definitions"
-        vim.keymap.set("n", "gt", vim.lsp.buf.type_definition, opts)
+        vim.keymap.set("n", "gy", "<cmd>Telescope lsp_type_definitions<cr>", opts)
 
         opts.desc = "See available code actions"
         vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
@@ -93,12 +114,15 @@ return {
     })
 
     vim.lsp.config('elixirls', {
+      cmd = { vim.fn.expand("~/.local/bin/elixir-ls") },
       settings = {
         elixirLS = {
           dialyzerEnabled = true,
           fetchDeps = false,
           suggestSpecs = true,
           enableTestLenses = true,
+          signatureAfterComplete = true,
+          autoBuild = true,
         },
       },
     })
@@ -110,7 +134,6 @@ return {
       "cssls",
       "jsonls",
       "pyright",
-      "gopls",
       "rust_analyzer",
       "clangd",
       "elixirls",
