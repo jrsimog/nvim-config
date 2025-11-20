@@ -59,5 +59,6 @@ return {
     { "<leader>rq", "<cmd>lua require('kulala').close()<cr>", desc = "Close result window" },
     { "<leader>rh", "<cmd>HttpNew<cr>", desc = "Create new HTTP file" },
     { "<leader>rl", "<cmd>HttpList<cr>", desc = "List HTTP files" },
+    { "<leader>ra", "<cmd>lua require('kulala').run_all()<cr>", desc = "Run all requests" },
   },
 }
