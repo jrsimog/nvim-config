@@ -49,6 +49,7 @@ return {
     end, {})
   end,
   keys = {
+    { "<leader>ra", "<cmd>lua require('kulala').run_all()<cr>", desc = "Run all requests" },
     { "<leader>rs", "<cmd>lua require('kulala').run()<cr>", desc = "Send request" },
     { "<leader>rt", "<cmd>lua require('kulala').toggle_view()<cr>", desc = "Toggle view" },
     { "<leader>rp", "<cmd>lua require('kulala').jump_prev()<cr>", desc = "Jump to previous request" },

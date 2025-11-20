@@ -118,7 +118,7 @@ return {
       settings = {
         elixirLS = {
           dialyzerEnabled = true,
-          fetchDeps = false,
+          fetchDeps = true,
           suggestSpecs = true,
           enableTestLenses = true,
           signatureAfterComplete = true,

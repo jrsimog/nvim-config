@@ -21,8 +21,11 @@ autocmd("BufReadPost", {
     if mark[1] > 0 and mark[1] <= lcount then
       pcall(vim.api.nvim_win_set_cursor, 0, mark)
     end
+    vim.opt_local.foldmethod = 'manual'
+    vim.opt_local.foldenable = false
+    vim.cmd("normal zR")
   end,
-  desc = "Restore cursor position",
+  desc = "Restore cursor position and disable folding",
 })
 
 autocmd("FileType", {

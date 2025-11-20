@@ -32,3 +32,6 @@ opt.guifont = "JetBrainsMono Nerd Font:h12"
 
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
+
+opt.foldenable = false
+opt.foldmethod = "manual"
