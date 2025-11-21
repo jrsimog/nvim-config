@@ -52,6 +52,7 @@ return {
       { "<leader>sq", "<cmd>DBUIToggle<cr>", desc = "Toggle DB UI" },
       { "<leader>sa", "<cmd>DBUIAddConnection<cr>", desc = "Add DB Connection" },
       { "<leader>sf", "<cmd>DBUIFindBuffer<cr>", desc = "Find DB Buffer" },
+      { "<leader>se", "<Plug>(DBUI_ExecuteQuery)", mode = { "n", "v" }, desc = "Execute Query" },
     },
   },
 }
