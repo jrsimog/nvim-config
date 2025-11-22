@@ -28,7 +28,28 @@ return {
     local keymap = vim.keymap
 
     keymap.set("n", "<leader>ff", "<cmd>Telescope find_files<cr>", { desc = "Find files in cwd" })
-    keymap.set("n", "<leader>fr", "<cmd>Telescope oldfiles<cr>", { desc = "Find recent files" })
+    local function oldfiles_and_cd()
+      require("telescope.builtin").oldfiles({
+        attach_mappings = function(prompt_bufnr, map)
+          local function open_file_and_cd()
+            local action_state = require("telescope.actions.state")
+            local selection = action_state.get_selected_entry()
+            actions.close(prompt_bufnr)
+            if selection then
+              vim.cmd("edit " .. selection.path)
+              vim.cmd("cd " .. vim.fn.fnamemodify(selection.path, ":h"))
+            end
+          end
+
+          map("i", "<cr>", open_file_and_cd)
+          map("n", "<cr>", open_file_and_cd)
+
+          return true
+        end,
+      })
+    end
+
+    keymap.set("n", "<leader>fr", oldfiles_and_cd, { desc = "Find recent files (and cd to dir)" })
     keymap.set("n", "<leader>fg", "<cmd>Telescope live_grep<cr>", { desc = "Grep text in project" })
     keymap.set("n", "<leader>fc", "<cmd>Telescope grep_string<cr>", { desc = "Find string under cursor in cwd" })
     keymap.set("n", "<leader>fl", "<cmd>Telescope current_buffer_fuzzy_find case_mode=ignore_case<cr>", { desc = "Fuzzy find in current buffer" })
