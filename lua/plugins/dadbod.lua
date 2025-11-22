@@ -48,6 +48,30 @@ return {
           })
         end,
       })
+
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "DBQueryExecuted",
+        callback = function()
+          local info = vim.g.db_last_query_info
+          if info and info.query and info.rows then
+            local query_lower = string.lower(info.query)
+            if string.find(query_lower, "^%s*insert") or string.find(query_lower, "^%s*update") then
+              local action_text = ""
+              if string.find(query_lower, "^%s*insert") then
+                action_text = "Insert"
+              elseif string.find(query_lower, "^%s*update") then
+                action_text = "Update"
+              end
+
+              local row_plural = "rows"
+              if info.rows == 1 then
+                row_plural = "row"
+              end
+              vim.notify(action_text .. " " .. info.rows .. " " .. row_plural, vim.log.levels.INFO, { title = "DB" })
+            end
+          end
+        end,
+      })
     end,
     keys = {
       { "<leader>sq", "<cmd>DBUIToggle<cr>", desc = "Toggle DB UI" },
