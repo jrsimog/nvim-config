@@ -37,15 +37,31 @@ return {
       }
     end,
     config = function()
+      vim.g.db_ui_disable_mappings = 0
+      vim.g.db_ui_execute_on_save = 0
+
+      local db_completion_enabled = true
+
+      vim.api.nvim_create_user_command("DBToggleCompletion", function()
+        db_completion_enabled = not db_completion_enabled
+        local status = db_completion_enabled and "enabled" or "disabled"
+        vim.notify("DB completion " .. status, vim.log.levels.INFO, { title = "DB" })
+      end, { desc = "Toggle DB autocompletion" })
+
       vim.api.nvim_create_autocmd("FileType", {
         pattern = { "sql", "mysql", "plsql" },
         callback = function()
-          require("cmp").setup.buffer({
-            sources = {
-              { name = "vim-dadbod-completion" },
-              { name = "buffer" },
-            },
-          })
+          local sources = { { name = "buffer" } }
+          if db_completion_enabled then
+            local has_db_connection = vim.g.db or (vim.b.db and vim.b.db ~= "")
+            if has_db_connection then
+              table.insert(sources, 1, { name = "vim-dadbod-completion" })
+            else
+              vim.notify("No hay conexion al servidor de BD", vim.log.levels.WARN, { title = "DB" })
+            end
+          end
+
+          require("cmp").setup.buffer({ sources = sources })
         end,
       })
 
@@ -78,6 +94,7 @@ return {
       { "<leader>sa", "<cmd>DBUIAddConnection<cr>", desc = "Add DB Connection" },
       { "<leader>sf", "<cmd>DBUIFindBuffer<cr>", desc = "Find DB Buffer" },
       { "<leader>se", "<Plug>(DBUI_ExecuteQuery)", mode = { "n", "v" }, desc = "Execute Query" },
+      { "<leader>st", "<cmd>DBToggleCompletion<cr>", desc = "Toggle DB Completion" },
     },
   },
 }
