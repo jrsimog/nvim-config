@@ -26,6 +26,9 @@ return {
       show_icons = "off",
       additional_curl_options = {},
       winbar = false,
+      ui = {
+        max_response_size = 10485760,
+      },
     })
 
     local http_dir = "/home/jose/GoogleDrive/GDRIVE_NVIM_RESOURCES/HTTP_REQUESTS"
