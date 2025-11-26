@@ -37,6 +37,18 @@ autocmd("FileType", {
   desc = "Close certain filetypes with q",
 })
 
+autocmd("BufWinEnter", {
+  group = general,
+  pattern = "*",
+  callback = function()
+    if vim.bo.buftype == "" then
+      vim.wo.number = true
+      vim.wo.relativenumber = true
+    end
+  end,
+  desc = "Ensure line numbers in normal buffers",
+})
+
 autocmd({ "BufEnter", "BufWinEnter" }, {
   group = general,
   pattern = "*",

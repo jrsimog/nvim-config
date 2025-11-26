@@ -157,3 +157,14 @@ keymap.set("n", "<leader>gg", function()
     vim.notify("Not a git repository", vim.log.levels.WARN)
   end
 end, { desc = "Git commits (Telescope)" })
+
+vim.api.nvim_create_user_command("bda", function()
+  local current = vim.api.nvim_get_current_buf()
+  local buffers = vim.api.nvim_list_bufs()
+
+  for _, buf in ipairs(buffers) do
+    if buf ~= current and vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].buflisted then
+      vim.api.nvim_buf_delete(buf, { force = false })
+    end
+  end
+end, { desc = "Delete all buffers except current" })
