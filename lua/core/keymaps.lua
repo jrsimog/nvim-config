@@ -158,7 +158,7 @@ keymap.set("n", "<leader>gg", function()
   end
 end, { desc = "Git commits (Telescope)" })
 
-vim.api.nvim_create_user_command("bda", function()
+vim.api.nvim_create_user_command("Bda", function()
   local current = vim.api.nvim_get_current_buf()
   local buffers = vim.api.nvim_list_bufs()
 
