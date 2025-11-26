@@ -175,6 +175,22 @@ return {
         end)
       end, { desc = "Export DB results to CSV" })
 
+      local function generate_alias(table_name)
+        local parts = {}
+        for part in string.gmatch(table_name, "[^_]+") do
+          table.insert(parts, part:sub(1, 1))
+        end
+        return table.concat(parts, "")
+      end
+
+      local function is_table_context(line, col)
+        local before_cursor = line:sub(1, col)
+        local lower = before_cursor:lower()
+        return lower:match("from%s+[%w_]*$")
+          or lower:match("join%s+[%w_]*$")
+          or lower:match("update%s+[%w_]*$")
+      end
+
       local db_source = require("cmp").register_source("vim-dadbod-completion-safe", {
         complete = function(self, params, callback)
           local success, result = pcall(function()
@@ -188,6 +204,20 @@ return {
 
           if success then
             db_error_shown = false
+            local line = params.context.cursor_line
+            local col = params.context.cursor.col
+
+            if is_table_context(line, col) then
+              for _, item in ipairs(result or {}) do
+                if item.kind == 7 then
+                  local table_name = item.label
+                  local alias = generate_alias(table_name)
+                  item.insertText = string.format("%s as %s", table_name, alias)
+                  item.label = string.format("%s as %s", table_name, alias)
+                end
+              end
+            end
+
             callback({ items = result or {}, isIncomplete = true })
           else
             if not db_error_shown then
