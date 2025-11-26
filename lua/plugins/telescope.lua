@@ -10,9 +10,24 @@ return {
     local telescope = require("telescope")
     local actions = require("telescope.actions")
 
+    local function project_path_display(_, path)
+      local project_root = require("project_nvim").get_project_root()
+
+      if project_root then
+        local file_path_absolute = vim.fn.fnamemodify(path, ":p")
+        if string.find(file_path_absolute, project_root, 1, true) == 1 then
+          local project_name = vim.fn.fnamemodify(project_root, ":t")
+          local file_path_relative_to_project = string.sub(file_path_absolute, #project_root + 2)
+          return project_name .. "/" .. file_path_relative_to_project
+        end
+      end
+
+      return path
+    end
+
     telescope.setup({
       defaults = {
-        path_display = { "smart" },
+        path_display = project_path_display,
         mappings = {
           i = {
             ["<C-k>"] = actions.move_selection_previous,
