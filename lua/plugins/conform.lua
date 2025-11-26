@@ -51,6 +51,12 @@ return {
           args = { "format", "-" },
           stdin = true,
         },
+        sql_formatter = {
+          command = "sql-formatter",
+          args = { "--config", "/home/jose/.config/nvim/.sql-formatter.json" },
+          stdin = true,
+        },
+
       },
       format_on_save = function(bufnr)
         local bufname = vim.api.nvim_buf_get_name(bufnr)

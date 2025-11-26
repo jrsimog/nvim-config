@@ -22,6 +22,7 @@ return {
         "black",
         "isort",
         "sql-formatter",
+
       },
       auto_update = true,
       run_on_start = true,
