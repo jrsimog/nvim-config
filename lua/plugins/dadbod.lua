@@ -299,10 +299,55 @@ return {
       })
     end,
     keys = {
-      { "<leader>sq", "<cmd>DBUIToggle<cr>", desc = "Toggle DB UI" },
+      {
+        "<leader>sq",
+        function()
+          local dbui_visible = false
+          for _, win in ipairs(vim.api.nvim_list_wins()) do
+            local buf = vim.api.nvim_win_get_buf(win)
+            local bufname = vim.api.nvim_buf_get_name(buf)
+            if bufname:match("dbui") then
+              dbui_visible = true
+              break
+            end
+          end
+
+          if dbui_visible then
+            local buffers_to_delete = {}
+            for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+              if vim.api.nvim_buf_is_valid(buf) then
+                local bufname = vim.api.nvim_buf_get_name(buf)
+                local buftype = vim.bo[buf].filetype
+                local has_db_key = vim.b[buf].dbui_db_key_name ~= nil
+                local is_tmp_query = bufname:match("/tmp/nvim_dbui") or bufname:match("/tmp/nvim%.jose/")
+                local is_dbui_buffer = bufname:match("dbui")
+                local is_dbout = buftype == "dbout"
+
+                if has_db_key or is_tmp_query or is_dbui_buffer or is_dbout then
+                  table.insert(buffers_to_delete, buf)
+                end
+              end
+            end
+
+            vim.cmd("DBUIToggle")
+
+            vim.defer_fn(function()
+              for _, buf in ipairs(buffers_to_delete) do
+                if vim.api.nvim_buf_is_valid(buf) then
+                  vim.api.nvim_buf_delete(buf, { force = true })
+                end
+              end
+            end, 100)
+          else
+            vim.cmd("DBUIToggle")
+          end
+        end,
+        desc = "Toggle DB UI"
+      },
       { "<leader>sa", "<cmd>DBUIAddConnection<cr>", desc = "Add DB Connection" },
       { "<leader>sf", "<cmd>DBUIFindBuffer<cr>", desc = "Find DB Buffer" },
       { "<leader>se", "<Plug>(DBUI_ExecuteQuery)", mode = { "n", "v" }, desc = "Execute Query" },
+      { "<leader>sx", "<cmd>call db#cancel()<cr>", desc = "Cancel Query" },
       { "<leader>sw", "<cmd>DBSaveQuerySQL<cr>", desc = "Save Query" },
       { "<leader>sc", "<cmd>DBExportCSV<cr>", desc = "Export to CSV" },
       { "<leader>st", "<cmd>DBToggleCompletion<cr>", desc = "Toggle DB Completion" },
