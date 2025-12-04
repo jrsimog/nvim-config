@@ -31,7 +31,7 @@ return {
       },
     })
 
-    local http_dir = "/home/jose/GoogleDrive/GDRIVE_NVIM_RESOURCES/HTTP_REQUESTS"
+    local http_dir = "/home/jose/GDRIVE_NVIM_RESOURCES/HTTP_REQUESTS"
 
     vim.api.nvim_create_user_command("HttpNew", function(opts)
       local filename = opts.args ~= "" and opts.args or "request.http"

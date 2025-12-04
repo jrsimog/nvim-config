@@ -16,7 +16,7 @@ return {
       "DBUIFindBuffer",
     },
     init = function()
-      local db_path = "/home/jose/GoogleDrive/GDRIVE_NVIM_RESOURCES/DB"
+      local db_path = "/home/jose/GDRIVE_NVIM_RESOURCES/DB"
 
       vim.g.db_ui_save_location = db_path
       vim.g.db_ui_tmp_query_location = "/tmp/nvim_dbui"
