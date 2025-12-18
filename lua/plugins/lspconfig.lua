@@ -122,8 +122,8 @@ return {
       cmd = { vim.fn.expand("~/.local/bin/elixir-ls") },
       settings = {
         elixirLS = {
-          dialyzerEnabled = true,
-          fetchDeps = true,
+          dialyzerEnabled = false,
+          fetchDeps = false,
           suggestSpecs = true,
           enableTestLenses = true,
           signatureAfterComplete = true,
