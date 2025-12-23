@@ -107,7 +107,11 @@ return {
 					end
 
 					vim.cmd("write " .. vim.fn.fnameescape(full_path))
-					vim.notify("Query guardado en: " .. db_key .. "/" .. filename, vim.log.levels.INFO, { title = "DB" })
+					vim.notify(
+						"Query guardado en: " .. db_key .. "/" .. filename,
+						vim.log.levels.INFO,
+						{ title = "DB" }
+					)
 
 					vim.cmd("DBUIToggle")
 					vim.defer_fn(function()
@@ -238,9 +242,15 @@ return {
 							for _, item in ipairs(result or {}) do
 								if item.kind == 7 then
 									local table_name = item.label
+									item.filterText = table_name
+									item.sortText = " " .. table_name
+
 									local alias = generate_alias(table_name)
-									item.insertText = string.format("%s as %s", table_name, alias)
-									item.label = string.format("%s as %s", table_name, alias)
+									local label_with_alias = string.format("%s as %s", table_name, alias)
+									item.label = label_with_alias
+									item.insertText = label_with_alias
+								else
+									item.sortText = "z" .. item.label
 								end
 							end
 						end
@@ -273,11 +283,26 @@ return {
 				callback = function()
 					db_error_shown = false
 					local sources = { { name = "buffer" } }
+					local cmp = require("cmp")
+
 					if db_completion_enabled then
 						table.insert(sources, 1, { name = "vim-dadbod-completion-safe" })
 					end
 
-					require("cmp").setup.buffer({ sources = sources })
+					cmp.setup.buffer({
+						sources = sources,
+						sorting = {
+							comparators = {
+								cmp.config.compare.offset,
+								cmp.config.compare.exact,
+								cmp.config.compare.score,
+								cmp.config.compare.sort_text,
+								cmp.config.compare.kind,
+								cmp.config.compare.length,
+								cmp.config.compare.order,
+							},
+						},
+					})
 				end,
 			})
 
