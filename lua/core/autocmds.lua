@@ -58,6 +58,28 @@ autocmd({ "BufEnter", "BufWinEnter" }, {
       return
     end
 
+    local filetype = vim.bo.filetype
+    local excluded_filetypes = {
+      "DiffviewFiles",
+      "DiffviewFileHistory",
+      "git",
+      "gitcommit",
+      "fugitive",
+      "NvimTree",
+      "neo-tree",
+      "toggleterm",
+    }
+
+    for _, ft in ipairs(excluded_filetypes) do
+      if filetype == ft then
+        return
+      end
+    end
+
+    if not vim.fn.isdirectory(vim.fn.fnamemodify(bufpath, ":p:h")) == 1 then
+      return
+    end
+
     local root_patterns = { ".git", "package.json", "Cargo.toml", "go.mod", "pyproject.toml", "mix.exs" }
     local current_dir = vim.fn.fnamemodify(bufpath, ":p:h")
 
@@ -76,8 +98,8 @@ autocmd({ "BufEnter", "BufWinEnter" }, {
     end
 
     local root = find_root(current_dir)
-    if root and root ~= vim.fn.getcwd() then
-      vim.cmd("lcd " .. root)
+    if root and root ~= vim.fn.getcwd() and vim.fn.isdirectory(root) == 1 then
+      pcall(vim.cmd, "lcd " .. vim.fn.fnameescape(root))
     end
   end,
   desc = "Auto change to project root",
