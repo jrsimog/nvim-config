@@ -118,20 +118,6 @@ return {
       filetypes = { "html", "css", "javascriptreact", "typescriptreact", "twig" },
     })
 
-    vim.lsp.config('elixirls', {
-      cmd = { vim.fn.expand("~/.local/bin/elixir-ls") },
-      settings = {
-        elixirLS = {
-          dialyzerEnabled = false,
-          fetchDeps = false,
-          suggestSpecs = true,
-          enableTestLenses = true,
-          signatureAfterComplete = true,
-          autoBuild = true,
-        },
-      },
-    })
-
     local servers = {
       "lua_ls",
       "ts_ls",

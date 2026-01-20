@@ -22,6 +22,7 @@ return {
         "black",
         "isort",
         "sql-formatter",
+        "elixirls",
 
       },
       auto_update = true,
