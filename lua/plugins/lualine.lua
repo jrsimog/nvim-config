@@ -12,6 +12,22 @@ return {
     theme.command.a.bg = "#87CEEB"
     theme.command.a.fg = "#000000"
 
+    local function get_project_path()
+      return vim.fn.getcwd()
+    end
+
+    local function get_relative_filepath()
+      local filepath = vim.fn.expand("%:p")
+      local cwd = vim.fn.getcwd()
+      if filepath == "" then
+        return "[No Name]"
+      end
+      if filepath:sub(1, #cwd) == cwd then
+        return filepath:sub(#cwd + 2)
+      end
+      return filepath
+    end
+
     require("lualine").setup({
       options = {
         theme = theme,
@@ -27,8 +43,8 @@ return {
       },
       sections = {
         lualine_a = { "mode" },
-        lualine_b = { "branch" },
-        lualine_c = { { "filename", path = 1 } },
+        lualine_b = {},
+        lualine_c = { get_project_path, "branch", get_relative_filepath },
         lualine_x = { "diagnostics", "encoding", "fileformat", "filetype" },
         lualine_y = { "progress" },
         lualine_z = { "location" },
