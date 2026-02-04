@@ -30,50 +30,19 @@ keymap.set("n", "<leader>gp", "<cmd>Git push<CR>", { desc = "Git push" })
 
 keymap.set("n", "<leader>gc", function()
   if vim.fn.isdirectory(".git") == 1 then
-    local temp_file = vim.fn.tempname()
+    vim.ui.input({ prompt = "Commit message: " }, function(message)
+      if message and message ~= "" then
+        local result = vim.fn.system("git commit -m " .. vim.fn.shellescape(message))
 
-    vim.cmd("edit COMMIT_EDITMSG")
-    vim.bo.buftype = "acwrite"
-    vim.bo.filetype = "gitcommit"
-
-    local committed = false
-
-    vim.api.nvim_create_autocmd("BufWriteCmd", {
-      buffer = 0,
-      callback = function()
-        local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
-        local message = table.concat(lines, "\n"):gsub("^%s*(.-)%s*$", "%1")
-
-        if message ~= "" then
-          vim.fn.writefile(lines, temp_file)
-          local result = vim.fn.system("git commit -F " .. vim.fn.shellescape(temp_file))
-
-          if vim.v.shell_error == 0 then
-            vim.notify("Commit created successfully", vim.log.levels.INFO)
-            committed = true
-            vim.bo.modified = false
-          else
-            vim.notify("Commit failed: " .. result, vim.log.levels.ERROR)
-          end
+        if vim.v.shell_error == 0 then
+          vim.notify("Commit created successfully", vim.log.levels.INFO)
         else
-          vim.notify("Commit cancelled: empty message", vim.log.levels.WARN)
+          vim.notify("Commit failed: " .. result, vim.log.levels.ERROR)
         end
-
-        vim.fn.delete(temp_file)
-      end,
-    })
-
-    vim.api.nvim_create_autocmd("BufDelete", {
-      buffer = 0,
-      callback = function()
-        if not committed then
-          vim.notify("Commit cancelled", vim.log.levels.WARN)
-        end
-        vim.fn.delete(temp_file)
-      end,
-    })
-
-    vim.cmd("startinsert")
+      else
+        vim.notify("Commit cancelled: empty message", vim.log.levels.WARN)
+      end
+    end)
   else
     vim.notify("Not a git repository", vim.log.levels.WARN)
   end
