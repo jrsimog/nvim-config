@@ -4,3 +4,5 @@ debuggers/
 lazy/
 CLAUDE.md
 GEMINI.md
+pack
+.tool-versions
