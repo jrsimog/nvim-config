@@ -6,6 +6,7 @@ return {
     default_view = "body",
     default_env = "dev",
     debug = false,
+    treesitter = false,
     contenttypes = {
       json = {
         ft = "json",
@@ -43,12 +44,43 @@ return {
     end, { nargs = "?" })
 
     vim.api.nvim_create_user_command("HttpList", function()
-      require("telescope.builtin").find_files({
+      local files = vim.fn.glob(http_dir .. "/*.http", false, true)
+      local pickers = require("telescope.pickers")
+      local finders = require("telescope.finders")
+      local conf = require("telescope.config").values
+      local actions = require("telescope.actions")
+      local action_state = require("telescope.actions.state")
+
+      pickers.new({}, {
         prompt_title = "HTTP Requests",
-        cwd = http_dir,
-        search_dirs = { http_dir },
-        find_command = { "rg", "--files", "--glob", "*.http" },
-      })
+        finder = finders.new_table({
+          results = files,
+          entry_maker = function(file)
+            local filename = vim.fn.fnamemodify(file, ":t")
+            local icon, icon_hl = require("nvim-web-devicons").get_icon(filename, "http", { default = true })
+            return {
+              value = file,
+              display = function()
+                local displayer = require("telescope.pickers.entry_display").create({
+                  separator = " ",
+                  items = { { width = 2 }, { remaining = true } },
+                })
+                return displayer({ { icon, icon_hl }, filename })
+              end,
+              ordinal = filename,
+            }
+          end,
+        }),
+        sorter = conf.generic_sorter({}),
+        attach_mappings = function(prompt_bufnr)
+          actions.select_default:replace(function()
+            actions.close(prompt_bufnr)
+            local selection = action_state.get_selected_entry()
+            vim.cmd("edit " .. vim.fn.fnameescape(selection.value))
+          end)
+          return true
+        end,
+      }):find()
     end, {})
   end,
   keys = {
