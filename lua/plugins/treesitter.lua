@@ -35,6 +35,7 @@ return {
       },
       indent = {
         enable = true,
+        disable = { "sql" },
       },
       fold = {
         enable = false,

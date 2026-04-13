@@ -80,6 +80,16 @@ return {
 
     telescope.load_extension("fzf")
 
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "TelescopePreviewerLoaded",
+      callback = function(args)
+        vim.wo.number = true
+        if args.data and args.data.filetype and args.data.filetype ~= "" then
+          pcall(vim.treesitter.start, 0, args.data.filetype)
+        end
+      end,
+    })
+
     local keymap = vim.keymap
 
     keymap.set("n", "<leader>ff", "<cmd>Telescope find_files<cr>", { desc = "Find files in cwd" })
@@ -108,60 +118,7 @@ return {
     keymap.set("n", "<leader>fg", "<cmd>Telescope live_grep<cr>", { desc = "Grep text in project" })
     keymap.set("n", "<leader>fc", "<cmd>Telescope grep_string<cr>", { desc = "Find string under cursor in cwd" })
 
-    local function search_current_buffer()
-      local pickers = require("telescope.pickers")
-      local finders = require("telescope.finders")
-      local conf = require("telescope.config").values
-      local previewers = require("telescope.previewers")
-
-      local bufnr = vim.api.nvim_get_current_buf()
-      local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-      local filepath = vim.api.nvim_buf_get_name(bufnr)
-
-      local entries = {}
-      for lnum, line in ipairs(lines) do
-        table.insert(entries, {
-          lnum = lnum,
-          text = line,
-          display = string.format("%4d: %s", lnum, line),
-        })
-      end
-
-      pickers.new({}, {
-        prompt_title = "Search Current Buffer",
-        finder = finders.new_table({
-          results = entries,
-          entry_maker = function(entry)
-            return {
-              value = entry,
-              display = entry.display,
-              ordinal = entry.text,
-              lnum = entry.lnum,
-              filename = filepath,
-            }
-          end,
-        }),
-        sorter = conf.generic_sorter({}),
-        previewer = previewers.new_buffer_previewer({
-          define_preview = function(self, entry)
-            vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, lines)
-            vim.api.nvim_buf_call(self.state.bufnr, function()
-              vim.fn.cursor(entry.lnum, 1)
-            end)
-          end,
-        }),
-        attach_mappings = function(prompt_bufnr, map)
-          actions.select_default:replace(function()
-            actions.close(prompt_bufnr)
-            local selection = require("telescope.actions.state").get_selected_entry()
-            vim.api.nvim_win_set_cursor(0, { selection.lnum, 0 })
-          end)
-          return true
-        end,
-      }):find()
-    end
-
-    keymap.set("n", "<leader>fl", search_current_buffer, { desc = "Search in current buffer" })
+    keymap.set("n", "<leader>fl", "<cmd>Telescope current_buffer_fuzzy_find<cr>", { desc = "Search in current buffer" })
     keymap.set("n", "<leader>fb", "<cmd>Telescope buffers<cr>", { desc = "Find buffers" })
     keymap.set("n", "<leader>fh", "<cmd>Telescope help_tags<cr>", { desc = "Find help tags" })
     keymap.set("n", "<leader>fs", "<cmd>Telescope lsp_document_symbols<cr>", { desc = "Find symbols in document" })

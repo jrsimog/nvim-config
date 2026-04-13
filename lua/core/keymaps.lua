@@ -139,3 +139,7 @@ vim.api.nvim_create_user_command("Bda", function()
 end, { desc = "Delete all buffers except current" })
 
 keymap.set("n", "<leader>cp", function() local filepath = vim.fn.expand('%:p') vim.fn.setreg('+', filepath) vim.notify('Ruta copiada: ' .. filepath, vim.log.levels.INFO) end, { desc = "Copiar la ruta completa del archivo al portapapeles y notificar." })
+
+keymap.set("n", "<leader>k", function()
+  vim.cmd("edit " .. vim.fn.stdpath("config") .. "/KEYMAPS.md")
+end, { desc = "Abrir guía de keymaps" })
