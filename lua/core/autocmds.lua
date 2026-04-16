@@ -30,6 +30,15 @@ autocmd("BufReadPost", {
 
 autocmd("FileType", {
   group = general,
+  pattern = "http",
+  callback = function()
+    vim.treesitter.start()
+  end,
+  desc = "Force Treesitter highlighting for http filetype",
+})
+
+autocmd("FileType", {
+  group = general,
   pattern = { "help", "man", "qf" },
   callback = function()
     vim.keymap.set("n", "q", "<cmd>close<CR>", { buffer = true, desc = "Close with q" })

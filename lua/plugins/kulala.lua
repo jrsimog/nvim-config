@@ -6,7 +6,7 @@ return {
     default_view = "body",
     default_env = "dev",
     debug = false,
-    treesitter = false,
+    treesitter = true,
     contenttypes = {
       json = {
         ft = "json",
@@ -53,6 +53,7 @@ return {
 
       pickers.new({}, {
         prompt_title = "HTTP Requests",
+        previewer = conf.file_previewer({}),
         finder = finders.new_table({
           results = files,
           entry_maker = function(file)
@@ -60,6 +61,7 @@ return {
             local icon, icon_hl = require("nvim-web-devicons").get_icon(filename, "http", { default = true })
             return {
               value = file,
+              path = file,
               display = function()
                 local displayer = require("telescope.pickers.entry_display").create({
                   separator = " ",
