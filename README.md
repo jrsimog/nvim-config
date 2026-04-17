@@ -1,5 +1,10 @@
 # Configuración Minimalista de Neovim
 
+## Versión
+
+- **Neovim**: v0.12.1
+- **LuaJIT**: 2.1.1774638290
+
 ## Resumen de la Migración
 
 **Respaldo completo creado:**
@@ -281,6 +286,20 @@ Colores personalizados:
 - **Uso**: Abrir con el comando `:LazyGit`
 
 ## Primer Uso
+
+### Dependencias del sistema
+
+Antes de abrir Neovim, instalar las dependencias requeridas:
+
+```bash
+# Requerido para telescope live_grep (<leader>fg)
+sudo apt install ripgrep
+
+# Requerido para LazyGit
+sudo apt install lazygit
+```
+
+### Instalación
 
 Al abrir Neovim por primera vez:
 
