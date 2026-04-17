@@ -350,6 +350,21 @@ rm -rf ~/.config/nvim
 tar -xzf ~/.config/nvim-backup-20251108-041050.tar.gz -C ~/.config/
 ```
 
+## Logs
+
+Los logs están centralizados en `~/GDRIVE_NVIM_RESOURCES/logs/`:
+
+| Archivo | Contenido |
+|---------|-----------|
+| `nvim.log` | Log general de Neovim |
+| `lsp.log` | Errores y warnings de LSP (nivel warn en adelante) |
+
+Configurado en `lua/core/logging.lua`. Para ver los logs en tiempo real:
+```bash
+tail -f ~/GDRIVE_NVIM_RESOURCES/logs/lsp.log
+tail -f ~/GDRIVE_NVIM_RESOURCES/logs/nvim.log
+```
+
 ## Solución de Problemas
 
 ### LSP no se adjunta a un archivo
