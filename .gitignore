@@ -6,3 +6,4 @@ CLAUDE.md
 GEMINI.md
 pack
 .tool-versions
+erl_crash.dump

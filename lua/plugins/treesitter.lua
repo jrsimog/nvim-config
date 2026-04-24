@@ -1,54 +1,42 @@
 return {
   "nvim-treesitter/nvim-treesitter",
-  build = function()
-    require("nvim-treesitter.install").update({ with_sync = true })()
-  end,
+  build = ":TSUpdate",
   lazy = false,
   dependencies = {
     "nvim-treesitter/nvim-treesitter-textobjects",
   },
   config = function()
-    require("nvim-treesitter.config").setup({
-      ensure_installed = {
-        "elixir",
-        "lua",
-        "javascript",
-        "typescript",
-        "php",
-        "python",
-        "html",
-        "css",
-        "json",
-        "markdown",
-        "markdown_inline",
-        "http",
-        "sql",
-        "bash",
-        "vim",
-        "vimdoc",
-      },
-      auto_install = true,
-      sync_install = false,
-      highlight = {
-        enable = true,
-        additional_vim_regex_highlighting = false,
-      },
-      indent = {
-        enable = true,
-        disable = { "sql" },
-      },
-      fold = {
-        enable = false,
-      },
-      incremental_selection = {
-        enable = true,
-        keymaps = {
-          init_selection = "<C-space>",
-          node_incremental = "<C-space>",
-          scope_incremental = false,
-          node_decremental = "<bs>",
-        },
-      },
+    local parsers_to_install = {
+      "elixir", "heex", "eex",
+      "lua",
+      "javascript", "typescript", "tsx",
+      "php",
+      "java",
+      "python",
+      "html", "css",
+      "json",
+      "markdown", "markdown_inline",
+      "http",
+      "sql",
+      "bash",
+      "vim", "vimdoc",
+    }
+
+    local installed = require("nvim-treesitter.config").get_installed()
+    local to_install = vim.tbl_filter(function(lang)
+      return not vim.list_contains(installed, lang)
+    end, parsers_to_install)
+
+    if #to_install > 0 then
+      require("nvim-treesitter.install").install(to_install)
+    end
+
+    -- Enable treesitter highlighting for every filetype that has a parser
+    vim.api.nvim_create_autocmd("FileType", {
+      callback = function()
+        pcall(vim.treesitter.start)
+      end,
     })
+
   end,
 }
